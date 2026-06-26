@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { LayoutDashboard, Swords, Newspaper, Radio, History, LogOut, Zap } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { auth } from '@/lib/firebase';
 
 const adminNav = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
@@ -20,17 +21,34 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, loading, logout } = useAuthContext();
   const pathname = usePathname();
   const router = useRouter();
+  const redirectTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
-    if (!loading && !user && pathname !== '/admin/login') {
-      router.push('/admin/login');
+    if (loading) return;
+
+    if (!user && pathname !== '/admin/login') {
+      const directUser = auth.currentUser;
+      if (directUser) return;
+
+      redirectTimer.current = setTimeout(() => {
+        router.push('/admin/login');
+      }, 3000);
     }
+
+    return () => {
+      if (redirectTimer.current) clearTimeout(redirectTimer.current);
+    };
   }, [user, loading, pathname, router]);
 
   if (pathname === '/admin/login') return <>{children}</>;
 
-  if (loading) return null;
-  if (!user) return null;
+  if (loading || !user) {
+    const directUser = auth.currentUser;
+    if (directUser) {
+      return <>{children}</>;
+    }
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-pizarra">

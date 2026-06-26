@@ -1,7 +1,6 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth, setPersistence, browserLocalPersistence } from 'firebase/auth';
-import { getMessaging } from 'firebase/messaging';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -12,8 +11,29 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
+let app: ReturnType<typeof initializeApp>;
+try {
+  app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
+} catch (e) {
+  console.error('Firebase init error:', e);
+  app = getApps()[0];
+}
+
 export const db = getFirestore(app);
 export const auth = getAuth(app);
-setPersistence(auth, browserLocalPersistence);
-export const messaging = typeof window !== 'undefined' ? getMessaging(app) : null;
+
+setPersistence(auth, browserLocalPersistence).catch((e) =>
+  console.warn('Auth persistence error:', e)
+);
+
+export let messaging: any = null;
+
+if (typeof window !== 'undefined') {
+  import('firebase/messaging')
+    .then(({ getMessaging }) => {
+      messaging = getMessaging(app);
+    })
+    .catch(() => {
+      console.warn('Firebase Messaging no disponible');
+    });
+}
