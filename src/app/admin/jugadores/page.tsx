@@ -32,8 +32,8 @@ export default function AdminJugadoresPage() {
   }, []);
 
   const filtered = jugadores.filter((j) => {
-    const fullName = `${j.nombre} ${j.apellido}`.toLowerCase();
-    if (search && !fullName.includes(search.toLowerCase())) return false;
+    const name = `${j.nombre} ${j.apellido}`.toLowerCase();
+    if (search && !name.includes(search.toLowerCase())) return false;
     if (filterEquipo && j.equipoId !== filterEquipo) return false;
     return true;
   });
@@ -41,29 +41,18 @@ export default function AdminJugadoresPage() {
   const handleDelete = async (id: string) => { if (confirm('¿Eliminar este jugador?')) await deleteDoc(doc(db, 'jugadores', id)); };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div><h1 className="text-xl font-bold text-[var(--text)]">Jugadores</h1><p className="text-sm text-[var(--text-secondary)]">{jugadores.length} jugadores registrados</p></div>
-        <Dialog open={showCreate} onOpenChange={setShowCreate}>
+        <Dialog open={showCreate && !editing} onOpenChange={setShowCreate}>
           <DialogTrigger asChild><Button><Plus className="h-4 w-4 mr-1.5" /> Nuevo Jugador</Button></DialogTrigger>
           <DialogContent className="max-w-lg"><DialogHeader><DialogTitle>Nuevo Jugador</DialogTitle></DialogHeader><JugadorForm onClose={() => setShowCreate(false)} /></DialogContent>
         </Dialog>
       </div>
 
       <div className="flex gap-3">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-muted)]" />
-          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar jugador..." className="pl-9" />
-        </div>
-        <div className="w-48">
-          <Select value={filterEquipo} onValueChange={setFilterEquipo}>
-            <SelectTrigger><SelectValue placeholder="Todos los equipos" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">Todos los equipos</SelectItem>
-              {equipos.map((e) => <SelectItem key={e.id} value={e.id}>{e.nombre}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
+        <div className="relative flex-1 max-w-sm"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-muted)]" /><Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar jugador..." className="pl-9" /></div>
+        <div className="w-48"><Select value={filterEquipo} onValueChange={setFilterEquipo}><SelectTrigger><SelectValue placeholder="Todos los equipos" /></SelectTrigger><SelectContent><SelectItem value="">Todos los equipos</SelectItem>{equipos.map((e) => <SelectItem key={e.id} value={e.id}>{e.nombre}</SelectItem>)}</SelectContent></Select></div>
       </div>
 
       {loading ? <Loader /> : !filtered.length ? <EmptyState title={search || filterEquipo ? 'Sin resultados' : 'Sin jugadores'} /> : (
@@ -81,33 +70,17 @@ export default function AdminJugadoresPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.sort((a, b) => a.numero - b.numero).map((j) => {
+              {filtered.sort((a, b) => (a.numero || 0) - (b.numero || 0)).map((j) => {
                 const equipo = equipos.find((e) => e.id === j.equipoId);
                 return (
                   <tr key={j.id} className="border-b border-[var(--border)] hover:bg-[var(--bg-hover)] transition-colors">
                     <td className="p-3 text-center font-bold text-[var(--accent)] font-mono">{j.numero}</td>
-                    <td className="p-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-[var(--bg-secondary)] flex items-center justify-center text-xs font-bold text-[var(--text-muted)] overflow-hidden">
-                          {j.fotoBase64 ? <img src={j.fotoBase64} alt="" className="w-full h-full object-cover" /> : j.nombre[0]}{j.apellido[0]}
-                        </div>
-                        <span className="font-medium text-[var(--text)]">{j.nombre} {j.apellido}</span>
-                      </div>
-                    </td>
+                    <td className="p-3"><div className="flex items-center gap-3"><div className="w-8 h-8 rounded-full bg-[var(--bg-secondary)] flex items-center justify-center text-xs font-bold text-[var(--text-muted)] overflow-hidden">{j.fotoBase64 ? <img src={j.fotoBase64} alt="" className="w-full h-full object-cover" /> : `${j.nombre[0]}${j.apellido[0]}`}</div><span className="font-medium text-[var(--text)]">{j.nombre} {j.apellido}</span></div></td>
                     <td className="p-3 text-sm text-[var(--text-secondary)]">{j.posicion || '—'}</td>
                     <td className="p-3 text-sm text-[var(--text-secondary)]">{equipo?.nombre || '—'}</td>
                     <td className="p-3 text-center font-bold text-[var(--accent)]">{j.estadisticasTemp?.goles || 0}</td>
-                    <td className="p-3 text-center">
-                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${j.activo ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-400'}`}>
-                        {j.activo ? 'Activo' : 'Inactivo'}
-                      </span>
-                    </td>
-                    <td className="p-3 text-right">
-                      <div className="flex justify-end gap-1">
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditing(j); setShowCreate(true); }}><Pencil className="h-3.5 w-3.5" /></Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400" onClick={() => handleDelete(j.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
-                      </div>
-                    </td>
+                    <td className="p-3 text-center"><span className={`text-xs font-medium px-2 py-0.5 rounded-full ${j.activo ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-400'}`}>{j.activo ? 'Activo' : 'Inactivo'}</span></td>
+                    <td className="p-3 text-right"><div className="flex justify-end gap-1"><Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditing(j); setShowCreate(true); }}><Pencil className="h-3.5 w-3.5" /></Button><Button variant="ghost" size="icon" className="h-8 w-8 text-red-400" onClick={() => handleDelete(j.id)}><Trash2 className="h-3.5 w-3.5" /></Button></div></td>
                   </tr>
                 );
               })}

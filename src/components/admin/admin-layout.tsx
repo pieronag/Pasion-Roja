@@ -4,11 +4,12 @@ import { useAuthContext } from '@/providers/auth-provider';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { ThemeToggle } from '@/components/shared/theme-toggle';
 import {
   LayoutDashboard, Newspaper, Image, Radio, Tv,
   Trophy, Shield, Users, Swords, TrendingUp,
   HeartHandshake, MessageCircle, History, LogOut, Zap,
-  ChevronDown, ChevronRight, CalendarDays, Search,
+  CalendarDays, Search, Sun, Moon,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useRef, useState, useMemo } from 'react';
@@ -107,8 +108,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const currentSection = navSections.find((s) => s.items.some((i) => pathname === i.href));
 
   return (
-    <div className="h-screen flex bg-[var(--bg)] overflow-hidden">
-      {/* Sidebar - always visible, fixed width, internal scroll */}
+    <div className="h-screen w-screen flex bg-[var(--bg)] overflow-hidden">
+      {/* Sidebar */}
       <aside className="w-64 flex-shrink-0 h-full border-r border-[var(--border)] bg-[var(--bg-secondary)] flex flex-col">
         {/* Logo */}
         <div className="flex items-center gap-2.5 px-5 h-16 border-b border-[var(--border)] flex-shrink-0">
@@ -129,13 +130,13 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Buscar sección..."
-              className="w-full h-9 pl-9 pr-3 rounded-lg border border-[var(--border)] bg-[var(--bg-card)] text-sm text-[var(--text)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]"
+              className="w-full h-9 pl-9 pr-3 rounded-lg border border-[var(--border)] bg-[var(--bg-card)] text-sm text-[var(--text)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] outline-none"
             />
           </div>
         </div>
 
-        {/* Nav - scrollable */}
-        <nav className="flex-1 overflow-y-auto px-3 pb-4 scrollbar-thin">
+        {/* Nav */}
+        <nav className="flex-1 overflow-y-auto overflow-x-hidden px-3 pb-4 scrollbar-thin">
           {filteredItems ? (
             <div className="space-y-0.5 mt-2">
               {filteredItems.map((item) => {
@@ -193,9 +194,12 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           )}
         </nav>
 
-        {/* User info - fixed bottom */}
+        {/* User info + Theme Toggle */}
         <div className="border-t border-[var(--border)] p-3 flex-shrink-0 bg-[var(--bg-secondary)]">
-          <div className="flex items-center gap-3 px-2 py-1.5">
+          <div className="flex items-center gap-2 px-2 pb-2">
+            <ThemeToggle variant="full" className="flex-1 justify-center text-xs" />
+          </div>
+          <div className="flex items-center gap-3 px-2 py-1.5 border-t border-[var(--border)] pt-2">
             <div className="w-8 h-8 rounded-full bg-[var(--accent)]/10 flex items-center justify-center text-xs font-bold text-[var(--accent)]">
               {user.email?.[0].toUpperCase() || 'A'}
             </div>
@@ -210,8 +214,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col h-full overflow-hidden">
-        {/* Top bar */}
+      <div className="flex-1 flex flex-col h-full min-w-0">
         <header className="h-16 border-b border-[var(--border)] bg-[var(--bg-card)] flex-shrink-0 flex items-center justify-between px-6">
           <div>
             <h1 className="text-lg font-bold text-[var(--text)]">{currentSection?.label || 'Admin'}</h1>
@@ -225,9 +228,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             </Link>
           </div>
         </header>
-
-        {/* Page content - scrollable */}
-        <main className="flex-1 overflow-y-auto p-6 scrollbar-thin">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-6 scrollbar-thin">
           <div className="max-w-7xl mx-auto">
             {children}
           </div>

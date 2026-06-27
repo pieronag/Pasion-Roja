@@ -116,6 +116,12 @@ body {
 .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
 .safe-top { padding-top: env(safe-area-inset-top, 0px); }
 
-.scrollbar-thin::-webkit-scrollbar { width: 4px; height: 4px; }
+.scrollbar-thin::-webkit-scrollbar { width: 5px; height: 5px; }
 .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
-.scrollbar-thin::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
+.scrollbar-thin::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* Hide scrollbar when not hovering for cleaner look */
+.scrollbar-auto::-webkit-scrollbar { width: 5px; height: 5px; }
+.scrollbar-auto::-webkit-scrollbar-track { background: transparent; }
+.scrollbar-auto::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }

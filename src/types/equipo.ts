@@ -3,6 +3,7 @@ export interface Equipo {
   nombre: string;
   nombreCorto: string;
   deporteId: string;
+  divisionId: string;
   logoBase64: string;
   colorPrimario: string;
   colorSecundario: string;
