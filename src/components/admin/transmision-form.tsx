@@ -4,14 +4,14 @@ import { useState, useEffect } from 'react';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useTransmision } from '@/hooks/use-transmision';
+import { StatusBadge } from '@/components/admin/status-badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BadgeEnVivo } from '@/components/shared/badge-en-vivo';
-import { Radio, Play, Square } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Radio, Play, Square, Save, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { extractYoutubeId } from '@/lib/utils';
 import type { EstadoTransmision } from '@/types/transmision';
 
@@ -44,63 +44,46 @@ export function TransmisionForm() {
         programadoPara: programadoPara ? new Date(programadoPara).getTime() : null,
         actualizadoEn: Date.now(),
       });
-      setSuccess('Configuración de transmisión actualizada');
+      setSuccess('Configuración actualizada');
       setTimeout(() => setSuccess(''), 3000);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setSaving(false);
-    }
+    } catch (err: any) { setError(err.message); }
+    finally { setSaving(false); }
   };
 
-  const handleQuickStart = () => {
-    setEstado('en_vivo');
-    setTimeout(() => handleSave(), 100);
-  };
-
-  const handleQuickStop = () => {
-    setEstado('terminado');
-    setTimeout(() => handleSave(), 100);
-  };
+  const handleQuickStart = () => { setEstado('en_vivo'); setTimeout(() => handleSave(), 100); };
+  const handleQuickStop = () => { setEstado('terminado'); setTimeout(() => handleSave(), 100); };
 
   return (
-    <Card>
+    <Card className="overflow-hidden">
+      <div className="h-1 bg-gradient-to-r from-rose-500 to-rose-600" />
       <CardHeader>
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Radio className="h-5 w-5 text-rojo" />
-            <h2 className="text-lg font-bold text-white">Gestor de Transmisión</h2>
-          </div>
+          <div className="flex items-center gap-2"><Radio className="h-5 w-5 text-[var(--accent)]" /><h2 className="text-lg font-bold text-[var(--text)]">Gestor de Transmisión</h2></div>
           {config?.estadoTransmision === 'en_vivo' && <BadgeEnVivo size="sm" />}
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
+        {error && <div className="flex items-center gap-2 p-2.5 rounded-[var(--radius-sm)] bg-red-500/10 border border-red-500/20"><AlertCircle className="h-4 w-4 text-red-400 flex-shrink-0" /><p className="text-xs text-red-400">{error}</p></div>}
+        {success && <div className="flex items-center gap-2 p-2.5 rounded-[var(--radius-sm)] bg-emerald-500/10 border border-emerald-500/20"><CheckCircle2 className="h-4 w-4 text-emerald-400 flex-shrink-0" /><p className="text-xs text-emerald-400">{success}</p></div>}
+
         {config?.estadoTransmision === 'en_vivo' && (
-          <div className="rounded-xl bg-verde-cancha/10 border border-verde-cancha/30 p-4 text-center">
-            <p className="text-verde-cancha font-bold text-lg">🔴 TRANSMITIENDO EN VIVO</p>
+          <div className="p-3 rounded-[var(--radius-sm)] bg-emerald-500/10 border border-emerald-500/20 text-center">
+            <p className="text-emerald-600 font-bold text-sm">🔴 TRANSMITIENDO EN VIVO</p>
           </div>
         )}
 
-        <div className="space-y-2">
-          <Label>URL de YouTube</Label>
-          <Input
-            value={youtubeUrl}
-            onChange={(e) => setYoutubeUrl(e.target.value)}
-            placeholder="https://youtube.com/watch?v=..."
-          />
+        <div className="space-y-1.5">
+          <Label className="text-xs text-[var(--text-muted)]">URL de YouTube</Label>
+          <Input value={youtubeUrl} onChange={(e) => setYoutubeUrl(e.target.value)} placeholder="https://youtube.com/watch?v=..." />
           {extractYoutubeId(youtubeUrl) && (
-            <div className="aspect-video rounded-lg overflow-hidden bg-black mt-2">
-              <iframe
-                src={`https://www.youtube.com/embed/${extractYoutubeId(youtubeUrl)}`}
-                className="w-full h-full"
-                allowFullScreen
-              />
+            <div className="aspect-video rounded-[var(--radius-sm)] overflow-hidden bg-black mt-2">
+              <iframe src={`https://www.youtube.com/embed/${extractYoutubeId(youtubeUrl)}`} className="w-full h-full" allowFullScreen />
             </div>
           )}
         </div>
 
-        <div className="space-y-2">
-          <Label>Estado</Label>
+        <div className="space-y-1.5">
+          <Label className="text-xs text-[var(--text-muted)]">Estado</Label>
           <Select value={estado} onValueChange={(v: EstadoTransmision) => setEstado(v)}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
@@ -113,27 +96,24 @@ export function TransmisionForm() {
         </div>
 
         {estado === 'programado' && (
-          <div className="space-y-2">
-            <Label>Programar para</Label>
-            <Input type="datetime-local" value={programadoPara} onChange={(e) => setProgramadoPara(e.target.value)} className="text-white [color-scheme:dark]" />
+          <div className="space-y-1.5">
+            <Label className="text-xs text-[var(--text-muted)]">Programar para</Label>
+            <Input type="datetime-local" value={programadoPara} onChange={(e) => setProgramadoPara(e.target.value)} />
           </div>
         )}
 
         <div className="grid grid-cols-2 gap-3">
-          <Button onClick={handleQuickStart} variant="default" size="lg" className="bg-verde-cancha hover:bg-verde-cancha/80">
-            <Play className="h-5 w-5 mr-2" /> Iniciar Stream
+          <Button onClick={handleQuickStart} className="bg-emerald-600 hover:bg-emerald-700">
+            <Play className="h-4 w-4 mr-1.5" /> Iniciar Stream
           </Button>
-          <Button onClick={handleQuickStop} variant="destructive" size="lg">
-            <Square className="h-5 w-5 mr-2" /> Finalizar
+          <Button onClick={handleQuickStop} variant="destructive">
+            <Square className="h-4 w-4 mr-1.5" /> Finalizar
           </Button>
         </div>
 
-        <Button onClick={handleSave} loading={saving} size="lg" className="w-full">
-          Guardar Configuración
+        <Button onClick={handleSave} loading={saving} size="full">
+          <Save className="h-4 w-4 mr-1.5" /> Guardar Configuración
         </Button>
-
-        {error && <p className="text-sm text-red-400">{error}</p>}
-        {success && <p className="text-sm text-verde-cancha">{success}</p>}
       </CardContent>
     </Card>
   );

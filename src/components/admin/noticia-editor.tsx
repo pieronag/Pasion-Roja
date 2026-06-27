@@ -6,14 +6,10 @@ import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 import { Bold, Italic, List, ListOrdered, Link as LinkIcon, Heading2 } from 'lucide-react';
-import { Toggle } from '@/components/ui/toggle';
 import { cn } from '@/lib/utils';
 import { useCallback } from 'react';
 
-interface NoticiaEditorProps {
-  content: string;
-  onChange: (html: string) => void;
-}
+interface NoticiaEditorProps { content: string; onChange: (html: string) => void; }
 
 export function NoticiaEditor({ content, onChange }: NoticiaEditorProps) {
   const editor = useEditor({
@@ -25,14 +21,9 @@ export function NoticiaEditor({ content, onChange }: NoticiaEditorProps) {
     ],
     content: content || '',
     editorProps: {
-      attributes: {
-        class:
-          'prose prose-invert max-w-none focus:outline-none min-h-[300px] px-4 py-3 text-gray-300 prose-headings:text-white prose-a:text-rojo prose-strong:text-white prose-li:text-gray-300',
-      },
+      attributes: { class: 'prose prose-sm max-w-none focus:outline-none min-h-[250px] px-4 py-3 text-[var(--text)] prose-headings:text-[var(--text)] prose-a:text-[var(--accent)] prose-strong:text-[var(--text)] prose-li:text-[var(--text-secondary)]' },
     },
-    onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
-    },
+    onUpdate: ({ editor }) => { onChange(editor.getHTML()); },
   });
 
   const toggleLink = useCallback(() => {
@@ -56,22 +47,13 @@ export function NoticiaEditor({ content, onChange }: NoticiaEditorProps) {
   ];
 
   return (
-    <div className="rounded-xl border border-pizarra-claro overflow-hidden bg-pizarra">
-      <div className="flex flex-wrap gap-1 p-2 border-b border-pizarra-claro bg-pizarra-claro/30">
+    <div className="rounded-[var(--radius-sm)] border border-[var(--border)] overflow-hidden bg-[var(--bg-card)]">
+      <div className="flex flex-wrap gap-0.5 p-1.5 border-b border-[var(--border)] bg-[var(--bg-secondary)]">
         {tools.map((tool) => {
           const Icon = tool.icon;
           return (
-            <button
-              key={tool.label}
-              type="button"
-              onClick={tool.action}
-              className={cn(
-                'p-2 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center',
-                tool.active ? 'bg-rojo/20 text-rojo' : 'text-gray-400 hover:text-white hover:bg-pizarra-claro'
-              )}
-              title={tool.label}
-            >
-              <Icon className="h-4 w-4" />
+            <button key={tool.label} type="button" onClick={tool.action} className={cn('p-1.5 rounded-[var(--radius-xs)] transition-colors min-h-[32px] min-w-[32px] flex items-center justify-center', tool.active ? 'bg-[var(--accent)]/10 text-[var(--accent)]' : 'text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--bg-hover)]')} title={tool.label}>
+              <Icon className="h-3.5 w-3.5" />
             </button>
           );
         })}

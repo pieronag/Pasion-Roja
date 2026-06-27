@@ -67,12 +67,34 @@ body {
 @keyframes pulse-rojo { 0%, 100% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.6); } 50% { box-shadow: 0 0 0 10px rgba(225, 29, 72, 0); } }
 @keyframes goal-flash { 0% { background-color: rgba(225, 29, 72, 0); } 20% { background-color: rgba(225, 29, 72, 0.85); } 100% { background-color: rgba(225, 29, 72, 0); } }
 @keyframes slide-up { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fade-in-up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fade-in-down { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes scale-in { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+@keyframes slide-in-right { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes slide-in-left { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 @keyframes ticker-scroll { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 
 .animate-goal-flash { animation: goal-flash 0.8s ease-out; }
 .animate-slide-up { animation: slide-up 0.25s ease-out; }
+.animate-fade-in { animation: fade-in 0.3s ease-out; }
+.animate-fade-in-up { animation: fade-in-up 0.4s ease-out; }
+.animate-fade-in-down { animation: fade-in-down 0.3s ease-out; }
+.animate-scale-in { animation: scale-in 0.3s ease-out; }
+.animate-slide-in-right { animation: slide-in-right 0.3s ease-out; }
+.animate-slide-in-left { animation: slide-in-left 0.3s ease-out; }
+.animate-float { animation: float 3s ease-in-out infinite; }
+.animate-spin-slow { animation: spin-slow 8s linear infinite; }
 .animate-pulse-rojo { animation: pulse-rojo 2s infinite; }
 .animate-ticker { animation: ticker-scroll 30s linear infinite; }
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(225,29,72,0.08), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
 
 ::selection { background-color: rgba(225, 29, 72, 0.2); }
 .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }

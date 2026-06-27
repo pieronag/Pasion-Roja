@@ -173,7 +173,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       <div className="flex-1 flex flex-col h-full min-w-0">
         <TopBar onToggleSidebar={() => setCollapsed(!collapsed)} />
         <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 lg:p-6 scrollbar-thin">
-          <div className="max-w-[1440px] mx-auto">
+          <div className="max-w-[1440px] mx-auto animate-fade-in-up">
             <Breadcrumbs />
             {children}
           </div>
