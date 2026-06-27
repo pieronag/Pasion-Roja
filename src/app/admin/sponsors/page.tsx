@@ -11,8 +11,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader } from '@/components/shared/loader';
 import { EmptyState } from '@/components/shared/empty-state';
-import { ActionsDropdown } from '@/components/admin/actions-dropdown';
-import { HeartHandshake, Plus, Pencil, Trash2, Search, ExternalLink } from 'lucide-react';
+import { MetricCard } from '@/components/admin/metric-card';
+import { HeartHandshake, Plus, Pencil, Trash2, Search, ExternalLink, Star } from 'lucide-react';
 import type { Sponsor, TipoSponsor } from '@/types/sponsor';
 
 const tipoColors: Record<string, string> = { principal: 'from-yellow-400 to-yellow-600', oficial: 'from-blue-400 to-blue-600', auspiciador: 'from-green-400 to-green-600', media: 'from-gray-400 to-gray-600' };
@@ -52,6 +52,13 @@ export default function AdminSponsorsPage() {
         </Dialog>
       </div>
 
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <MetricCard label="Sponsors" value={sponsors.length} icon={HeartHandshake} gradient="from-yellow-500 to-yellow-600" />
+        <MetricCard label="Principal" value={sponsors.filter(s=>s.tipo==='principal').length} icon={Star} gradient="from-yellow-500 to-amber-600" />
+        <MetricCard label="Oficiales" value={sponsors.filter(s=>s.tipo==='oficial').length} icon={HeartHandshake} gradient="from-blue-500 to-blue-600" />
+        <MetricCard label="Auspiciadores" value={sponsors.filter(s=>s.tipo==='auspiciador').length} icon={HeartHandshake} gradient="from-green-500 to-green-600" />
+      </div>
+
       <div className="flex gap-2">
         <div className="relative flex-1 max-w-xs"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-muted)]" /><Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar sponsor..." className="pl-9" /></div>
         <div className="w-40"><Select value={filterTipo} onValueChange={setFilterTipo}><SelectTrigger><SelectValue placeholder="Tipo" /></SelectTrigger><SelectContent><SelectItem value="">Todos</SelectItem><SelectItem value="principal">Principal</SelectItem><SelectItem value="oficial">Oficial</SelectItem><SelectItem value="auspiciador">Auspiciador</SelectItem><SelectItem value="media">Media</SelectItem></SelectContent></Select></div>
@@ -71,11 +78,11 @@ export default function AdminSponsorsPage() {
                     <h3 className="font-semibold text-sm text-[var(--text)] truncate">{s.nombre}</h3>
                     <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full" style={{ backgroundColor: s.tipo === 'principal' ? '#FEF3C7' : s.tipo === 'oficial' ? '#DBEAFE' : s.tipo === 'auspiciador' ? '#D1FAE5' : '#F3F4F6', color: s.tipo === 'principal' ? '#D97706' : s.tipo === 'oficial' ? '#2563EB' : s.tipo === 'auspiciador' ? '#059669' : '#6B7280' }}>{tipoLabels[s.tipo]}</span>
                   </div>
-                  <ActionsDropdown actions={[
-                    { label: 'Editar', icon: <Pencil className="h-3.5 w-3.5" />, onClick: () => { setEditing(s); setShowCreate(true); } },
-                    ...(s.url ? [{ label: 'Visitar web', icon: <ExternalLink className="h-3.5 w-3.5" />, onClick: () => window.open(s.url, '_blank') }] : []),
-                    { label: 'Eliminar', icon: <Trash2 className="h-3.5 w-3.5" />, onClick: () => eliminar(s.id), danger: true },
-                  ]} />
+                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditing(s); setShowCreate(true); }} title="Editar"><Pencil className="h-4 w-4" /></Button>
+                    {s.url && <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => window.open(s.url, '_blank')} title="Visitar web"><ExternalLink className="h-4 w-4" /></Button>}
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-600" onClick={() => eliminar(s.id)} title="Eliminar"><Trash2 className="h-4 w-4" /></Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>

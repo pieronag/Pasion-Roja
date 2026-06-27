@@ -8,7 +8,8 @@ import { LeagueTable } from '@/components/posiciones/league-table';
 import { Loader } from '@/components/shared/loader';
 import { EmptyState } from '@/components/shared/empty-state';
 import { Card, CardContent } from '@/components/ui/card';
-import { Trophy, RefreshCw } from 'lucide-react';
+import { MetricCard } from '@/components/admin/metric-card';
+import { Trophy, RefreshCw, Shield, Swords, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function AdminPosicionesPage() {
@@ -20,6 +21,14 @@ export default function AdminPosicionesPage() {
   return (
     <div className="space-y-5">
       <div><h2 className="text-lg font-bold text-[var(--text)]">Posiciones</h2><p className="text-sm text-[var(--text-secondary)]">Tablas calculadas automáticamente desde los resultados</p></div>
+
+      {tabla.length > 0 && (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <MetricCard label="Equipos" value={tabla.length} icon={Shield} gradient="from-blue-500 to-blue-600" />
+          <MetricCard label="Jugados" value={tabla.reduce((s,e)=>s+e.pj,0)/2} icon={Swords} gradient="from-red-500 to-red-600" />
+          <MetricCard label="Goles totales" value={tabla.reduce((s,e)=>s+e.gf,0)} icon={TrendingUp} gradient="from-orange-500 to-orange-600" />
+        </div>
+      )}
 
       <Card className="overflow-hidden">
         <div className="h-1 bg-gradient-to-r from-indigo-500 to-indigo-600" />

@@ -12,8 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Loader } from '@/components/shared/loader';
 import { EmptyState } from '@/components/shared/empty-state';
-import { ActionsDropdown } from '@/components/admin/actions-dropdown';
-import { Shield, Plus, Pencil, Trash2, Search, Users, MapPin, Eye } from 'lucide-react';
+import { MetricCard } from '@/components/admin/metric-card';
+import { Shield, Plus, Pencil, Trash2, Search, Users, MapPin, Eye, ExternalLink, Trophy } from 'lucide-react';
 import Link from 'next/link';
 import type { Equipo } from '@/types/equipo';
 import type { Division } from '@/types/division';
@@ -69,6 +69,13 @@ export default function AdminEquiposPage() {
         </Dialog>
       </div>
 
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <MetricCard label="Equipos" value={equipos.length} icon={Shield} gradient="from-blue-500 to-blue-600" />
+        <MetricCard label="Deportes" value={deportes.length} icon={Trophy} gradient="from-orange-500 to-orange-600" />
+        <MetricCard label="Divisiones" value={allDivisiones.length} icon={Shield} gradient="from-green-500 to-green-600" />
+        <MetricCard label="Jugadores" value={0} icon={Users} gradient="from-purple-500 to-purple-600" />
+      </div>
+
       <div className="flex flex-wrap gap-2">
         <div className="relative flex-1 min-w-[200px] max-w-xs"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-muted)]" /><Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar equipo..." className="pl-9" /></div>
         <div className="w-44"><Select value={filterDeporte} onValueChange={(v) => { setFilterDeporte(v); setFilterDivision(''); }}><SelectTrigger><SelectValue placeholder="Deporte" /></SelectTrigger><SelectContent><SelectItem value="">Todos</SelectItem>{deportes.map((d) => <SelectItem key={d.id} value={d.id}><span className="flex items-center gap-1.5"><SportIcon sport={d.icono} size={14} /><span>{d.nombre}</span></span></SelectItem>)}</SelectContent></Select></div>
@@ -107,11 +114,9 @@ export default function AdminEquiposPage() {
                     <td className="p-3 text-right">
                       <div className="flex items-center justify-end gap-1">
                         <Link href={`/admin/equipos/${e.id}/jugadores`}><Button variant="ghost" size="sm" className="h-7 text-xs"><Users className="h-3 w-3 mr-1" /> Plantilla</Button></Link>
-                        <ActionsDropdown actions={[
-                          { label: 'Editar', icon: <Pencil className="h-3.5 w-3.5" />, onClick: () => { setEditing(e); setShowCreate(true); } },
-                          { label: 'Ver en web', icon: <Eye className="h-3.5 w-3.5" />, onClick: () => window.open(`/equipos/${e.id}`, '_blank') },
-                          { label: 'Eliminar', icon: <Trash2 className="h-3.5 w-3.5" />, onClick: () => handleDelete(e.id), danger: true },
-                        ]} />
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditing(e); setShowCreate(true); }} title="Editar"><Pencil className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => window.open(`/equipos/${e.id}`, '_blank')} title="Ver en web"><ExternalLink className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-600" onClick={() => handleDelete(e.id)} title="Eliminar"><Trash2 className="h-4 w-4" /></Button>
                       </div>
                     </td>
                   </tr>

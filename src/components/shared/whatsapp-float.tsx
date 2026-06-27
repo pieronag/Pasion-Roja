@@ -2,6 +2,7 @@
 
 import { MessageCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { usePathname } from 'next/navigation';
 
 interface WhatsAppFloatProps {
   phone?: string;
@@ -14,6 +15,9 @@ export function WhatsAppFloat({
   message = '¡Hola! Quiero más información sobre Pasión Roja',
   className,
 }: WhatsAppFloatProps) {
+  const pathname = usePathname();
+  if (pathname.startsWith('/admin')) return null;
+
   const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
   return (
     <a

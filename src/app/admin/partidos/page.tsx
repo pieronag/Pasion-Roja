@@ -13,8 +13,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Loader } from '@/components/shared/loader';
 import { EmptyState } from '@/components/shared/empty-state';
 import { StatusBadge } from '@/components/admin/status-badge';
-import { ActionsDropdown } from '@/components/admin/actions-dropdown';
-import { Swords, Plus, Trash2, Search, Play, Square, Filter } from 'lucide-react';
+import { MetricCard } from '@/components/admin/metric-card';
+import { Swords, Plus, Trash2, Search, Play, Square, Filter, CheckCircle, Calendar } from 'lucide-react';
 import type { Partido, EstadoPartido } from '@/types/partido';
 
 export default function AdminPartidosPage() {
@@ -85,6 +85,13 @@ export default function AdminPartidosPage() {
         </div>
       )}
 
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <MetricCard label="Total Partidos" value={partidos.length} icon={Swords} gradient="from-red-500 to-red-600" />
+        <MetricCard label="En Vivo" value={partidos.filter(p=>p.estado==='en_vivo').length} icon={Swords} gradient="from-red-500 to-rose-600" />
+        <MetricCard label="Programados" value={partidos.filter(p=>p.estado==='programado').length} icon={Calendar} gradient="from-blue-500 to-blue-600" />
+        <MetricCard label="Finalizados" value={partidos.filter(p=>p.estado==='finalizado').length} icon={CheckCircle} gradient="from-emerald-500 to-emerald-600" />
+      </div>
+
       <div className="flex flex-wrap gap-2">
         <div className="relative flex-1 min-w-[200px] max-w-xs"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-muted)]" /><Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar equipo..." className="pl-9" /></div>
         <div className="w-40"><Select value={filterEstado} onValueChange={setFilterEstado}><SelectTrigger><SelectValue placeholder="Estado" /></SelectTrigger><SelectContent><SelectItem value="">Todos</SelectItem><SelectItem value="en_vivo">En Vivo</SelectItem><SelectItem value="programado">Programado</SelectItem><SelectItem value="finalizado">Finalizado</SelectItem></SelectContent></Select></div>
@@ -110,11 +117,11 @@ export default function AdminPartidosPage() {
                   <td className="p-3 text-sm text-[var(--text-secondary)] hidden md:table-cell"><SportIcon sport={deportes.find((d) => d.id === p.deporteId)?.icono || ''} size={16} /></td>
                   <td className="p-3"><StatusBadge status={p.estado === 'en_vivo' ? 'error' : p.estado === 'finalizado' ? 'success' : 'neutral'} label={p.estado === 'en_vivo' ? 'En Vivo' : p.estado === 'finalizado' ? 'Finalizado' : 'Programado'} /></td>
                   <td className="p-3 text-center"><span className="font-bold font-display text-base text-[var(--text)]">{p.marcadorLocal}</span><span className="text-[var(--text-muted)] mx-0.5">-</span><span className="font-bold font-display text-base text-[var(--text)]">{p.marcadorVisita}</span></td>
-                  <td className="p-3 text-right"><ActionsDropdown actions={[
-                    ...(p.estado === 'programado' ? [{ label: 'Iniciar partido', icon: <Play className="h-3.5 w-3.5" />, onClick: () => cambiarEstado(p.id, 'en_vivo') }] : []),
-                    ...(p.estado === 'en_vivo' ? [{ label: 'Finalizar', icon: <Square className="h-3.5 w-3.5" />, onClick: () => cambiarEstado(p.id, 'finalizado') }] : []),
-                    { label: 'Eliminar', icon: <Trash2 className="h-3.5 w-3.5" />, onClick: () => eliminar(p.id), danger: true },
-                  ]} /></td>
+                  <td className="p-3 text-right"><div className="flex justify-end gap-1">
+                    {p.estado === 'programado' && <Button variant="ghost" size="icon" className="h-8 w-8 text-emerald-500 hover:text-emerald-600" onClick={() => cambiarEstado(p.id, 'en_vivo')} title="Iniciar"><Play className="h-4 w-4" /></Button>}
+                    {p.estado === 'en_vivo' && <Button variant="ghost" size="icon" className="h-8 w-8 text-emerald-500 hover:text-emerald-600" onClick={() => cambiarEstado(p.id, 'finalizado')} title="Finalizar"><CheckCircle className="h-4 w-4" /></Button>}
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-600" onClick={() => eliminar(p.id)} title="Eliminar"><Trash2 className="h-4 w-4" /></Button>
+                  </div></td>
                 </tr>
               ))}
             </tbody>

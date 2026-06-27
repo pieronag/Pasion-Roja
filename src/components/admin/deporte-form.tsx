@@ -13,7 +13,7 @@ import type { Deporte } from '@/types/deporte';
 
 export function DeporteForm({ deporte, onClose }: { deporte?: Deporte; onClose?: () => void }) {
   const [nombre, setNombre] = useState(deporte?.nombre || '');
-  const [icono, setIcono] = useState(deporte?.icono || '⚽ Fútbol');
+  const [icono, setIcono] = useState(deporte?.icono || 'Fútbol');
   const [bannerBase64, setBannerBase64] = useState(deporte?.bannerBase64 || '');
   const [victoria, setVictoria] = useState(deporte?.sistemaPuntos?.victoria?.toString() || '3');
   const [empate, setEmpate] = useState(deporte?.sistemaPuntos?.empate?.toString() || '1');

@@ -13,8 +13,8 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader } from '@/components/shared/loader';
 import { EmptyState } from '@/components/shared/empty-state';
-import { ActionsDropdown } from '@/components/admin/actions-dropdown';
-import { Shield, Plus, Trash2 } from 'lucide-react';
+import { MetricCard } from '@/components/admin/metric-card';
+import { Shield, Plus, Trash2, Trophy } from 'lucide-react';
 import type { Division } from '@/types/division';
 
 export default function AdminDivisionesPage() {
@@ -51,6 +51,12 @@ export default function AdminDivisionesPage() {
     <div className="space-y-5">
       <div><h2 className="text-lg font-bold text-[var(--text)]">Divisiones / Ligas</h2><p className="text-sm text-[var(--text-secondary)]">{divisiones.length} divisiones registradas</p></div>
 
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <MetricCard label="Divisiones" value={divisiones.length} icon={Shield} href="/admin/divisiones" gradient="from-blue-500 to-blue-600" />
+        <MetricCard label="Deportes" value={deportes.length} icon={Trophy} href="/admin/deportes" gradient="from-orange-500 to-orange-600" />
+        <MetricCard label="Equipos" value={equipos.length} icon={Shield} href="/admin/equipos" gradient="from-green-500 to-green-600" />
+      </div>
+
       <Card className="overflow-hidden">
         <div className="h-1 bg-gradient-to-r from-blue-500 to-blue-600" />
         <CardHeader><h3 className="text-sm font-semibold text-[var(--text)]">Nueva División</h3></CardHeader>
@@ -85,7 +91,7 @@ export default function AdminDivisionesPage() {
                     <td className="p-3 text-sm text-[var(--text-secondary)]"><span className="flex items-center gap-1.5"><SportIcon sport={deporte?.icono || ''} size={14} /><span>{deporte?.nombre}</span></span></td>
                     <td className="p-3 text-sm text-[var(--text-secondary)]">{d.temporada}</td>
                     <td className="p-3 text-center text-sm text-[var(--text-secondary)]">{count}</td>
-                    <td className="p-3 text-right"><ActionsDropdown actions={[{ label: 'Eliminar', icon: <Trash2 className="h-3.5 w-3.5" />, onClick: () => eliminar(d.id), danger: true }]} /></td>
+                    <td className="p-3 text-right"><Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-600" onClick={() => eliminar(d.id)} title="Eliminar"><Trash2 className="h-4 w-4" /></Button></td>
                   </tr>
                 );
               })}

@@ -10,7 +10,8 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader } from '@/components/shared/loader';
 import { EmptyState } from '@/components/shared/empty-state';
-import { Image, Save, Trash2 } from 'lucide-react';
+import { MetricCard } from '@/components/admin/metric-card';
+import { Image, Save, Trash2, Video, Music } from 'lucide-react';
 import { compressImage } from '@/lib/utils';
 import type { Multimedia } from '@/types/multimedia';
 
@@ -46,6 +47,13 @@ export default function AdminMultimediaPage() {
   return (
     <div className="space-y-5">
       <div><h2 className="text-lg font-bold text-[var(--text)]">Multimedia</h2><p className="text-sm text-[var(--text-secondary)]">Gestiona imágenes, videos y audio</p></div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <MetricCard label="Total" value={items.length} icon={Image} gradient="from-purple-500 to-purple-600" />
+        <MetricCard label="Imágenes" value={items.filter(i=>i.tipo==='imagen').length} icon={Image} gradient="from-blue-500 to-blue-600" />
+        <MetricCard label="Videos" value={items.filter(i=>i.tipo==='video').length} icon={Video} gradient="from-red-500 to-red-600" />
+        <MetricCard label="Audio" value={items.filter(i=>i.tipo==='audio').length} icon={Music} gradient="from-green-500 to-green-600" />
+      </div>
 
       <Card className="overflow-hidden">
         <div className="h-1 bg-gradient-to-r from-purple-500 to-purple-600" />

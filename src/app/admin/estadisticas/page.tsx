@@ -12,7 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Loader } from '@/components/shared/loader';
 import { EmptyState } from '@/components/shared/empty-state';
-import { TrendingUp, Save, Search } from 'lucide-react';
+import { MetricCard } from '@/components/admin/metric-card';
+import { TrendingUp, Save, Search, Users } from 'lucide-react';
 import type { Jugador } from '@/types/jugador';
 
 export default function AdminEstadisticasPage() {
@@ -62,6 +63,15 @@ export default function AdminEstadisticasPage() {
           </div>
         </CardContent>
       </Card>
+
+      {deporteId && jugadores.length > 0 && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <MetricCard label="Jugadores" value={jugadores.length} icon={Users} gradient="from-purple-500 to-purple-600" />
+          <MetricCard label="Activos" value={jugadores.filter(j=>j.activo).length} icon={Users} gradient="from-emerald-500 to-emerald-600" />
+          <MetricCard label="Con goles" value={jugadores.filter(j=>(j.estadisticasTemp?.goles||0)>0).length} icon={TrendingUp} gradient="from-orange-500 to-orange-600" />
+          <MetricCard label="Total goles" value={jugadores.reduce((s,j)=> s + (j.estadisticasTemp?.goles||0), 0)} icon={TrendingUp} gradient="from-red-500 to-red-600" />
+        </div>
+      )}
 
       {deporteId && (
         <div className="relative max-w-xs"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-muted)]" /><Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar jugador..." className="pl-9" /></div>

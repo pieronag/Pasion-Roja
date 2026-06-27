@@ -8,9 +8,9 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Loader } from '@/components/shared/loader';
 import { EmptyState } from '@/components/shared/empty-state';
-import { ActionsDropdown } from '@/components/admin/actions-dropdown';
 import { StatusBadge } from '@/components/admin/status-badge';
-import { Users, Plus, Pencil, Trash2, ArrowLeft, Eye } from 'lucide-react';
+import { MetricCard } from '@/components/admin/metric-card';
+import { Users, Plus, Pencil, Trash2, ArrowLeft, ExternalLink, CheckCircle, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import type { Jugador } from '@/types/jugador';
 
@@ -45,6 +45,12 @@ export default function AdminEquipoJugadoresPage({ params }: { params: Promise<{
         </Dialog>
       </div>
 
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <MetricCard label="Plantilla" value={jugadores.length} icon={Users} gradient="from-purple-500 to-purple-600" />
+        <MetricCard label="Activos" value={jugadores.filter(j=>j.activo).length} icon={CheckCircle} gradient="from-emerald-500 to-emerald-600" />
+        <MetricCard label="Goles totales" value={jugadores.reduce((s,j)=>s+(j.estadisticasTemp?.goles||0),0)} icon={TrendingUp} gradient="from-orange-500 to-orange-600" />
+      </div>
+
       {loading ? <Loader /> : !jugadores.length ? <EmptyState title="Sin jugadores en este equipo" /> : (
         <div className="border border-[var(--border)] rounded-[var(--radius)] overflow-hidden">
           <table className="w-full">
@@ -64,11 +70,11 @@ export default function AdminEquipoJugadoresPage({ params }: { params: Promise<{
                   <td className="p-3 text-sm text-[var(--text-secondary)]">{j.posicion || '—'}</td>
                   <td className="p-3 text-center font-bold text-[var(--accent)] hidden sm:table-cell">{j.estadisticasTemp?.goles || 0}</td>
                   <td className="p-3 text-center"><StatusBadge status={j.activo ? 'success' : 'error'} label={j.activo ? 'Activo' : 'Inactivo'} /></td>
-                  <td className="p-3 text-right"><ActionsDropdown actions={[
-                    { label: 'Editar', icon: <Pencil className="h-3.5 w-3.5" />, onClick: () => { setEditing(j); setShowCreate(true); } },
-                    { label: 'Ver perfil', icon: <Eye className="h-3.5 w-3.5" />, onClick: () => window.open(`/jugadores/${j.id}`, '_blank') },
-                    { label: 'Eliminar', icon: <Trash2 className="h-3.5 w-3.5" />, onClick: () => eliminar(j.id), danger: true },
-                  ]} /></td>
+                  <td className="p-3 text-right"><div className="flex justify-end gap-1">
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditing(j); setShowCreate(true); }} title="Editar"><Pencil className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => window.open(`/jugadores/${j.id}`, '_blank')} title="Ver perfil"><ExternalLink className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-600" onClick={() => eliminar(j.id)} title="Eliminar"><Trash2 className="h-4 w-4" /></Button>
+                  </div></td>
                 </tr>
               ))}
             </tbody>

@@ -59,7 +59,7 @@ export function SponsorForm({ sponsor, onClose }: { sponsor?: Sponsor; onClose?:
             <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Tipo</Label>
               <Select value={tipo} onValueChange={(v: TipoSponsor) => setTipo(v)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent><SelectItem value="principal">⭐ Principal</SelectItem><SelectItem value="oficial">🔵 Oficial</SelectItem><SelectItem value="auspiciador">🟢 Auspiciador</SelectItem><SelectItem value="media">📢 Media</SelectItem></SelectContent>
+                <SelectContent><SelectItem value="principal">Principal</SelectItem><SelectItem value="oficial">Oficial</SelectItem><SelectItem value="auspiciador">Auspiciador</SelectItem><SelectItem value="media">Media</SelectItem></SelectContent>
               </Select>
             </div>
             <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Descripción</Label><Input value={descripcion} onChange={(e) => setDescripcion(e.target.value)} /></div>

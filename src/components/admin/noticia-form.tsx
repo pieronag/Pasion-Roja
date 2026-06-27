@@ -15,7 +15,7 @@ import { Newspaper, Save, Eye, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { noticiaSchema } from '@/lib/validations';
 import { useAutoSave } from '@/hooks/use-auto-save';
 
-export function NoticiaForm() {
+export function NoticiaForm({ onClose }: { onClose?: () => void }) {
   const [titulo, setTitulo] = useState('');
   const [categoria, setCategoria] = useState<string>('general');
   const [cuerpo, setCuerpo] = useState('');
@@ -42,7 +42,7 @@ export function NoticiaForm() {
       await addDoc(collection(db, 'noticias'), { ...result.data, createdAt: Date.now(), updatedAt: Date.now(), publicado: true, publishAt: null });
       setSuccess(true); clearDraft();
       setTitulo(''); setCuerpo(''); setResumen(''); setMiniBase64(''); setImgFullBase64(''); setCategoria('general');
-      setTimeout(() => setSuccess(false), 3000);
+      setTimeout(() => { setSuccess(false); onClose?.(); }, 2000);
     } catch (err: any) { setError(err.message); }
     finally { setSaving(false); }
   };
@@ -77,7 +77,7 @@ export function NoticiaForm() {
 
         <div className="space-y-1.5"><Label className="text-xs text-[var(--text-muted)]">Título</Label><div className="relative"><Input value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Título de la noticia" maxLength={120} /><span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-[var(--text-muted)]">{titulo.length}/120</span></div></div>
         <div className="space-y-1.5"><Label className="text-xs text-[var(--text-muted)]">Resumen</Label><Input value={resumen} onChange={(e) => setResumen(e.target.value)} placeholder="Breve resumen" maxLength={300} /></div>
-        <div className="space-y-1.5"><Label className="text-xs text-[var(--text-muted)]">Categoría</Label><Select value={categoria} onValueChange={setCategoria}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="partido">⚽ Partido</SelectItem><SelectItem value="torneo">🏆 Torneo</SelectItem><SelectItem value="entrevista">🎙️ Entrevista</SelectItem><SelectItem value="general">📰 General</SelectItem></SelectContent></Select></div>
+        <div className="space-y-1.5"><Label className="text-xs text-[var(--text-muted)]">Categoría</Label><Select value={categoria} onValueChange={setCategoria}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="partido">Partido</SelectItem><SelectItem value="torneo">Torneo</SelectItem><SelectItem value="entrevista">Entrevista</SelectItem><SelectItem value="general">General</SelectItem></SelectContent></Select></div>
         <ImageUploader onImagesReady={onImagesReady} />
         <div className="space-y-1.5"><Label className="text-xs text-[var(--text-muted)]">Contenido</Label><NoticiaEditor content={cuerpo} onChange={setCuerpo} /></div>
         <Button onClick={handleSubmit} loading={saving} size="full">{success ? '✓ Publicada' : <><Save className="h-4 w-4 mr-1.5" /> Publicar Noticia</>}</Button>

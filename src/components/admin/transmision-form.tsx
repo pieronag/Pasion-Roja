@@ -68,7 +68,7 @@ export function TransmisionForm() {
 
         {config?.estadoTransmision === 'en_vivo' && (
           <div className="p-3 rounded-[var(--radius-sm)] bg-emerald-500/10 border border-emerald-500/20 text-center">
-            <p className="text-emerald-600 font-bold text-sm">🔴 TRANSMITIENDO EN VIVO</p>
+<div className="flex items-center justify-center gap-2"><span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" /><p className="text-emerald-600 font-bold text-sm">TRANSMITIENDO EN VIVO</p></div>
           </div>
         )}
 
@@ -88,9 +88,9 @@ export function TransmisionForm() {
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="none">Sin transmisión</SelectItem>
-              <SelectItem value="en_vivo">🔴 En Vivo</SelectItem>
-              <SelectItem value="programado">📅 Programado</SelectItem>
-              <SelectItem value="terminado">⏹️ Terminado</SelectItem>
+              <SelectItem value="en_vivo">En Vivo</SelectItem>
+              <SelectItem value="programado">Programado</SelectItem>
+              <SelectItem value="terminado">Terminado</SelectItem>
             </SelectContent>
           </Select>
         </div>
