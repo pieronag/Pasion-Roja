@@ -13,10 +13,7 @@ const ToastViewport = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ToastPrimitive.Viewport
     ref={ref}
-    className={cn(
-      'fixed bottom-0 right-0 z-[100] flex max-h-screen w-full flex-col-reverse p-4 sm:max-w-[420px]',
-      className
-    )}
+    className={cn('fixed bottom-0 right-0 z-[100] flex max-h-screen w-full flex-col-reverse p-4 sm:max-w-[420px]', className)}
     {...props}
   />
 ));
@@ -27,29 +24,26 @@ interface ToastProps extends React.ComponentPropsWithoutRef<typeof ToastPrimitiv
   description?: string;
 }
 
-const Toast = React.forwardRef<
-  React.ElementRef<typeof ToastPrimitive.Root>,
-  ToastProps
->(({ className, title, description, ...props }, ref) => {
-  return (
+const Toast = React.forwardRef<React.ElementRef<typeof ToastPrimitive.Root>, ToastProps>(
+  ({ className, title, description, ...props }, ref) => (
     <ToastPrimitive.Root
       ref={ref}
       className={cn(
-        'group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-lg border border-pizarra-claro bg-pizarra-claro text-white p-4 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[state=open]:animate-slide-up',
+        'group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--bg-card)] text-[var(--text)] p-4 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[state=open]:animate-slide-up',
         className
       )}
       {...props}
     >
       <div className="flex-1">
         {title && <div className="text-sm font-semibold">{title}</div>}
-        {description && <div className="text-sm text-gray-400">{description}</div>}
+        {description && <div className="text-sm text-[var(--text-secondary)]">{description}</div>}
       </div>
       <ToastPrimitive.Close className="rounded-md p-1 opacity-50 hover:opacity-100">
         <X className="h-4 w-4" />
       </ToastPrimitive.Close>
     </ToastPrimitive.Root>
-  );
-});
+  )
+);
 Toast.displayName = 'Toast';
 
 export { ToastProvider, ToastViewport, Toast };

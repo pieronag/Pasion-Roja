@@ -1,26 +1,59 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Public read, admin-only write for all data collections
+    match /deportes/{document} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.email == 'administrador@pasionroja.cl';
+    }
+    match /divisiones/{document} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.email == 'administrador@pasionroja.cl';
+    }
+    match /equipos/{document} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.email == 'administrador@pasionroja.cl';
+    }
+    match /jugadores/{document} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.email == 'administrador@pasionroja.cl';
+    }
+    match /partidos/{document} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.email == 'administrador@pasionroja.cl';
+    }
     match /partidos_en_vivo/{document} {
       allow read: if true;
-      allow write: if request.auth != null 
-                    && request.auth.token.email == 'administrador@pasionroja.cl';
+      allow write: if request.auth != null && request.auth.token.email == 'administrador@pasionroja.cl';
     }
     match /noticias/{document} {
       allow read: if true;
-      allow write: if request.auth != null 
-                    && request.auth.token.email == 'administrador@pasionroja.cl';
+      allow write: if request.auth != null && request.auth.token.email == 'administrador@pasionroja.cl';
     }
     match /config_transmision/{document} {
       allow read: if true;
-      allow write: if request.auth != null 
-                    && request.auth.token.email == 'administrador@pasionroja.cl';
+      allow write: if request.auth != null && request.auth.token.email == 'administrador@pasionroja.cl';
+    }
+    match /sponsors/{document} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.email == 'administrador@pasionroja.cl';
+    }
+    match /programas/{document} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.email == 'administrador@pasionroja.cl';
+    }
+    match /multimedia/{document} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.email == 'administrador@pasionroja.cl';
+    }
+    match /contacto/{document} {
+      allow read: if request.auth != null && request.auth.token.email == 'administrador@pasionroja.cl';
+      allow create: if true;
+      allow write: if request.auth != null && request.auth.token.email == 'administrador@pasionroja.cl';
     }
     match /admin_logs/{document} {
-      allow read: if request.auth != null 
-                    && request.auth.token.email == 'administrador@pasionroja.cl';
-      allow write: if request.auth != null 
-                    && request.auth.token.email == 'administrador@pasionroja.cl';
+      allow read: if request.auth != null && request.auth.token.email == 'administrador@pasionroja.cl';
+      allow write: if request.auth != null && request.auth.token.email == 'administrador@pasionroja.cl';
     }
     match /{document=**} {
       allow read: if true;

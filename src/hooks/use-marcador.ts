@@ -3,10 +3,20 @@
 import { useState, useEffect } from 'react';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import type { PartidoEnVivo } from '@/types/partido';
+
+interface LiveScore {
+  id: string;
+  equipoLocal: string;
+  equipoVis: string;
+  marcadorLocal: number;
+  marcadorVis: number;
+  minuto: string;
+  actualizadoEn: number;
+  deporteId?: string;
+}
 
 export function useMarcador() {
-  const [partido, setPartido] = useState<PartidoEnVivo | null>(null);
+  const [partido, setPartido] = useState<LiveScore | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -16,7 +26,7 @@ export function useMarcador() {
       {
         next: (snap) => {
           if (snap.exists()) {
-            setPartido({ id: snap.id, ...snap.data() } as PartidoEnVivo);
+            setPartido({ id: snap.id, ...snap.data() } as LiveScore);
           } else {
             setPartido(null);
           }
