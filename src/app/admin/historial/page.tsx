@@ -3,8 +3,8 @@ import { HistorialCambios } from '@/components/admin/historial-cambios';
 
 export default function AdminHistorialPage() {
   return (
-    <div className="space-y-6">
-      <div><h1 className="text-xl font-bold text-[var(--text)]">Historial de Cambios</h1><p className="text-sm text-[var(--text-secondary)]">Registro de todas las acciones realizadas en el panel.</p></div>
+    <div className="space-y-5">
+      <div><h2 className="text-lg font-bold text-[var(--text)]">Historial de Cambios</h2><p className="text-sm text-[var(--text-secondary)]">Registro de acciones en el panel</p></div>
       <HistorialCambios />
     </div>
   );

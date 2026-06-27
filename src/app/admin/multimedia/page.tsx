@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader } from '@/components/shared/loader';
 import { EmptyState } from '@/components/shared/empty-state';
-import { Image, Plus, Save, Trash2 } from 'lucide-react';
+import { Image, Save, Trash2 } from 'lucide-react';
 import { compressImage } from '@/lib/utils';
 import type { Multimedia } from '@/types/multimedia';
 
@@ -41,24 +41,24 @@ export default function AdminMultimediaPage() {
     setTitulo(''); setDescripcion(''); setBase64('');
   };
 
-  const eliminar = async (id: string) => { if (confirm('¿Eliminar?')) await deleteDoc(doc(db, 'multimedia', id)); };
+  const eliminar = async (id: string) => { if (confirm('¿Eliminar elemento?')) await deleteDoc(doc(db, 'multimedia', id)); };
 
   return (
-    <div className="space-y-6">
-      <div><h1 className="text-xl font-bold text-[var(--text)]">Multimedia</h1><p className="text-sm text-[var(--text-secondary)]">Gestiona imágenes, videos y audio.</p></div>
+    <div className="space-y-5">
+      <div><h2 className="text-lg font-bold text-[var(--text)]">Multimedia</h2><p className="text-sm text-[var(--text-secondary)]">Gestiona imágenes, videos y audio</p></div>
 
       <Card className="overflow-hidden">
         <div className="h-1 bg-gradient-to-r from-purple-500 to-purple-600" />
         <CardHeader><h3 className="text-sm font-semibold text-[var(--text)]">Subir Contenido</h3></CardHeader>
         <CardContent className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5"><Label className="text-xs text-[var(--text-muted)]">Título</Label><Input value={titulo} onChange={(e) => setTitulo(e.target.value)} /></div>
-            <div className="space-y-1.5"><Label className="text-xs text-[var(--text-muted)]">Tipo</Label><Select value={tipo} onValueChange={(v: any) => setTipo(v)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="imagen">Imagen</SelectItem><SelectItem value="video">Video</SelectItem><SelectItem value="audio">Audio</SelectItem></SelectContent></Select></div>
+            <div className="space-y-1"><Label className="text-[10px] text-[var(--text-muted)]">Título</Label><Input value={titulo} onChange={(e) => setTitulo(e.target.value)} /></div>
+            <div className="space-y-1"><Label className="text-[10px] text-[var(--text-muted)]">Tipo</Label><Select value={tipo} onValueChange={(v: any) => setTipo(v)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="imagen">Imagen</SelectItem><SelectItem value="video">Video</SelectItem><SelectItem value="audio">Audio</SelectItem></SelectContent></Select></div>
           </div>
-          <div className="space-y-1.5"><Label className="text-xs text-[var(--text-muted)]">Descripción</Label><Input value={descripcion} onChange={(e) => setDescripcion(e.target.value)} /></div>
+          <div className="space-y-1"><Label className="text-[10px] text-[var(--text-muted)]">Descripción</Label><Input value={descripcion} onChange={(e) => setDescripcion(e.target.value)} /></div>
           {tipo === 'imagen' && (
             <div>
-              <Label className="text-xs text-[var(--text-muted)]">Imagen</Label>
+              <Label className="text-[10px] text-[var(--text-muted)]">Imagen</Label>
               <label className="flex flex-col items-center justify-center p-4 rounded-[var(--radius-sm)] border-2 border-dashed border-[var(--border)] cursor-pointer hover:border-[var(--accent)] mt-1">
                 {base64 ? <img src={base64} alt="" className="max-h-24 rounded-[var(--radius-xs)]" /> : <><Image className="h-6 w-6 text-[var(--text-muted)] mb-1" /><p className="text-xs text-[var(--text-secondary)]">Toca para subir</p></>}
                 <input type="file" accept="image/*" className="hidden" onChange={handleImage} />
@@ -73,7 +73,7 @@ export default function AdminMultimediaPage() {
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
           {items.map((item) => (
             <div key={item.id} className="group relative aspect-video rounded-[var(--radius-sm)] overflow-hidden border border-[var(--border)] bg-[var(--bg-card)]">
-              {item.base64 ? <img src={item.base64} alt={item.titulo} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gradient-to-br from-[var(--accent)] to-[var(--bg-secondary)] flex items-center justify-center"><Image className="h-5 w-5 text-[var(--text-muted)]" /></div>}
+              {item.base64 ? <img src={item.base64} alt={item.titulo} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gradient-to-br from-[var(--accent)]/10 to-[var(--bg-secondary)] flex items-center justify-center"><Image className="h-5 w-5 text-[var(--text-muted)]" /></div>}
               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <Button variant="ghost" size="icon" className="text-white" onClick={() => eliminar(item.id)}><Trash2 className="h-4 w-4" /></Button>
               </div>

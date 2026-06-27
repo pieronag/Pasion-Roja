@@ -6,16 +6,16 @@ import { cn } from '@/lib/utils';
 import { TopBar } from '@/components/admin/top-bar';
 import { Breadcrumbs } from '@/components/admin/breadcrumbs';
 import {
-  LayoutDashboard, Newspaper, Image, Radio, Tv,
+  LayoutDashboard, Newspaper, Image, Tv,
   Trophy, Shield, Users, Swords, TrendingUp,
   HeartHandshake, MessageCircle, History, LogOut, Zap,
-  CalendarDays, PanelLeftClose, PanelLeft,
+  CalendarDays, PanelLeftClose, PanelLeft, Radio,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { auth } from '@/lib/firebase';
 
-interface NavItem { href: string; label: string; icon: any; badge?: string | number; }
+interface NavItem { href: string; label: string; icon: any; }
 
 const navSections: { label: string; items: NavItem[] }[] = [
   {
@@ -83,31 +83,31 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     return null;
   }
 
+  const sidebarW = collapsed ? 'w-16' : 'w-56';
+
   return (
-    <div className="h-screen w-screen flex bg-[var(--bg)] overflow-hidden">
+    <div className="h-dvh w-screen flex bg-[var(--bg)] overflow-hidden">
       {/* Sidebar */}
-      <aside
-        className={`${collapsed ? 'w-16' : 'w-56'} flex-shrink-0 h-full border-r border-[var(--border)] bg-[var(--bg-secondary)] flex flex-col transition-all duration-300`}
-      >
-        {/* Logo */}
-        <div className="flex items-center gap-2.5 h-16 px-3 border-b border-[var(--border)] flex-shrink-0">
-          <div className="w-9 h-9 rounded-[var(--radius-sm)] bg-[var(--accent)] flex items-center justify-center flex-shrink-0">
-            <Zap className="h-5 w-5 text-white fill-white" />
+      <aside className={`${sidebarW} flex-shrink-0 h-full border-r border-[var(--border)] bg-[var(--bg-secondary)] flex flex-col transition-all duration-300`}>
+        {/* Logo - fixed top */}
+        <div className="flex items-center gap-2.5 px-3 h-14 border-b border-[var(--border)] flex-shrink-0">
+          <div className="w-8 h-8 rounded-[var(--radius-sm)] bg-[var(--accent)] flex items-center justify-center flex-shrink-0">
+            <Zap className="h-4 w-4 text-white fill-white" />
           </div>
           {!collapsed && (
-            <div className="overflow-hidden">
-              <span className="font-bold text-sm text-[var(--text)] whitespace-nowrap">Pasión Roja</span>
-              <span className="text-[9px] text-[var(--accent)] font-semibold block leading-tight">ADMIN PANEL</span>
+            <div className="overflow-hidden leading-tight">
+              <span className="font-bold text-sm text-[var(--text)] whitespace-nowrap">PASIÓN ROJA</span>
+              <span className="text-[8px] text-[var(--accent)] font-semibold block tracking-wider">ADMIN PANEL</span>
             </div>
           )}
         </div>
 
-        {/* Nav */}
-        <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2 py-3 scrollbar-thin">
+        {/* Nav - scrollable, fills remaining space */}
+        <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2 py-2 scrollbar-thin min-h-0">
           {navSections.map((section) => (
-            <div key={section.label} className="mb-4">
+            <div key={section.label} className="mb-3 last:mb-0">
               {!collapsed && (
-                <p className="px-2 mb-1 text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-widest">
+                <p className="px-2 mb-0.5 text-[9px] font-semibold text-[var(--text-muted)] uppercase tracking-[0.15em]">
                   {section.label}
                 </p>
               )}
@@ -120,19 +120,16 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                       key={item.href}
                       href={item.href}
                       className={cn(
-                        'flex items-center gap-3 px-2 py-2 rounded-[var(--radius-sm)] text-sm font-medium transition-all',
-                        collapsed && 'justify-center px-0',
+                        'flex items-center gap-3 px-2 py-1.5 rounded-[var(--radius-sm)] text-sm font-medium transition-all',
+                        collapsed ? 'justify-center px-0' : '',
                         isActive
                           ? 'bg-[var(--accent)] text-white shadow-sm'
                           : 'text-[var(--text-secondary)] hover:text-[var(--text)] hover:bg-[var(--bg-hover)]'
                       )}
                       title={collapsed ? item.label : undefined}
                     >
-                      <Icon className={cn('h-5 w-5 flex-shrink-0', isActive && 'text-white')} />
+                      <Icon className={cn('h-4 w-4 flex-shrink-0', isActive && 'text-white')} />
                       {!collapsed && <span className="truncate">{item.label}</span>}
-                      {!collapsed && item.badge && (
-                        <span className="ml-auto text-[10px] font-bold bg-[var(--accent)]/10 text-[var(--accent)] px-1.5 py-0.5 rounded-full">{item.badge}</span>
-                      )}
                     </Link>
                   );
                 })}
@@ -141,23 +138,30 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
 
-        {/* Bottom */}
-        <div className="border-t border-[var(--border)] p-2 flex-shrink-0">
+        {/* Bottom - always at bottom, fixed */}
+        <div className="border-t border-[var(--border)] flex-shrink-0 bg-[var(--bg-secondary)]">
+          {/* Collapse button */}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="w-full flex items-center justify-center gap-2 p-2 rounded-[var(--radius-sm)] hover:bg-[var(--bg-hover)] text-[var(--text-muted)] transition-colors"
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-2 hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text)] transition-colors text-xs"
           >
-            {collapsed ? <PanelLeft className="h-4 w-4" /> : <><PanelLeftClose className="h-4 w-4" /><span className="text-xs">Colapsar</span></>}
+            {collapsed ? <PanelLeft className="h-4 w-4" /> : <><PanelLeftClose className="h-4 w-4" /><span>Colapsar</span></>}
           </button>
+
+          {/* User info */}
           {!collapsed && (
-            <div className="flex items-center gap-2 px-2 py-2 mt-1">
+            <div className="flex items-center gap-2 px-3 py-2.5 border-t border-[var(--border)]">
               <div className="w-7 h-7 rounded-full bg-[var(--accent)]/10 flex items-center justify-center text-[10px] font-bold text-[var(--accent)] flex-shrink-0">
                 {user.email?.[0].toUpperCase() || 'A'}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[11px] font-medium text-[var(--text)] truncate">{user.email}</p>
+                <p className="text-[11px] font-medium text-[var(--text)] truncate leading-tight">{user.email}</p>
               </div>
-              <button onClick={logout} className="p-1 rounded hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors" title="Cerrar sesión">
+              <button
+                onClick={logout}
+                className="p-1.5 rounded-[var(--radius-xs)] hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--error)] transition-colors"
+                title="Cerrar sesión"
+              >
                 <LogOut className="h-3.5 w-3.5" />
               </button>
             </div>
@@ -165,11 +169,11 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      {/* Main */}
+      {/* Main content */}
       <div className="flex-1 flex flex-col h-full min-w-0">
         <TopBar onToggleSidebar={() => setCollapsed(!collapsed)} />
         <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 lg:p-6 scrollbar-thin">
-          <div className="max-w-7xl mx-auto">
+          <div className="max-w-[1440px] mx-auto">
             <Breadcrumbs />
             {children}
           </div>
