@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import { collection, query, onSnapshot, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { JugadorForm } from '@/components/admin/jugador-form';
-import { useDeportes } from '@/hooks/use-deportes';
 import { SportIcon } from '@/components/shared/sport-icons';
+import { useDeportes } from '@/hooks/use-deportes';
 import { useEquipos } from '@/hooks/use-equipos';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,7 +13,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Loader } from '@/components/shared/loader';
 import { EmptyState } from '@/components/shared/empty-state';
-import { Users, Plus, Pencil, Trash2, Search } from 'lucide-react';
+import { ActionsDropdown } from '@/components/admin/actions-dropdown';
+import { StatusBadge } from '@/components/admin/status-badge';
+import { Users, Plus, Pencil, Trash2, Search, Eye } from 'lucide-react';
 import type { Jugador } from '@/types/jugador';
 
 export default function AdminJugadoresPage() {
@@ -48,15 +50,15 @@ export default function AdminJugadoresPage() {
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <div><h1 className="text-xl font-bold text-[var(--text)]">Jugadores</h1><p className="text-sm text-[var(--text-secondary)]">{jugadores.length} jugadores registrados</p></div>
+        <div><h2 className="text-lg font-bold text-[var(--text)]">Jugadores</h2><p className="text-sm text-[var(--text-secondary)]">{jugadores.length} jugadores registrados</p></div>
         <Dialog open={showCreate && !editing} onOpenChange={setShowCreate}>
           <DialogTrigger asChild><Button><Plus className="h-4 w-4 mr-1.5" /> Nuevo Jugador</Button></DialogTrigger>
           <DialogContent className="max-w-md"><DialogHeader><DialogTitle>Nuevo Jugador</DialogTitle></DialogHeader><JugadorForm onClose={() => setShowCreate(false)} /></DialogContent>
         </Dialog>
       </div>
 
-      <div className="flex gap-2">
-        <div className="relative flex-1 max-w-xs"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-muted)]" /><Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar jugador..." className="pl-9" /></div>
+      <div className="flex flex-wrap gap-2">
+        <div className="relative flex-1 min-w-[200px] max-w-xs"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-muted)]" /><Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar jugador..." className="pl-9" /></div>
         <div className="w-44"><Select value={filterDeporte} onValueChange={(v) => { setFilterDeporte(v); setFilterEquipo(''); }}><SelectTrigger><SelectValue placeholder="Deporte" /></SelectTrigger><SelectContent><SelectItem value="">Todos</SelectItem>{deportes.map((d) => <SelectItem key={d.id} value={d.id}><span className="flex items-center gap-1.5"><SportIcon sport={d.icono} size={14} /><span>{d.nombre}</span></span></SelectItem>)}</SelectContent></Select></div>
         <div className="w-44"><Select value={filterEquipo} onValueChange={setFilterEquipo} disabled={!filterDeporte}><SelectTrigger><SelectValue placeholder="Equipo" /></SelectTrigger><SelectContent><SelectItem value="">Todos</SelectItem>{equipos.map((e) => <SelectItem key={e.id} value={e.id}>{e.nombre}</SelectItem>)}</SelectContent></Select></div>
       </div>
@@ -67,9 +69,9 @@ export default function AdminJugadoresPage() {
             <thead><tr className="bg-[var(--bg-secondary)] border-b border-[var(--border)]">
               <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-left w-10">#</th>
               <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-left">Nombre</th>
-              <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-left">Posición</th>
-              <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-left">Equipo</th>
-              <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-center">Goles</th>
+              <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-left hidden md:table-cell">Posición</th>
+              <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-left hidden lg:table-cell">Equipo</th>
+              <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-center hidden sm:table-cell">Goles</th>
               <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-center">Estado</th>
               <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-right">Acciones</th>
             </tr></thead>
@@ -80,11 +82,15 @@ export default function AdminJugadoresPage() {
                   <tr key={j.id} className="border-b border-[var(--border)] hover:bg-[var(--bg-hover)] transition-colors">
                     <td className="p-3 text-center font-bold text-[var(--accent)] font-mono text-sm">{j.numero}</td>
                     <td className="p-3"><div className="flex items-center gap-2.5"><div className="w-7 h-7 rounded-full bg-[var(--bg-secondary)] flex items-center justify-center text-[10px] font-bold text-[var(--text-muted)] overflow-hidden">{j.fotoBase64 ? <img src={j.fotoBase64} alt="" className="w-full h-full object-cover" /> : `${j.nombre[0]}${j.apellido[0]}`}</div><span className="text-sm font-medium text-[var(--text)]">{j.nombre} {j.apellido}</span></div></td>
-                    <td className="p-3 text-sm text-[var(--text-secondary)]">{j.posicion || '—'}</td>
-                    <td className="p-3 text-sm text-[var(--text-secondary)]">{equipo?.nombre || '—'}</td>
-                    <td className="p-3 text-center font-bold text-[var(--accent)]">{j.estadisticasTemp?.goles || 0}</td>
-                    <td className="p-3 text-center"><span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${j.activo ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-400'}`}>{j.activo ? 'Activo' : 'Inactivo'}</span></td>
-                    <td className="p-3 text-right"><div className="flex justify-end gap-1"><Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditing(j); setShowCreate(true); }}><Pencil className="h-3.5 w-3.5" /></Button><Button variant="ghost" size="icon" className="h-7 w-7 text-red-400" onClick={() => handleDelete(j.id)}><Trash2 className="h-3.5 w-3.5" /></Button></div></td>
+                    <td className="p-3 text-sm text-[var(--text-secondary)] hidden md:table-cell">{j.posicion || '—'}</td>
+                    <td className="p-3 text-sm text-[var(--text-secondary)] hidden lg:table-cell">{equipo?.nombre || '—'}</td>
+                    <td className="p-3 text-center font-bold text-[var(--accent)] hidden sm:table-cell">{j.estadisticasTemp?.goles || 0}</td>
+                    <td className="p-3 text-center"><StatusBadge status={j.activo ? 'success' : 'error'} label={j.activo ? 'Activo' : 'Inactivo'} /></td>
+                    <td className="p-3 text-right"><ActionsDropdown actions={[
+                      { label: 'Editar', icon: <Pencil className="h-3.5 w-3.5" />, onClick: () => { setEditing(j); setShowCreate(true); } },
+                      { label: 'Ver perfil', icon: <Eye className="h-3.5 w-3.5" />, onClick: () => window.open(`/jugadores/${j.id}`, '_blank') },
+                      { label: 'Eliminar', icon: <Trash2 className="h-3.5 w-3.5" />, onClick: () => handleDelete(j.id), danger: true },
+                    ]} /></td>
                   </tr>
                 );
               })}

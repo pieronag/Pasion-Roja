@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { collection, query, onSnapshot, addDoc, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { useDeportes } from '@/hooks/use-deportes';
 import { SportIcon } from '@/components/shared/sport-icons';
+import { useDeportes } from '@/hooks/use-deportes';
 import { useEquipos } from '@/hooks/use-equipos';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader } from '@/components/shared/loader';
 import { EmptyState } from '@/components/shared/empty-state';
+import { ActionsDropdown } from '@/components/admin/actions-dropdown';
 import { Shield, Plus, Trash2 } from 'lucide-react';
 import type { Division } from '@/types/division';
 
@@ -48,24 +49,25 @@ export default function AdminDivisionesPage() {
 
   return (
     <div className="space-y-5">
-      <div><h1 className="text-xl font-bold text-[var(--text)]">Divisiones / Ligas</h1><p className="text-sm text-[var(--text-secondary)]">{divisiones.length} divisiones registradas</p></div>
+      <div><h2 className="text-lg font-bold text-[var(--text)]">Divisiones / Ligas</h2><p className="text-sm text-[var(--text-secondary)]">{divisiones.length} divisiones registradas</p></div>
 
       <Card className="overflow-hidden">
         <div className="h-1 bg-gradient-to-r from-blue-500 to-blue-600" />
         <CardHeader><h3 className="text-sm font-semibold text-[var(--text)]">Nueva División</h3></CardHeader>
         <CardContent className="flex gap-2 items-end">
-          <div className="space-y-1 flex-1"><Label className="text-xs text-[var(--text-muted)]">Nombre</Label><Input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: Primera División" /></div>
-          <div className="space-y-1 w-40"><Label className="text-xs text-[var(--text-muted)]">Deporte</Label><Select value={deporteId} onValueChange={setDeporteId}><SelectTrigger><SelectValue placeholder="Seleccionar" /></SelectTrigger><SelectContent>{deportes.map((d) => <SelectItem key={d.id} value={d.id}><span className="flex items-center gap-1.5"><SportIcon sport={d.icono} size={14} /><span>{d.nombre}</span></span></SelectItem>)}</SelectContent></Select></div>
-          <div className="space-y-1 w-24"><Label className="text-xs text-[var(--text-muted)]">Temporada</Label><Input value={temporada} onChange={(e) => setTemporada(e.target.value)} /></div>
+          <div className="space-y-1 flex-1"><Label className="text-[10px] text-[var(--text-muted)]">Nombre</Label><Input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: Primera División" /></div>
+          <div className="space-y-1 w-40"><Label className="text-[10px] text-[var(--text-muted)]">Deporte</Label><Select value={deporteId} onValueChange={setDeporteId}><SelectTrigger><SelectValue placeholder="Seleccionar" /></SelectTrigger><SelectContent>{deportes.map((d) => <SelectItem key={d.id} value={d.id}><span className="flex items-center gap-1.5"><SportIcon sport={d.icono} size={14} /><span>{d.nombre}</span></span></SelectItem>)}</SelectContent></Select></div>
+          <div className="space-y-1 w-24"><Label className="text-[10px] text-[var(--text-muted)]">Temp.</Label><Input value={temporada} onChange={(e) => setTemporada(e.target.value)} /></div>
           <Button onClick={crear} loading={saving} size="sm"><Plus className="h-3.5 w-3.5 mr-1" /> Crear</Button>
         </CardContent>
       </Card>
 
-      {/* Sport filter */}
       <div className="flex gap-1 flex-wrap">
         <button onClick={() => setFilterDeporte('')} className={`px-3 py-1.5 rounded-[var(--radius-sm)] text-xs font-medium transition-colors ${!filterDeporte ? 'bg-[var(--accent)] text-white' : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'}`}>Todos</button>
         {deportes.map((d) => (
-          <button key={d.id} onClick={() => setFilterDeporte(d.id)} className={`px-3 py-1.5 rounded-[var(--radius-sm)] text-xs font-medium transition-colors ${filterDeporte === d.id ? 'bg-[var(--accent)] text-white' : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'}`}><span className="flex items-center gap-1.5"><SportIcon sport={d.icono} size={16} /><span>{d.nombre}</span></span></button>
+          <button key={d.id} onClick={() => setFilterDeporte(d.id)} className={`px-3 py-1.5 rounded-[var(--radius-sm)] text-xs font-medium transition-colors ${filterDeporte === d.id ? 'bg-[var(--accent)] text-white' : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'}`}>
+            <SportIcon sport={d.icono} size={14} /> {d.nombre}
+          </button>
         ))}
       </div>
 
@@ -83,7 +85,7 @@ export default function AdminDivisionesPage() {
                     <td className="p-3 text-sm text-[var(--text-secondary)]"><span className="flex items-center gap-1.5"><SportIcon sport={deporte?.icono || ''} size={14} /><span>{deporte?.nombre}</span></span></td>
                     <td className="p-3 text-sm text-[var(--text-secondary)]">{d.temporada}</td>
                     <td className="p-3 text-center text-sm text-[var(--text-secondary)]">{count}</td>
-                    <td className="p-3 text-right"><Button variant="ghost" size="icon" className="h-7 w-7 text-red-400" onClick={() => eliminar(d.id)}><Trash2 className="h-3.5 w-3.5" /></Button></td>
+                    <td className="p-3 text-right"><ActionsDropdown actions={[{ label: 'Eliminar', icon: <Trash2 className="h-3.5 w-3.5" />, onClick: () => eliminar(d.id), danger: true }]} /></td>
                   </tr>
                 );
               })}

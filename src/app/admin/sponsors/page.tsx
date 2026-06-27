@@ -11,10 +11,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader } from '@/components/shared/loader';
 import { EmptyState } from '@/components/shared/empty-state';
+import { ActionsDropdown } from '@/components/admin/actions-dropdown';
 import { HeartHandshake, Plus, Pencil, Trash2, Search, ExternalLink } from 'lucide-react';
 import type { Sponsor, TipoSponsor } from '@/types/sponsor';
 
 const tipoColors: Record<string, string> = { principal: 'from-yellow-400 to-yellow-600', oficial: 'from-blue-400 to-blue-600', auspiciador: 'from-green-400 to-green-600', media: 'from-gray-400 to-gray-600' };
+const tipoLabels: Record<string, string> = { principal: 'Principal', oficial: 'Oficial', auspiciador: 'Auspiciador', media: 'Media' };
 
 export default function AdminSponsorsPage() {
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
@@ -43,7 +45,7 @@ export default function AdminSponsorsPage() {
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <div><h1 className="text-xl font-bold text-[var(--text)]">Sponsors</h1><p className="text-sm text-[var(--text-secondary)]">{sponsors.length} sponsors registrados</p></div>
+        <div><h2 className="text-lg font-bold text-[var(--text)]">Sponsors</h2><p className="text-sm text-[var(--text-secondary)]">{sponsors.length} sponsors registrados</p></div>
         <Dialog open={showCreate && !editing} onOpenChange={setShowCreate}>
           <DialogTrigger asChild><Button><Plus className="h-4 w-4 mr-1.5" /> Nuevo Sponsor</Button></DialogTrigger>
           <DialogContent className="max-w-md"><DialogHeader><DialogTitle>Nuevo Sponsor</DialogTitle></DialogHeader><SponsorForm onClose={() => setShowCreate(false)} /></DialogContent>
@@ -67,13 +69,13 @@ export default function AdminSponsorsPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-sm text-[var(--text)] truncate">{s.nombre}</h3>
-                    <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${s.tipo === 'principal' ? 'bg-yellow-500/10 text-yellow-600' : s.tipo === 'oficial' ? 'bg-blue-500/10 text-blue-600' : s.tipo === 'auspiciador' ? 'bg-green-500/10 text-green-600' : 'bg-gray-500/10 text-gray-600'}`}>{s.tipo}</span>
-                    {s.url && <a href={s.url} target="_blank" className="text-[10px] text-[var(--text-muted)] flex items-center gap-1 mt-0.5 hover:text-[var(--accent)]"><ExternalLink className="h-3 w-3" /> Web</a>}
+                    <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full" style={{ backgroundColor: s.tipo === 'principal' ? '#FEF3C7' : s.tipo === 'oficial' ? '#DBEAFE' : s.tipo === 'auspiciador' ? '#D1FAE5' : '#F3F4F6', color: s.tipo === 'principal' ? '#D97706' : s.tipo === 'oficial' ? '#2563EB' : s.tipo === 'auspiciador' ? '#059669' : '#6B7280' }}>{tipoLabels[s.tipo]}</span>
                   </div>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditing(s); setShowCreate(true); }}><Pencil className="h-3.5 w-3.5" /></Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-red-400" onClick={() => eliminar(s.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
-                  </div>
+                  <ActionsDropdown actions={[
+                    { label: 'Editar', icon: <Pencil className="h-3.5 w-3.5" />, onClick: () => { setEditing(s); setShowCreate(true); } },
+                    ...(s.url ? [{ label: 'Visitar web', icon: <ExternalLink className="h-3.5 w-3.5" />, onClick: () => window.open(s.url, '_blank') }] : []),
+                    { label: 'Eliminar', icon: <Trash2 className="h-3.5 w-3.5" />, onClick: () => eliminar(s.id), danger: true },
+                  ]} />
                 </div>
               </CardContent>
             </Card>
