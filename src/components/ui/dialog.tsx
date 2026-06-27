@@ -50,4 +50,16 @@ const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivEleme
 );
 DialogHeader.displayName = 'DialogHeader';
 
-export { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogClose };
+const DialogTitle = React.forwardRef<
+  React.ElementRef<typeof DialogPrimitive.Title>,
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>
+>(({ className, ...props }, ref) => (
+  <DialogPrimitive.Title
+    ref={ref}
+    className={cn('text-lg font-semibold leading-none tracking-tight text-[var(--text)]', className)}
+    {...props}
+  />
+));
+DialogTitle.displayName = 'DialogTitle';
+
+export { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose };
