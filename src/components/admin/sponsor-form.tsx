@@ -35,48 +35,41 @@ export function SponsorForm({ sponsor, onClose }: { sponsor?: Sponsor; onClose?:
       if (sponsor) await updateDoc(doc(db, 'sponsors', sponsor.id), data);
       else await addDoc(collection(db, 'sponsors'), data);
       setSuccess(true);
-      setTimeout(() => { setSuccess(false); onClose?.(); }, 1200);
+      setTimeout(() => { setSuccess(false); onClose?.(); }, 1000);
     } catch (err: any) { setError(err.message); }
     finally { setSaving(false); }
   };
 
   return (
-    <div className="space-y-4">
-      {error && <div className="flex items-center gap-2 p-3 rounded-lg bg-red-500/10 border"><AlertCircle className="h-4 w-4 text-red-400" /><p className="text-sm text-red-400">{error}</p></div>}
-      {success && <div className="flex items-center gap-2 p-3 rounded-lg bg-green-500/10 border"><CheckCircle2 className="h-4 w-4 text-green-400" /><p className="text-sm text-green-400">Sponsor guardado</p></div>}
+    <div className="space-y-3">
+      {error && <div className="flex items-center gap-2 p-2.5 rounded-[var(--radius-sm)] bg-red-500/10 border"><AlertCircle className="h-4 w-4 text-red-400 flex-shrink-0" /><p className="text-xs text-red-400">{error}</p></div>}
+      {success && <div className="flex items-center gap-2 p-2.5 rounded-[var(--radius-sm)] bg-green-500/10 border"><CheckCircle2 className="h-4 w-4 text-green-400" /><p className="text-xs text-green-400">Sponsor guardado</p></div>}
 
-      <div className="flex gap-4 items-start">
-        <label className="flex-shrink-0 w-32 h-20 rounded-xl border-2 border-dashed border-[var(--border)] cursor-pointer overflow-hidden hover:border-[var(--accent)] transition-colors bg-[var(--bg-secondary)] flex items-center justify-center">
-          {logoBase64 ? <img src={logoBase64} alt="" className="w-full h-full object-contain p-2" /> : <div className="text-center"><Upload className="h-5 w-5 text-[var(--text-muted)] mx-auto mb-1" /><span className="text-[10px] text-[var(--text-muted)]">Logo</span></div>}
+      <div className="flex gap-3 items-start">
+        <label className="flex-shrink-0 w-24 h-14 rounded-[var(--radius-sm)] border-2 border-dashed border-[var(--border)] cursor-pointer overflow-hidden hover:border-[var(--accent)] transition-colors bg-[var(--bg-secondary)] flex items-center justify-center">
+          {logoBase64 ? <img src={logoBase64} alt="" className="w-full h-full object-contain p-1" /> : <Upload className="h-5 w-5 text-[var(--text-muted)]" />}
           <input type="file" accept="image/*" className="hidden" onChange={handleLogo} />
         </label>
-        <div className="flex-1 space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5"><Label>Nombre de la empresa</Label><Input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: Empresa SPA" /></div>
-            <div className="space-y-1.5"><Label>Sitio web</Label><Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://..." /></div>
+        <div className="flex-1 space-y-2">
+          <div className="grid grid-cols-2 gap-2">
+            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Nombre</Label><Input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Empresa SPA" /></div>
+            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Sitio web</Label><Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://..." /></div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5"><Label className="text-xs text-[var(--text-muted)]">Tipo de sponsor</Label>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Tipo</Label>
               <Select value={tipo} onValueChange={(v: TipoSponsor) => setTipo(v)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="principal">⭐ Principal</SelectItem>
-                  <SelectItem value="oficial">🔵 Oficial</SelectItem>
-                  <SelectItem value="auspiciador">🟢 Auspiciador</SelectItem>
-                  <SelectItem value="media">📢 Media</SelectItem>
-                </SelectContent>
+                <SelectContent><SelectItem value="principal">⭐ Principal</SelectItem><SelectItem value="oficial">🔵 Oficial</SelectItem><SelectItem value="auspiciador">🟢 Auspiciador</SelectItem><SelectItem value="media">📢 Media</SelectItem></SelectContent>
               </Select>
             </div>
-            <div className="space-y-1.5"><Label className="text-xs text-[var(--text-muted)]">Descripción (opcional)</Label><Input value={descripcion} onChange={(e) => setDescripcion(e.target.value)} placeholder="Breve descripción" /></div>
+            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Descripción</Label><Input value={descripcion} onChange={(e) => setDescripcion(e.target.value)} /></div>
           </div>
         </div>
       </div>
 
-      <div className="flex justify-end gap-2 pt-2 border-t border-[var(--border)]">
-        {onClose && <Button variant="outline" onClick={onClose}><X className="h-4 w-4 mr-1.5" /> Cancelar</Button>}
-        <Button onClick={handleSubmit} loading={saving} disabled={success}>
-          <Save className="h-4 w-4 mr-1.5" /> {sponsor ? 'Guardar Cambios' : 'Crear Sponsor'}
-        </Button>
+      <div className="flex justify-end gap-2 pt-1 border-t border-[var(--border)]">
+        {onClose && <Button variant="ghost" size="sm" onClick={onClose}><X className="h-3.5 w-3.5 mr-1" /> Cancelar</Button>}
+        <Button onClick={handleSubmit} loading={saving} disabled={success} size="sm"><Save className="h-3.5 w-3.5 mr-1" /> {sponsor ? 'Guardar' : 'Crear'}</Button>
       </div>
     </div>
   );

@@ -30,18 +30,9 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setError('');
     setSuccess('');
-
-    if (!email || !password) {
-      setError('Ingresa email y contraseña');
-      return;
-    }
-
+    if (!email || !password) { setError('Ingresa email y contraseña'); return; }
     const result = loginSchema.safeParse({ email, password });
-    if (!result.success) {
-      setError(result.error.issues.map((i) => i.message).join('. '));
-      return;
-    }
-
+    if (!result.success) { setError(result.error.issues.map((i) => i.message).join('. ')); return; }
     setLoading(true);
     try {
       const cred = await signInWithEmailAndPassword(auth, email, password);
@@ -49,81 +40,47 @@ export default function AdminLoginPage() {
       setSuccess('Inicio de sesión exitoso. Redirigiendo...');
       window.location.href = '/admin';
     } catch (err: any) {
-      console.error('Login error:', err.code, err.message);
-
       const messages: Record<string, string> = {
         'auth/invalid-credential': 'Email o contraseña incorrectos',
         'auth/user-not-found': 'Usuario no encontrado',
         'auth/wrong-password': 'Contraseña incorrecta',
         'auth/invalid-email': 'Email inválido',
-        'auth/user-disabled': 'Usuario deshabilitado',
         'auth/too-many-requests': 'Demasiados intentos. Espera unos minutos',
         'auth/configuration-not-found': 'Firebase no está configurado correctamente',
         'auth/invalid-api-key': 'API Key de Firebase inválida',
         'auth/network-request-failed': 'Error de red. Revisa tu conexión',
       };
-
       setError(messages[err.code] || `Error: ${err.code || err.message}`);
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-pizarra p-4">
+    <div className="min-h-screen flex items-center justify-center bg-[var(--bg)] p-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <div className="flex flex-col items-center gap-2 mb-4">
-            <Zap className="h-10 w-10 text-rojo fill-rojo" />
-            <h1 className="text-2xl font-black font-display text-white">
-              PASIÓN <span className="text-rojo">ROJA</span>
+          <div className="flex flex-col items-center gap-2 mb-2">
+            <div className="w-12 h-12 rounded-[var(--radius)] bg-[var(--accent)] flex items-center justify-center">
+              <Zap className="h-6 w-6 text-white fill-white" />
+            </div>
+            <h1 className="text-xl font-black font-display text-[var(--text)]">
+              PASIÓN <span className="text-[var(--accent)]">ROJA</span>
             </h1>
-            <p className="text-sm text-gray-500">Panel de Administración</p>
+            <p className="text-xs text-[var(--text-secondary)]">Panel de Administración</p>
           </div>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <div className="space-y-1.5">
               <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@pasionroja.cl"
-                autoComplete="email"
-                autoFocus
-                disabled={loading}
-              />
+              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="admin@pasionroja.cl" autoComplete="email" autoFocus disabled={loading} />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <Label htmlFor="password">Contraseña</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                autoComplete="current-password"
-                disabled={loading}
-              />
+              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" autoComplete="current-password" disabled={loading} />
             </div>
-
-            {error && (
-              <div className="flex items-start gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-                <AlertCircle className="h-4 w-4 text-red-400 mt-0.5 flex-shrink-0" />
-                <p className="text-sm text-red-400">{error}</p>
-              </div>
-            )}
-
-            {success && (
-              <div className="flex items-center gap-2 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
-                <CheckCircle2 className="h-4 w-4 text-green-400 flex-shrink-0" />
-                <p className="text-sm text-green-400">{success}</p>
-              </div>
-            )}
-
-            <Button type="submit" loading={loading} size="lg" className="w-full">
+            {error && <div className="flex items-start gap-2 p-2.5 rounded-[var(--radius-sm)] bg-red-500/10 border border-red-500/20"><AlertCircle className="h-4 w-4 text-red-400 mt-0.5 flex-shrink-0" /><p className="text-xs text-red-400">{error}</p></div>}
+            {success && <div className="flex items-center gap-2 p-2.5 rounded-[var(--radius-sm)] bg-green-500/10 border border-green-500/20"><CheckCircle2 className="h-4 w-4 text-green-400 flex-shrink-0" /><p className="text-xs text-green-400">{success}</p></div>}
+            <Button type="submit" loading={loading} size="full">
               <LogIn className="h-4 w-4 mr-2" /> Ingresar
             </Button>
           </form>
