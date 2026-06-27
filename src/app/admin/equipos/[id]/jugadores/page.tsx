@@ -5,7 +5,7 @@ import { collection, query, where, onSnapshot, doc, deleteDoc } from 'firebase/f
 import { db } from '@/lib/firebase';
 import { JugadorForm } from '@/components/admin/jugador-form';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogBody } from '@/components/ui/dialog';
 import { Loader } from '@/components/shared/loader';
 import { EmptyState } from '@/components/shared/empty-state';
 import { StatusBadge } from '@/components/admin/status-badge';
@@ -41,7 +41,10 @@ export default function AdminEquipoJugadoresPage({ params }: { params: Promise<{
         </div>
         <Dialog open={showCreate && !editing} onOpenChange={setShowCreate}>
           <DialogTrigger asChild><Button><Plus className="h-4 w-4 mr-1.5" /> Añadir Jugador</Button></DialogTrigger>
-          <DialogContent className="max-w-md"><DialogHeader><DialogTitle>Nuevo Jugador</DialogTitle></DialogHeader><JugadorForm equipoId={id} onClose={() => setShowCreate(false)} /></DialogContent>
+          <DialogContent className="max-w-md">
+            <DialogHeader><DialogTitle>Nuevo Jugador</DialogTitle></DialogHeader>
+            <DialogBody><JugadorForm equipoId={id} onClose={() => setShowCreate(false)} /></DialogBody>
+          </DialogContent>
         </Dialog>
       </div>
 
@@ -83,7 +86,10 @@ export default function AdminEquipoJugadoresPage({ params }: { params: Promise<{
       )}
 
       <Dialog open={showCreate && !!editing} onOpenChange={(o) => { if (!o) { setEditing(null); setShowCreate(false); }}}>
-        <DialogContent className="max-w-md"><DialogHeader><DialogTitle>Editar Jugador</DialogTitle></DialogHeader>{editing && <JugadorForm jugador={editing} onClose={() => { setEditing(null); setShowCreate(false); }} />}</DialogContent>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>Editar Jugador</DialogTitle></DialogHeader>
+          <DialogBody>{editing && <JugadorForm jugador={editing} onClose={() => { setEditing(null); setShowCreate(false); }} />}</DialogBody>
+        </DialogContent>
       </Dialog>
     </div>
   );

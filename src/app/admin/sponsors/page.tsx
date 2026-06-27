@@ -7,7 +7,7 @@ import { SponsorForm } from '@/components/admin/sponsor-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogBody } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader } from '@/components/shared/loader';
 import { EmptyState } from '@/components/shared/empty-state';
@@ -48,7 +48,10 @@ export default function AdminSponsorsPage() {
         <div><h2 className="text-lg font-bold text-[var(--text)]">Sponsors</h2><p className="text-sm text-[var(--text-secondary)]">{sponsors.length} sponsors registrados</p></div>
         <Dialog open={showCreate && !editing} onOpenChange={setShowCreate}>
           <DialogTrigger asChild><Button><Plus className="h-4 w-4 mr-1.5" /> Nuevo Sponsor</Button></DialogTrigger>
-          <DialogContent className="max-w-md"><DialogHeader><DialogTitle>Nuevo Sponsor</DialogTitle></DialogHeader><SponsorForm onClose={() => setShowCreate(false)} /></DialogContent>
+          <DialogContent className="max-w-md">
+            <DialogHeader><DialogTitle>Nuevo Sponsor</DialogTitle></DialogHeader>
+            <DialogBody><SponsorForm onClose={() => setShowCreate(false)} /></DialogBody>
+          </DialogContent>
         </Dialog>
       </div>
 
@@ -91,7 +94,10 @@ export default function AdminSponsorsPage() {
       )}
 
       <Dialog open={showCreate && !!editing} onOpenChange={(o) => { if (!o) { setEditing(null); setShowCreate(false); }}}>
-        <DialogContent className="max-w-md"><DialogHeader><DialogTitle>Editar Sponsor</DialogTitle></DialogHeader>{editing && <SponsorForm sponsor={editing} onClose={() => { setEditing(null); setShowCreate(false); }} />}</DialogContent>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>Editar Sponsor</DialogTitle></DialogHeader>
+          <DialogBody>{editing && <SponsorForm sponsor={editing} onClose={() => { setEditing(null); setShowCreate(false); }} />}</DialogBody>
+        </DialogContent>
       </Dialog>
     </div>
   );

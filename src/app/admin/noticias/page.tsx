@@ -8,7 +8,7 @@ import { SportIcon } from '@/components/shared/sport-icons';
 import { useDeportes } from '@/hooks/use-deportes';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogBody } from '@/components/ui/dialog';
 import { Loader } from '@/components/shared/loader';
 import { EmptyState } from '@/components/shared/empty-state';
 import { StatusBadge } from '@/components/admin/status-badge';
@@ -56,7 +56,9 @@ export default function AdminNoticiasPage() {
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader><DialogTitle>Nueva Noticia</DialogTitle></DialogHeader>
-            <NoticiaForm onClose={() => setShowForm(false)} />
+            <DialogBody>
+              <NoticiaForm onClose={() => setShowForm(false)} />
+            </DialogBody>
           </DialogContent>
         </Dialog>
       </div>

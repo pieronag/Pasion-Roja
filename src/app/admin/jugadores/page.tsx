@@ -10,7 +10,7 @@ import { useEquipos } from '@/hooks/use-equipos';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogBody } from '@/components/ui/dialog';
 import { Loader } from '@/components/shared/loader';
 import { EmptyState } from '@/components/shared/empty-state';
 import { StatusBadge } from '@/components/admin/status-badge';
@@ -53,7 +53,10 @@ export default function AdminJugadoresPage() {
         <div><h2 className="text-lg font-bold text-[var(--text)]">Jugadores</h2><p className="text-sm text-[var(--text-secondary)]">{jugadores.length} jugadores registrados</p></div>
         <Dialog open={showCreate && !editing} onOpenChange={setShowCreate}>
           <DialogTrigger asChild><Button><Plus className="h-4 w-4 mr-1.5" /> Nuevo Jugador</Button></DialogTrigger>
-          <DialogContent className="max-w-md"><DialogHeader><DialogTitle>Nuevo Jugador</DialogTitle></DialogHeader><JugadorForm onClose={() => setShowCreate(false)} /></DialogContent>
+          <DialogContent className="max-w-md">
+            <DialogHeader><DialogTitle>Nuevo Jugador</DialogTitle></DialogHeader>
+            <DialogBody><JugadorForm onClose={() => setShowCreate(false)} /></DialogBody>
+          </DialogContent>
         </Dialog>
       </div>
 
@@ -107,7 +110,10 @@ export default function AdminJugadoresPage() {
       )}
 
       <Dialog open={showCreate && !!editing} onOpenChange={(o) => { if (!o) { setEditing(null); setShowCreate(false); }}}>
-        <DialogContent className="max-w-md"><DialogHeader><DialogTitle>Editar Jugador</DialogTitle></DialogHeader>{editing && <JugadorForm jugador={editing} onClose={() => { setEditing(null); setShowCreate(false); }} />}</DialogContent>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>Editar Jugador</DialogTitle></DialogHeader>
+          <DialogBody>{editing && <JugadorForm jugador={editing} onClose={() => { setEditing(null); setShowCreate(false); }} />}</DialogBody>
+        </DialogContent>
       </Dialog>
     </div>
   );

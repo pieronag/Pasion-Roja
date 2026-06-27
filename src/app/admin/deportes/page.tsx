@@ -7,7 +7,7 @@ import { DeporteForm } from '@/components/admin/deporte-form';
 import { SportIcon } from '@/components/shared/sport-icons';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogBody } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Loader } from '@/components/shared/loader';
 import { EmptyState } from '@/components/shared/empty-state';
@@ -62,7 +62,10 @@ export default function AdminDeportesPage() {
           <DialogTrigger asChild>
             <Button><Plus className="h-4 w-4 mr-1.5" /> Nuevo Deporte</Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg"><DialogHeader><DialogTitle>Nuevo Deporte</DialogTitle></DialogHeader><DeporteForm onClose={() => setShowCreate(false)} /></DialogContent>
+          <DialogContent className="max-w-lg">
+            <DialogHeader><DialogTitle>Nuevo Deporte</DialogTitle></DialogHeader>
+            <DialogBody><DeporteForm onClose={() => setShowCreate(false)} /></DialogBody>
+          </DialogContent>
         </Dialog>
       </div>
 
@@ -156,7 +159,10 @@ export default function AdminDeportesPage() {
 
       {/* Edit Dialog */}
       <Dialog open={showCreate && !!editing} onOpenChange={(o) => { if (!o) { setEditing(null); setShowCreate(false); }}}>
-        <DialogContent className="max-w-lg"><DialogHeader><DialogTitle>Editar Deporte</DialogTitle></DialogHeader>{editing && <DeporteForm deporte={editing} onClose={() => { setEditing(null); setShowCreate(false); }} />}</DialogContent>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle>Editar Deporte</DialogTitle></DialogHeader>
+          <DialogBody>{editing && <DeporteForm deporte={editing} onClose={() => { setEditing(null); setShowCreate(false); }} />}</DialogBody>
+        </DialogContent>
       </Dialog>
     </div>
   );

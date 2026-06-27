@@ -9,7 +9,7 @@ import { useDeportes } from '@/hooks/use-deportes';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogBody } from '@/components/ui/dialog';
 import { Loader } from '@/components/shared/loader';
 import { EmptyState } from '@/components/shared/empty-state';
 import { MetricCard } from '@/components/admin/metric-card';
@@ -65,7 +65,10 @@ export default function AdminEquiposPage() {
         <div><h2 className="text-lg font-bold text-[var(--text)]">Equipos</h2><p className="text-sm text-[var(--text-secondary)]">{equipos.length} equipos registrados</p></div>
         <Dialog open={showCreate && !editing} onOpenChange={setShowCreate}>
           <DialogTrigger asChild><Button><Plus className="h-4 w-4 mr-1.5" /> Nuevo Equipo</Button></DialogTrigger>
-          <DialogContent className="max-w-xl"><DialogHeader><DialogTitle>Nuevo Equipo</DialogTitle></DialogHeader><EquipoForm onClose={() => setShowCreate(false)} /></DialogContent>
+          <DialogContent className="max-w-xl">
+            <DialogHeader><DialogTitle>Nuevo Equipo</DialogTitle></DialogHeader>
+            <DialogBody><EquipoForm onClose={() => setShowCreate(false)} /></DialogBody>
+          </DialogContent>
         </Dialog>
       </div>
 
@@ -128,7 +131,10 @@ export default function AdminEquiposPage() {
       )}
 
       <Dialog open={showCreate && !!editing} onOpenChange={(o) => { if (!o) { setEditing(null); setShowCreate(false); }}}>
-        <DialogContent className="max-w-xl"><DialogHeader><DialogTitle>Editar Equipo</DialogTitle></DialogHeader>{editing && <EquipoForm equipo={editing} onClose={() => { setEditing(null); setShowCreate(false); }} />}</DialogContent>
+        <DialogContent className="max-w-xl">
+          <DialogHeader><DialogTitle>Editar Equipo</DialogTitle></DialogHeader>
+          <DialogBody>{editing && <EquipoForm equipo={editing} onClose={() => { setEditing(null); setShowCreate(false); }} />}</DialogBody>
+        </DialogContent>
       </Dialog>
     </div>
   );
