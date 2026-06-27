@@ -5,6 +5,7 @@ import { collection, query, orderBy, limit, onSnapshot, addDoc, updateDoc, doc, 
 import { db } from '@/lib/firebase';
 import { useEquipos } from '@/hooks/use-equipos';
 import { useDeportes } from '@/hooks/use-deportes';
+import { SportIcon } from '@/components/shared/sport-icons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -86,7 +87,7 @@ export default function AdminPartidosPage() {
         <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-5 space-y-4">
           <h3 className="font-semibold text-[var(--text)]">Crear nuevo partido</h3>
           <div className="grid grid-cols-4 gap-3">
-            <div className="space-y-1.5"><Label className="text-xs">Deporte</Label><Select value={deporteId} onValueChange={setDeporteId}><SelectTrigger><SelectValue placeholder="Deporte" /></SelectTrigger><SelectContent>{deportes.map((d) => <SelectItem key={d.id} value={d.id}>{d.icono} {d.nombre}</SelectItem>)}</SelectContent></Select></div>
+            <div className="space-y-1.5"><Label className="text-xs">Deporte</Label><Select value={deporteId} onValueChange={setDeporteId}><SelectTrigger><SelectValue placeholder="Deporte" /></SelectTrigger><SelectContent>{deportes.map((d) => <SelectItem key={d.id} value={d.id}><span className="flex items-center gap-1.5"><SportIcon sport={d.icono} size={14} /><span>{d.nombre}</span></span></SelectItem>)}</SelectContent></Select></div>
             <div className="space-y-1.5"><Label className="text-xs">Jornada</Label><Input type="number" value={jornada} onChange={(e) => setJornada(e.target.value)} /></div>
             <div className="space-y-1.5"><Label className="text-xs">Fecha y Hora</Label><Input type="datetime-local" value={fecha} onChange={(e) => setFecha(e.target.value)} /></div>
             <div className="space-y-1.5"><Label className="text-xs">Estadio</Label><Input value={estadio} onChange={(e) => setEstadio(e.target.value)} /></div>
@@ -108,7 +109,7 @@ export default function AdminPartidosPage() {
           <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar por equipo..." className="pl-9" />
         </div>
         <div className="w-44"><Select value={filterEstado} onValueChange={setFilterEstado}><SelectTrigger><SelectValue placeholder="Estado" /></SelectTrigger><SelectContent>{estados.map((e) => <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>)}</SelectContent></Select></div>
-        <div className="w-44"><Select value={filterDeporte} onValueChange={setFilterDeporte}><SelectTrigger><SelectValue placeholder="Deporte" /></SelectTrigger><SelectContent><SelectItem value="">Todos</SelectItem>{deportes.map((d) => <SelectItem key={d.id} value={d.id}>{d.icono} {d.nombre}</SelectItem>)}</SelectContent></Select></div>
+        <div className="w-44"><Select value={filterDeporte} onValueChange={setFilterDeporte}><SelectTrigger><SelectValue placeholder="Deporte" /></SelectTrigger><SelectContent><SelectItem value="">Todos</SelectItem>{deportes.map((d) => <SelectItem key={d.id} value={d.id}><span className="flex items-center gap-1.5"><SportIcon sport={d.icono} size={14} /><span>{d.nombre}</span></span></SelectItem>)}</SelectContent></Select></div>
       </div>
 
       {loading ? <Loader /> : !filtered.length ? <EmptyState title="Sin partidos" /> : (
@@ -135,7 +136,7 @@ export default function AdminPartidosPage() {
                       <span className="text-sm font-medium text-[var(--text)]">{p.equipoVisitaNombre}</span>
                     </div>
                   </td>
-                  <td className="p-3 text-sm text-[var(--text-secondary)]">{deportes.find((d) => d.id === p.deporteId)?.icono || ''}</td>
+                  <td className="p-3 text-sm text-[var(--text-secondary)]"><SportIcon sport={deportes.find((d) => d.id === p.deporteId)?.icono || ''} size={16} /></td>
                   <td className="p-3">
                     <Badge variant={p.estado === 'en_vivo' ? 'live' : p.estado === 'finalizado' ? 'success' : 'secondary'} className="text-[10px]">
                       {p.estado === 'en_vivo' ? 'EN VIVO' : p.estado === 'finalizado' ? 'FINALIZADO' : 'PROGRAMADO'}

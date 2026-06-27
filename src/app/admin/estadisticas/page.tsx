@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { collection, query, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useDeportes } from '@/hooks/use-deportes';
+import { SportIcon } from '@/components/shared/sport-icons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -55,7 +56,7 @@ export default function AdminEstadisticasPage() {
           <div className="space-y-1.5 max-w-xs"><Label className="text-xs text-[var(--text-muted)]">Deporte</Label>
             <Select value={deporteId} onValueChange={(v) => { setDeporteId(v); setEditing(null); }}>
               <SelectTrigger><SelectValue placeholder="Seleccionar deporte" /></SelectTrigger>
-              <SelectContent>{deportes.map((d) => <SelectItem key={d.id} value={d.id}>{d.icono} {d.nombre}</SelectItem>)}</SelectContent>
+              <SelectContent>{deportes.map((d) => <SelectItem key={d.id} value={d.id}><span className="flex items-center gap-1.5"><SportIcon sport={d.icono} size={14} /><span>{d.nombre}</span></span></SelectItem>)}</SelectContent>
             </Select>
           </div>
         </CardContent>

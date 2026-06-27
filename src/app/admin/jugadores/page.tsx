@@ -5,6 +5,7 @@ import { collection, query, onSnapshot, doc, deleteDoc } from 'firebase/firestor
 import { db } from '@/lib/firebase';
 import { JugadorForm } from '@/components/admin/jugador-form';
 import { useDeportes } from '@/hooks/use-deportes';
+import { SportIcon } from '@/components/shared/sport-icons';
 import { useEquipos } from '@/hooks/use-equipos';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -56,7 +57,7 @@ export default function AdminJugadoresPage() {
 
       <div className="flex gap-2">
         <div className="relative flex-1 max-w-xs"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-muted)]" /><Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar jugador..." className="pl-9" /></div>
-        <div className="w-44"><Select value={filterDeporte} onValueChange={(v) => { setFilterDeporte(v); setFilterEquipo(''); }}><SelectTrigger><SelectValue placeholder="Deporte" /></SelectTrigger><SelectContent><SelectItem value="">Todos</SelectItem>{deportes.map((d) => <SelectItem key={d.id} value={d.id}>{d.icono} {d.nombre}</SelectItem>)}</SelectContent></Select></div>
+        <div className="w-44"><Select value={filterDeporte} onValueChange={(v) => { setFilterDeporte(v); setFilterEquipo(''); }}><SelectTrigger><SelectValue placeholder="Deporte" /></SelectTrigger><SelectContent><SelectItem value="">Todos</SelectItem>{deportes.map((d) => <SelectItem key={d.id} value={d.id}><span className="flex items-center gap-1.5"><SportIcon sport={d.icono} size={14} /><span>{d.nombre}</span></span></SelectItem>)}</SelectContent></Select></div>
         <div className="w-44"><Select value={filterEquipo} onValueChange={setFilterEquipo} disabled={!filterDeporte}><SelectTrigger><SelectValue placeholder="Equipo" /></SelectTrigger><SelectContent><SelectItem value="">Todos</SelectItem>{equipos.map((e) => <SelectItem key={e.id} value={e.id}>{e.nombre}</SelectItem>)}</SelectContent></Select></div>
       </div>
 

@@ -6,6 +6,7 @@ import { db } from '@/lib/firebase';
 import { useMarcador } from '@/hooks/use-marcador';
 import { useEquipos } from '@/hooks/use-equipos';
 import { useDeportes } from '@/hooks/use-deportes';
+import { SportIcon } from '@/components/shared/sport-icons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -97,7 +98,7 @@ export function MarcadorForm() {
               <Select value={deporteId} onValueChange={setDeporteId}>
                 <SelectTrigger><SelectValue placeholder="Seleccionar deporte" /></SelectTrigger>
                 <SelectContent>
-                  {deportes.map((d) => <SelectItem key={d.id} value={d.id}>{d.icono} {d.nombre}</SelectItem>)}
+                  {deportes.map((d) => <SelectItem key={d.id} value={d.id}><span className="flex items-center gap-1.5"><SportIcon sport={d.icono} size={14} /><span>{d.nombre}</span></span></SelectItem>)}
                 </SelectContent>
               </Select>
             </div>

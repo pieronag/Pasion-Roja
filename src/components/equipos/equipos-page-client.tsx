@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useEquipos } from '@/hooks/use-equipos';
 import { useDeportes } from '@/hooks/use-deportes';
+import { SportIcon } from '@/components/shared/sport-icons';
 import { EquipoCard } from './equipo-card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/shared/empty-state';
@@ -28,7 +29,7 @@ export function EquiposPageClient() {
       <div className="flex gap-2 overflow-x-auto pb-2 mb-4">
         <button onClick={() => setFilterDeporte('')} className={cn('px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap min-h-[44px] transition-colors', !filterDeporte ? 'bg-[var(--accent)] text-white' : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)]')}>Todos</button>
         {deportes.map((d) => (
-          <button key={d.id} onClick={() => setFilterDeporte(d.id)} className={cn('px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap min-h-[44px] transition-colors', filterDeporte === d.id ? 'bg-[var(--accent)] text-white' : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)]')}>{d.icono} {d.nombre}</button>
+          <button key={d.id} onClick={() => setFilterDeporte(d.id)} className={cn('px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap min-h-[44px] transition-colors', filterDeporte === d.id ? 'bg-[var(--accent)] text-white' : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)]')}><span className="flex items-center gap-1.5"><SportIcon sport={d.icono} size={16} /><span>{d.nombre}</span></span></button>
         ))}
       </div>
 

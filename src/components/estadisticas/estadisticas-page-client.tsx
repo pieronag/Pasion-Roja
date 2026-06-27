@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useDeportes } from '@/hooks/use-deportes';
+import { SportIcon } from '@/components/shared/sport-icons';
 import { useEstadisticas } from '@/hooks/use-estadisticas';
 import { TopScorers } from './top-scorers';
 import { Loader } from '@/components/shared/loader';
@@ -25,12 +26,12 @@ export function EstadisticasPageClient() {
       <div className="flex gap-2 overflow-x-auto pb-2 mb-4">
         {deportes.map((d) => (
           <button key={d.id} onClick={() => setSelectedDeporte(d.id)} className={cn('px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap min-h-[44px] transition-colors', activeDeporte === d.id ? 'bg-[var(--accent)] text-white' : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)]')}>
-            {d.icono} {d.nombre}
+            <span className="flex items-center gap-1.5"><SportIcon sport={d.icono} size={16} /><span>{d.nombre}</span></span>
           </button>
         ))}
       </div>
 
-      <h2 className="font-bold text-lg text-[var(--text)] mb-3">⚽ Goleadores</h2>
+      <div className="flex items-center gap-2 mb-3"><TrendingUp className="h-5 w-5 text-[var(--accent)]" /><h2 className="font-bold text-lg text-[var(--text)]">Goleadores</h2></div>
       {!activeDeporte ? <EmptyState title="Selecciona un deporte" /> : loading ? <Loader /> : rankings.length ? <TopScorers rankings={rankings} statKey="goles" /> : <EmptyState title="Sin datos" description="No hay estadísticas disponibles" />}
     </div>
   );

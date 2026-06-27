@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useDeportes } from '@/hooks/use-deportes';
+import { SportIcon } from '@/components/shared/sport-icons';
 import { usePosiciones } from '@/hooks/use-posiciones';
 import { LeagueTable } from './league-table';
 import { Loader } from '@/components/shared/loader';
@@ -26,7 +27,7 @@ export function PosicionesPageClient() {
       <div className="flex gap-2 overflow-x-auto pb-2 mb-4">
         {deportes.map((d) => (
           <button key={d.id} onClick={() => setSelectedDeporte(d.id)} className={cn('px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap min-h-[44px] transition-colors', activeDeporte === d.id ? 'bg-[var(--accent)] text-white' : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)]')}>
-            {d.icono} {d.nombre}
+            <span className="flex items-center gap-1.5"><SportIcon sport={d.icono} size={16} /><span>{d.nombre}</span></span>
           </button>
         ))}
       </div>
