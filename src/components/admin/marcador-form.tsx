@@ -83,7 +83,7 @@ export function MarcadorForm() {
       // If there's an active partido, sync the score back to it
       if (partidoId) {
         await updateDoc(doc(db, 'partidos', partidoId), {
-          marcadorLocal, marcadorVis, minuto, actualizadoEn: Date.now(),
+          marcadorLocal, marcadorVisita: marcadorVis, minuto, actualizadoEn: Date.now(),
         });
       }
 
