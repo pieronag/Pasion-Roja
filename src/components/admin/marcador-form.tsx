@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, updateDoc, collection, query, where, onSnapshot, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useMarcador } from '@/hooks/use-marcador';
 import { useEquipos } from '@/hooks/use-equipos';
@@ -15,14 +15,15 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { BadgeEnVivo } from '@/components/shared/badge-en-vivo';
 import { Swords, RotateCcw, Goal, Save, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import type { Partido } from '@/types/partido';
 
 export function MarcadorForm() {
-  const { partido } = useMarcador();
+  const { partido: livePartido } = useMarcador();
   const { equipos } = useEquipos();
   const { deportes } = useDeportes();
+  const [partidoEnVivo, setPartidoEnVivo] = useState<Partido | null>(null);
+  const [partidoId, setPartidoId] = useState('');
   const [deporteId, setDeporteId] = useState('');
-  const [localId, setLocalId] = useState('');
-  const [visitaId, setVisitaId] = useState('');
   const [equipoLocal, setEquipoLocal] = useState('');
   const [equipoVis, setEquipoVis] = useState('');
   const [marcadorLocal, setMarcadorLocal] = useState(0);
@@ -32,20 +33,60 @@ export function MarcadorForm() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
+  // Auto-detect live match from partidos collection
   useEffect(() => {
-    if (partido) { setEquipoLocal(partido.equipoLocal || ''); setEquipoVis(partido.equipoVis || ''); setMarcadorLocal(partido.marcadorLocal); setMarcadorVis(partido.marcadorVis); setMinuto(partido.minuto || '0'); setDeporteId(partido.deporteId || ''); }
-  }, [partido]);
+    const q = query(collection(db, 'partidos'), where('estado', '==', 'en_vivo'));
+    const unsub = onSnapshot(q, (snap) => {
+      if (!snap.empty) {
+        const doc_ = snap.docs[0];
+        const data = { id: doc_.id, ...doc_.data() } as Partido;
+        setPartidoEnVivo(data);
+        setPartidoId(doc_.id);
+        setEquipoLocal(data.equipoLocalNombre || '');
+        setEquipoVis(data.equipoVisitaNombre || '');
+        setMarcadorLocal(data.marcadorLocal || 0);
+        setMarcadorVis(data.marcadorVisita || 0);
+        setMinuto(data.minuto || '0');
+        setDeporteId(data.deporteId || '');
+      } else {
+        setPartidoEnVivo(null);
+        setPartidoId('');
+      }
+    });
+    return () => unsub();
+  }, []);
+
+  // Also sync from partidos_en_vivo if no active partido found
+  useEffect(() => {
+    if (!partidoEnVivo && livePartido) {
+      setEquipoLocal(livePartido.equipoLocal || '');
+      setEquipoVis(livePartido.equipoVis || '');
+      setMarcadorLocal(livePartido.marcadorLocal);
+      setMarcadorVis(livePartido.marcadorVis);
+      setMinuto(livePartido.minuto || '0');
+      setDeporteId(livePartido.deporteId || '');
+    }
+  }, [livePartido, partidoEnVivo]);
 
   const equiposFiltrados = deporteId ? equipos.filter((e) => e.deporteId === deporteId) : equipos;
-
-  const selectLocal = (id: string) => { setLocalId(id); const e = equipos.find((e) => e.id === id); if (e) setEquipoLocal(e.nombre); setMarcadorLocal(0); };
-  const selectVisita = (id: string) => { setVisitaId(id); const e = equipos.find((e) => e.id === id); if (e) setEquipoVis(e.nombre); setMarcadorVis(0); };
 
   const handleSubmit = async () => {
     setError(''); if (!equipoLocal || !equipoVis) { setError('Selecciona ambos equipos'); return; }
     setSaving(true);
     try {
-      await setDoc(doc(db, 'partidos_en_vivo', 'actual'), { equipoLocal, equipoVis, marcadorLocal, marcadorVis, minuto, deporteId: deporteId || '', actualizadoEn: Date.now() });
+      // Update live score display
+      await setDoc(doc(db, 'partidos_en_vivo', 'actual'), {
+        equipoLocal, equipoVis, marcadorLocal, marcadorVis, minuto,
+        deporteId: deporteId || '', actualizadoEn: Date.now(),
+      });
+
+      // If there's an active partido, sync the score back to it
+      if (partidoId) {
+        await updateDoc(doc(db, 'partidos', partidoId), {
+          marcadorLocal, marcadorVis, minuto, actualizadoEn: Date.now(),
+        });
+      }
+
       setSuccess(true); setTimeout(() => setSuccess(false), 2000);
     } catch (err: any) { setError(err.message); } finally { setSaving(false); }
   };
@@ -53,6 +94,8 @@ export function MarcadorForm() {
   const golLocal = () => { setMarcadorLocal((p) => p + 1); setTimeout(handleSubmit, 150); };
   const golVisita = () => { setMarcadorVis((p) => p + 1); setTimeout(handleSubmit, 150); };
   const reset = () => { setMarcadorLocal(0); setMarcadorVis(0); setMinuto('0'); };
+
+  const activeMatch = partidoEnVivo || livePartido;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
@@ -62,12 +105,20 @@ export function MarcadorForm() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2"><Swords className="h-5 w-5 text-[var(--accent)]" /><h2 className="text-lg font-bold text-[var(--text)]">Marcador en Vivo</h2></div>
-              {partido && <BadgeEnVivo size="sm" />}
+              {activeMatch && <BadgeEnVivo size="sm" />}
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
             {error && <div className="flex items-center gap-2 p-2.5 rounded-[var(--radius-sm)] bg-red-500/10 border"><AlertCircle className="h-4 w-4 text-red-400 flex-shrink-0" /><p className="text-xs text-red-400">{error}</p></div>}
             {success && <div className="flex items-center gap-2 p-2.5 rounded-[var(--radius-sm)] bg-emerald-500/10 border"><CheckCircle2 className="h-4 w-4 text-emerald-400" /><p className="text-xs text-emerald-400">Marcador actualizado</p></div>}
+
+            {/* Live match indicator */}
+            {partidoEnVivo && (
+              <div className="flex items-center gap-2 p-2.5 rounded-[var(--radius-sm)] bg-emerald-500/10 border border-emerald-500/20 text-sm">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                Partido detectado automáticamente: {partidoEnVivo.equipoLocalNombre} vs {partidoEnVivo.equipoVisitaNombre}
+              </div>
+            )}
 
             <div className="space-y-1.5"><Label className="text-xs text-[var(--text-muted)]">Deporte</Label>
               <Select value={deporteId} onValueChange={setDeporteId}>
@@ -78,8 +129,9 @@ export function MarcadorForm() {
 
             <div className="grid grid-cols-5 gap-3 items-end">
               <div className="col-span-2 space-y-1.5"><Label className="text-xs text-[var(--text-muted)]">Local</Label>
-                <Select value={localId} onValueChange={selectLocal}><SelectTrigger><SelectValue placeholder="Local" /></SelectTrigger>
-                  <SelectContent>{equiposFiltrados.map((e) => <SelectItem key={e.id} value={e.id}>{e.nombre}</SelectItem>)}</SelectContent>
+                <Select value={equipoLocal} onValueChange={(v) => setEquipoLocal(v)}>
+                  <SelectTrigger><SelectValue placeholder="Local" /></SelectTrigger>
+                  <SelectContent>{equiposFiltrados.map((e) => <SelectItem key={e.id} value={e.nombre}>{e.nombre}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div className="col-span-1 text-center space-y-1.5">
@@ -91,8 +143,9 @@ export function MarcadorForm() {
                 </div>
               </div>
               <div className="col-span-2 space-y-1.5"><Label className="text-xs text-[var(--text-muted)]">Visita</Label>
-                <Select value={visitaId} onValueChange={selectVisita}><SelectTrigger><SelectValue placeholder="Visita" /></SelectTrigger>
-                  <SelectContent>{equiposFiltrados.map((e) => <SelectItem key={e.id} value={e.id}>{e.nombre}</SelectItem>)}</SelectContent>
+                <Select value={equipoVis} onValueChange={(v) => setEquipoVis(v)}>
+                  <SelectTrigger><SelectValue placeholder="Visita" /></SelectTrigger>
+                  <SelectContent>{equiposFiltrados.map((e) => <SelectItem key={e.id} value={e.nombre}>{e.nombre}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
             </div>
@@ -120,8 +173,8 @@ export function MarcadorForm() {
           <div className="h-1 bg-gradient-to-r from-gray-400 to-gray-500" />
           <CardHeader><h3 className="text-sm font-semibold text-[var(--text)]">Vista previa</h3></CardHeader>
           <CardContent>
-            <div className={`rounded-[var(--radius-sm)] border-2 p-4 text-center ${partido ? 'border-[var(--accent)]/30 bg-[var(--accent)]/5' : 'border-[var(--border)] bg-[var(--bg-secondary)]'}`}>
-              {partido ? (
+            <div className={`rounded-[var(--radius-sm)] border-2 p-4 text-center ${activeMatch ? 'border-[var(--accent)]/30 bg-[var(--accent)]/5' : 'border-[var(--border)] bg-[var(--bg-secondary)]'}`}>
+              {activeMatch ? (
                 <><BadgeEnVivo size="sm" className="mb-2" />
                   <div className="flex items-center justify-center gap-3 mb-1">
                     <span className="text-sm font-bold text-[var(--text)] truncate max-w-[80px]">{equipoLocal || 'Local'}</span>
