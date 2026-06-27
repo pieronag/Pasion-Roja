@@ -6,7 +6,6 @@ import { Header } from '@/components/layout/header';
 import { BottomNav } from '@/components/layout/bottom-nav';
 import { Footer } from '@/components/layout/footer';
 import { NetworkStatus } from '@/components/shared/network-status';
-import { WhatsAppFloat } from '@/components/shared/whatsapp-float';
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -46,7 +45,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main className="pb-20 md:pb-8">{children}</main>
           <Footer />
           <BottomNav />
-          <WhatsAppFloat />
         </Providers>
       </body>
     </html>
