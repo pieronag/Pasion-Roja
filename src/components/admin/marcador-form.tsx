@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { doc, setDoc, updateDoc, collection, query, where, onSnapshot, getDoc } from 'firebase/firestore';
+import { useState, useEffect, useCallback } from 'react';
+import { doc, setDoc, updateDoc, collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useMarcador } from '@/hooks/use-marcador';
 import { useEquipos } from '@/hooks/use-equipos';
@@ -70,31 +70,37 @@ export function MarcadorForm() {
 
   const equiposFiltrados = deporteId ? equipos.filter((e) => e.deporteId === deporteId) : equipos;
 
-  const handleSubmit = async () => {
-    setError(''); if (!equipoLocal || !equipoVis) { setError('Selecciona ambos equipos'); return; }
+  const submitScore = async (local: number, vis: number) => {
+    setError('');
+    if (!equipoLocal || !equipoVis) { setError('Selecciona ambos equipos'); return; }
     setSaving(true);
     try {
-      // Update live score display
       await setDoc(doc(db, 'partidos_en_vivo', 'actual'), {
-        equipoLocal, equipoVis, marcadorLocal, marcadorVis, minuto,
+        equipoLocal, equipoVis, marcadorLocal: local, marcadorVis: vis, minuto,
         deporteId: deporteId || '', actualizadoEn: Date.now(),
       });
-
-      // If there's an active partido, sync the score back to it
       if (partidoId) {
         await updateDoc(doc(db, 'partidos', partidoId), {
-          marcadorLocal, marcadorVisita: marcadorVis, minuto, actualizadoEn: Date.now(),
+          marcadorLocal: local, marcadorVisita: vis, minuto, actualizadoEn: Date.now(),
         });
       }
-
       setSuccess(true); setTimeout(() => setSuccess(false), 2000);
     } catch (err: any) { setError(err.message); } finally { setSaving(false); }
   };
 
-  const golLocal = () => { setMarcadorLocal((p) => p + 1); setTimeout(handleSubmit, 150); };
-  const golVisita = () => { setMarcadorVis((p) => p + 1); setTimeout(handleSubmit, 150); };
+  const golLocal = () => {
+    const newVal = marcadorLocal + 1;
+    setMarcadorLocal(newVal);
+    submitScore(newVal, marcadorVis);
+  };
+  const golVisita = () => {
+    const newVal = marcadorVis + 1;
+    setMarcadorVis(newVal);
+    submitScore(marcadorLocal, newVal);
+  };
   const reset = () => { setMarcadorLocal(0); setMarcadorVis(0); setMinuto('0'); };
 
+  const handleSubmit = () => submitScore(marcadorLocal, marcadorVis);
   const activeMatch = partidoEnVivo || livePartido;
 
   return (
@@ -112,11 +118,10 @@ export function MarcadorForm() {
             {error && <div className="flex items-center gap-2 p-2.5 rounded-[var(--radius-sm)] bg-red-500/10 border"><AlertCircle className="h-4 w-4 text-red-400 flex-shrink-0" /><p className="text-xs text-red-400">{error}</p></div>}
             {success && <div className="flex items-center gap-2 p-2.5 rounded-[var(--radius-sm)] bg-emerald-500/10 border"><CheckCircle2 className="h-4 w-4 text-emerald-400" /><p className="text-xs text-emerald-400">Marcador actualizado</p></div>}
 
-            {/* Live match indicator */}
             {partidoEnVivo && (
               <div className="flex items-center gap-2 p-2.5 rounded-[var(--radius-sm)] bg-emerald-500/10 border border-emerald-500/20 text-sm">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                Partido detectado automáticamente: {partidoEnVivo.equipoLocalNombre} vs {partidoEnVivo.equipoVisitaNombre}
+                Partido: {partidoEnVivo.equipoLocalNombre} vs {partidoEnVivo.equipoVisitaNombre}
               </div>
             )}
 
@@ -137,9 +142,9 @@ export function MarcadorForm() {
               <div className="col-span-1 text-center space-y-1.5">
                 <Label className="text-[10px] text-[var(--text-muted)]">Marcador</Label>
                 <div className="flex items-center gap-1 justify-center">
-                  <Input type="number" min={0} value={marcadorLocal} onChange={(e) => setMarcadorLocal(parseInt(e.target.value) || 0)} className="w-14 text-center text-xl font-black font-display h-11" />
+                  <Input type="number" min={0} value={marcadorLocal} onChange={(e) => { const v = parseInt(e.target.value) || 0; setMarcadorLocal(v); }} className="w-14 text-center text-xl font-black font-display h-11" />
                   <span className="text-lg font-black text-[var(--text-muted)]">:</span>
-                  <Input type="number" min={0} value={marcadorVis} onChange={(e) => setMarcadorVis(parseInt(e.target.value) || 0)} className="w-14 text-center text-xl font-black font-display h-11" />
+                  <Input type="number" min={0} value={marcadorVis} onChange={(e) => { const v = parseInt(e.target.value) || 0; setMarcadorVis(v); }} className="w-14 text-center text-xl font-black font-display h-11" />
                 </div>
               </div>
               <div className="col-span-2 space-y-1.5"><Label className="text-xs text-[var(--text-muted)]">Visita</Label>
