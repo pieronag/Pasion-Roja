@@ -10,6 +10,7 @@ import {
   Trophy, Shield, Users, Swords, TrendingUp,
   HeartHandshake, MessageCircle, History, LogOut, Zap,
   CalendarDays, PanelLeftClose, PanelLeft, Radio,
+  Layers, Medal, ListOrdered,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
@@ -31,7 +32,7 @@ const navSections: { label: string; items: NavItem[] }[] = [
     label: 'Deportes',
     items: [
       { href: '/admin/deportes', label: 'Deportes', icon: Trophy },
-      { href: '/admin/divisiones', label: 'Divisiones', icon: Shield },
+      { href: '/admin/divisiones', label: 'Divisiones', icon: Layers },
       { href: '/admin/equipos', label: 'Equipos', icon: Shield },
       { href: '/admin/jugadores', label: 'Jugadores', icon: Users },
     ],
@@ -40,7 +41,7 @@ const navSections: { label: string; items: NavItem[] }[] = [
     label: 'Competición',
     items: [
       { href: '/admin/partidos', label: 'Partidos', icon: Swords },
-      { href: '/admin/posiciones', label: 'Posiciones', icon: Trophy },
+      { href: '/admin/posiciones', label: 'Posiciones', icon: Medal },
       { href: '/admin/estadisticas', label: 'Estadísticas', icon: TrendingUp },
       { href: '/admin/marcador', label: 'Marcador Live', icon: Tv },
     ],
@@ -86,10 +87,10 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const sidebarW = collapsed ? 'w-16' : 'w-56';
 
   return (
-    <div className="h-dvh w-screen flex bg-[var(--bg)] overflow-hidden">
+    <div className="h-screen w-screen flex bg-[var(--bg)] overflow-hidden">
       {/* Sidebar */}
-      <aside className={`${sidebarW} flex-shrink-0 h-full border-r border-[var(--border)] bg-[var(--bg-secondary)] flex flex-col transition-all duration-300`}>
-        {/* Logo - fixed top */}
+      <aside className={`${sidebarW} flex-shrink-0 h-screen border-r border-[var(--border)] bg-[var(--bg-secondary)] flex flex-col transition-all duration-300`}>
+        {/* Logo */}
         <div className="flex items-center gap-2.5 px-3 h-14 border-b border-[var(--border)] flex-shrink-0">
           <div className="w-8 h-8 rounded-[var(--radius-sm)] bg-[var(--accent)] flex items-center justify-center flex-shrink-0">
             <Zap className="h-4 w-4 text-white fill-white" />
@@ -102,8 +103,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           )}
         </div>
 
-        {/* Nav - scrollable, fills remaining space */}
-        <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2 py-2 scrollbar-thin min-h-0">
+        {/* Nav */}
+        <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2 py-2 scrollbar-thin">
           {navSections.map((section) => (
             <div key={section.label} className="mb-3 last:mb-0">
               {!collapsed && (
@@ -138,17 +139,14 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
 
-        {/* Bottom - always at bottom, fixed */}
-        <div className="border-t border-[var(--border)] flex-shrink-0 bg-[var(--bg-secondary)]">
-          {/* Collapse button */}
+        {/* Bottom */}
+        <div className="flex-shrink-0 bg-[var(--bg-secondary)]">
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="w-full flex items-center justify-center gap-2 py-2.5 px-2 hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text)] transition-colors text-xs"
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-2 hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text)] transition-colors text-xs border-t border-[var(--border)]"
           >
             {collapsed ? <PanelLeft className="h-4 w-4" /> : <><PanelLeftClose className="h-4 w-4" /><span>Colapsar</span></>}
           </button>
-
-          {/* User info */}
           {!collapsed && (
             <div className="flex items-center gap-2 px-3 py-2.5 border-t border-[var(--border)]">
               <div className="w-7 h-7 rounded-full bg-[var(--accent)]/10 flex items-center justify-center text-[10px] font-bold text-[var(--accent)] flex-shrink-0">
@@ -169,8 +167,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col h-full min-w-0">
+      {/* Main */}
+      <div className="flex-1 flex flex-col h-screen min-w-0">
         <TopBar onToggleSidebar={() => setCollapsed(!collapsed)} />
         <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 lg:p-6 scrollbar-thin">
           <div className="max-w-[1440px] mx-auto animate-fade-in-up">
