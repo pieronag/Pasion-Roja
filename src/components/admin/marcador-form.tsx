@@ -55,15 +55,15 @@ export function MarcadorForm() {
     if (!principalId) return;
     const q = query(
       collection(db, 'partidos'),
-      where('estado', '==', 'programado'),
-      where('equipoLocalId', '==', principalId),
       orderBy('fecha', 'asc')
     );
     const unsub = onSnapshot(q, (snap) => {
-      if (!snap.empty) {
-        setProximoPartido({ id: snap.docs[0].id, ...snap.docs[0].data() } as Partido);
-      }
-    });
+      const partidos = snap.docs.map(d => ({ id: d.id, ...d.data() } as Partido));
+      const next = partidos.find(
+        p => p.estado === 'programado' && (p.equipoLocalId === principalId || p.equipoVisitaId === principalId)
+      );
+      setProximoPartido(next || null);
+    }, (err) => console.warn('Error loading next match:', err));
     return () => unsub();
   }, [principalId]);
 

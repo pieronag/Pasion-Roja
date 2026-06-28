@@ -48,8 +48,13 @@ export function slugify(text: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
-export function equipoUrl(nombre: string): string {
-  return `/equipos/${slugify(nombre)}`;
+export function equipoUrl(id: string, nombre: string): string {
+  return `/equipos/${slugify(nombre)}-${id}`;
+}
+
+export function extractIdFromSlug(slug: string): string {
+  const parts = slug.split('-');
+  return parts[parts.length - 1];
 }
 
 export function compressImage(

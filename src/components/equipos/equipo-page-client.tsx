@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { doc, getDoc, collection, query, where, getDocs, limit as fLimit } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useJugadores } from '@/hooks/use-jugadores';
 import { usePartidos } from '@/hooks/use-partidos';
@@ -13,35 +13,23 @@ import { EmptyState } from '@/components/shared/empty-state';
 import type { Equipo } from '@/types/equipo';
 import { ArrowLeft, Calendar, Users, MapPin, CalendarDays } from 'lucide-react';
 import Link from 'next/link';
-import { slugify } from '@/lib/utils';
 
 interface Props {
   equipoId: string;
-  lookupBy?: 'id' | 'nombre';
 }
 
-export function EquipoPageClient({ equipoId, lookupBy = 'id' }: Props) {
+export function EquipoPageClient({ equipoId }: Props) {
   const [equipo, setEquipo] = useState<Equipo | null>(null);
   const [loading, setLoading] = useState(true);
   const { jugadores } = useJugadores(equipo?.id || '');
   const { partidos } = usePartidos({ max: 10 });
 
   useEffect(() => {
-    if (lookupBy === 'nombre') {
-      const slugUrl = equipoId.trim().toLowerCase();
-      const q = query(collection(db, 'equipos'));
-      getDocs(q).then((snap) => {
-        const found = snap.docs.find((d) => slugify(d.data().nombre || '') === slugUrl);
-        if (found) setEquipo({ id: found.id, ...found.data() } as Equipo);
-        setLoading(false);
-      }).catch(() => setLoading(false));
-    } else {
-      getDoc(doc(db, 'equipos', equipoId)).then((snap) => {
-        if (snap.exists()) setEquipo({ id: snap.id, ...snap.data() } as Equipo);
-        setLoading(false);
-      }).catch(() => setLoading(false));
-    }
-  }, [equipoId, lookupBy]);
+    getDoc(doc(db, 'equipos', equipoId)).then((snap) => {
+      if (snap.exists()) setEquipo({ id: snap.id, ...snap.data() } as Equipo);
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  }, [equipoId]);
 
   if (loading) return <div className="p-4"><Skeleton className="h-48 w-full rounded-2xl mb-4" /><Skeleton className="h-64 w-full rounded-xl" /></div>;
   if (!equipo) return <EmptyState title="Equipo no encontrado" />;

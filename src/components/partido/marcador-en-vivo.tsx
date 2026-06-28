@@ -49,22 +49,22 @@ export function MarcadorEnVivo() {
   const principalId = Object.values(equiposMap).find(e => e.esPrincipal)?.id;
   const principalEquipo = principalId ? equiposMap[principalId] : null;
 
-  // Load next Malleco match
+  // Load next Malleco match (no composite index needed)
   useEffect(() => {
     if (!principalId) return;
     const q = query(
       collection(db, 'partidos'),
-      where('estado', '==', 'programado'),
       orderBy('fecha', 'asc'),
-      fLimit(10)
+      fLimit(50)
     );
     const unsub = onSnapshot(q, (snap) => {
       const partidos = snap.docs.map(d => ({ id: d.id, ...d.data() } as Partido));
+      // Filter locally: programado + Malleco match
       const mallecoMatch = partidos.find(
-        p => p.equipoLocalId === principalId || p.equipoVisitaId === principalId
+        p => p.estado === 'programado' && (p.equipoLocalId === principalId || p.equipoVisitaId === principalId)
       );
       setProximoPartido(mallecoMatch || null);
-    });
+    }, (err) => console.warn('Error loading next match:', err));
     return () => unsub();
   }, [principalId]);
 

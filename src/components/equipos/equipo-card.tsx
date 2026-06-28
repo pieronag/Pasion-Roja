@@ -8,7 +8,7 @@ import { MapPin } from 'lucide-react';
 export function EquipoCard({ equipo }: { equipo: Equipo }) {
   return (
     <Link
-      href={equipoUrl(equipo.nombre)}
+      href={equipoUrl(equipo.id, equipo.nombre)}
       className="flex items-center gap-4 p-4 rounded-xl border border-[var(--border)] bg-[var(--bg-card)] hover:border-[var(--accent)] hover:shadow-md transition-all group"
     >
       <div
