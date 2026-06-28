@@ -16,7 +16,7 @@ export function EquipoCard({ equipo }: { equipo: Equipo }) {
         style={{ backgroundColor: equipo.colorPrimario || '#E11D48' }}
       >
         {equipo.logoBase64 ? (
-          <img src={equipo.logoBase64} alt={equipo.nombre} className="w-10 h-10 object-contain" />
+          <img src={equipo.logoBase64} alt={equipo.nombre} className="w-10 h-10 object-contain logo-img" />
         ) : (
           equipo.nombreCorto?.slice(0, 3).toUpperCase() || equipo.nombre.slice(0, 3).toUpperCase()
         )}

@@ -55,7 +55,7 @@ export function ClubCard({ equipo, esPrincipal, deporteNombre }: ClubCardProps) 
           style={{ backgroundColor: equipo.colorPrimario || '#E11D48' }}
         >
           {equipo.logoBase64 ? (
-            <img src={equipo.logoBase64} alt={equipo.nombre} className="w-3/4 h-3/4 object-contain" />
+            <img src={equipo.logoBase64} alt={equipo.nombre} className="w-3/4 h-3/4 object-contain logo-img" />
           ) : (
             <span className="font-black">{equipo.nombreCorto?.slice(0, 2).toUpperCase() || equipo.nombre.slice(0, 2).toUpperCase()}</span>
           )}

@@ -63,7 +63,7 @@ export function EquipoPageClient({ equipoId, lookupBy = 'id' }: Props) {
         <div className="flex items-center gap-4">
           <div className="w-20 h-20 rounded-2xl bg-white/20 flex items-center justify-center backdrop-blur">
             {equipo.logoBase64 ? (
-              <img src={equipo.logoBase64} alt={equipo.nombre} className="w-16 h-16 object-contain" />
+              <img src={equipo.logoBase64} alt={equipo.nombre} className="w-16 h-16 object-contain logo-img" />
             ) : (
               <span className="text-3xl font-black">{equipo.nombreCorto?.slice(0, 3).toUpperCase()}</span>
             )}

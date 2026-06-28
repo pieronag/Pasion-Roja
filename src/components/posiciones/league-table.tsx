@@ -77,7 +77,7 @@ export function LeagueTable({ equipos, ascensos = 0, descensos = 0, liguillaDesd
                 <td className="p-3">
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                      {eq.logoBase64 && <img src={eq.logoBase64} alt="" className="w-5 h-5 object-contain flex-shrink-0" />}
+                      {eq.logoBase64 && <img src={eq.logoBase64} alt="" className="w-5 h-5 object-contain flex-shrink-0 logo-img" />}
                       <span className={cn('font-medium whitespace-nowrap', esMalleco ? 'text-yellow-600 font-bold' : 'text-[var(--text)]')}>{eq.nombre}</span>
                       {esMalleco && <Star className="h-3.5 w-3.5 text-yellow-500 fill-yellow-500 flex-shrink-0" />}
                     </div>

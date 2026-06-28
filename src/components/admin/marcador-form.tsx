@@ -182,7 +182,7 @@ export function MarcadorForm() {
                   {/* Local */}
                   <div className="flex flex-col items-center gap-2 flex-1">
                     <div className="w-16 h-16 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md" style={{ backgroundColor: localEquipo?.colorPrimario || '#1E293B' }}>
-                      {localEquipo?.logoBase64 ? <img src={localEquipo.logoBase64} alt="" className="w-11 h-11 object-contain" /> : <span className="font-black text-lg">{localNombre.slice(0,2).toUpperCase()}</span>}
+                      {localEquipo?.logoBase64 ? <img src={localEquipo.logoBase64} alt="" className="w-11 h-11 object-contain logo-img" /> : <span className="font-black text-lg">{localNombre.slice(0,2).toUpperCase()}</span>}
                     </div>
                     <p className="text-xs font-bold text-[var(--text)] text-center leading-tight">{localNombre}</p>
                   </div>
@@ -197,7 +197,7 @@ export function MarcadorForm() {
                   {/* Visitor */}
                   <div className="flex flex-col items-center gap-2 flex-1">
                     <div className="w-16 h-16 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md" style={{ backgroundColor: visEquipo?.colorPrimario || '#1E293B' }}>
-                      {visEquipo?.logoBase64 ? <img src={visEquipo.logoBase64} alt="" className="w-11 h-11 object-contain" /> : <span className="font-black text-lg">{visNombre.slice(0,2).toUpperCase()}</span>}
+                      {visEquipo?.logoBase64 ? <img src={visEquipo.logoBase64} alt="" className="w-11 h-11 object-contain logo-img" /> : <span className="font-black text-lg">{visNombre.slice(0,2).toUpperCase()}</span>}
                     </div>
                     <p className="text-xs font-bold text-[var(--text)] text-center leading-tight">{visNombre}</p>
                   </div>

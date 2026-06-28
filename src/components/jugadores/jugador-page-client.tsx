@@ -73,7 +73,7 @@ export function JugadorPageClient({ jugadorId }: { jugadorId: string }) {
                 </div>
                 {equipo && (
                   <Link href={equipoUrl(equipo.nombre)} className="flex items-center gap-1.5 ml-auto px-3 py-1.5 rounded-[var(--radius-sm)] border border-[var(--border)] hover:border-[var(--accent)] transition-colors">
-                    {equipo.logoBase64 && <img src={equipo.logoBase64} alt="" className="w-5 h-5 object-contain" />}
+                    {equipo.logoBase64 && <img src={equipo.logoBase64} alt="" className="w-5 h-5 object-contain logo-img" />}
                     <span className="text-xs text-[var(--text-secondary)]">{equipo.nombre}</span>
                   </Link>
                 )}
