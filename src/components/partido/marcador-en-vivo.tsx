@@ -31,47 +31,41 @@ export function MarcadorEnVivo() {
     return () => unsub();
   }, []);
 
-  // Load live match
-  useEffect(() => {
-    const q = query(collection(db, 'partidos'), where('estado', '==', 'en_vivo'));
-    const unsub = onSnapshot(q, (snap) => {
-      if (!snap.empty) {
-        const data = { id: snap.docs[0].id, ...snap.docs[0].data() } as Partido;
-        setPartidoDb(data);
-      } else {
-        setPartidoDb(null);
-      }
-    });
-    return () => unsub();
-  }, []);
-
   // Find principal team
   const principalId = Object.values(equiposMap).find(e => e.esPrincipal)?.id;
   const principalEquipo = principalId ? equiposMap[principalId] : null;
 
-  // Load next Malleco match (no composite index needed)
+  // Load live match (simple where, no composite index needed)
+  useEffect(() => {
+    const q = query(collection(db, 'partidos'), where('estado', '==', 'en_vivo'));
+    const unsub = onSnapshot(q, (snap) => {
+      if (!snap.empty) setPartidoDb({ id: snap.docs[0].id, ...snap.docs[0].data() } as Partido);
+      else setPartidoDb(null);
+    });
+    return () => unsub();
+  }, []);
+
+  // Load next Malleco match - query only their matches as local team
   useEffect(() => {
     if (!principalId) return;
     const q = query(
       collection(db, 'partidos'),
-      orderBy('fecha', 'asc'),
-      fLimit(50)
+      where('equipoLocalId', '==', principalId)
     );
     const unsub = onSnapshot(q, (snap) => {
       const partidos = snap.docs.map(d => ({ id: d.id, ...d.data() } as Partido));
-      // Filter locally: programado + Malleco match
-      const mallecoMatch = partidos.find(
-        p => p.estado === 'programado' && (p.equipoLocalId === principalId || p.equipoVisitaId === principalId)
-      );
-      setProximoPartido(mallecoMatch || null);
+      // Sort by fecha descending locally, find the next programado
+      partidos.sort((a, b) => b.fecha - a.fecha);
+      const next = partidos.find(p => p.estado === 'programado');
+      setProximoPartido(next || null);
     }, (err) => console.warn('Error loading next match:', err));
     return () => unsub();
   }, [principalId]);
 
-  // Countdown for next match - updates every second
+  // Countdown for next match
   useEffect(() => {
-    if (!proximoPartido) return;
-    const updateCountdown = () => {
+    if (!proximoPartido?.fecha) return;
+    const fn = () => {
       const diff = proximoPartido.fecha - Date.now();
       if (diff <= 0) { setCountdown('¡Comenzando!'); return; }
       const d = Math.floor(diff / 86400000);
@@ -80,8 +74,8 @@ export function MarcadorEnVivo() {
       const s = Math.floor((diff % 60000) / 1000);
       setCountdown(`${d}d ${h}h ${m}m ${s}s`);
     };
-    updateCountdown();
-    const timer = setInterval(updateCountdown, 1000);
+    fn();
+    const timer = setInterval(fn, 1000);
     return () => clearInterval(timer);
   }, [proximoPartido]);
 
@@ -115,11 +109,8 @@ export function MarcadorEnVivo() {
     prevMarcador.current = { local: localScore, vis: visScore };
   }, [localScore, visScore, isLive]);
 
-  if (loading) {
-    return <div className="w-full max-w-2xl mx-auto p-4"><Skeleton className="h-48 w-full rounded-[var(--radius)]" /></div>;
-  }
+  if (loading) return <div className="w-full max-w-2xl mx-auto p-4"><Skeleton className="h-48 w-full rounded-[var(--radius)]" /></div>;
 
-  // No live match - show next match info
   if (!isLive) {
     return (
       <div className="w-full max-w-2xl mx-auto p-4">
@@ -128,13 +119,8 @@ export function MarcadorEnVivo() {
             <>
               <div className="flex items-center justify-center gap-1 text-xs text-[var(--text-muted)] mb-3">
                 <Calendar className="h-3.5 w-3.5" />
-                <span>
-                  {new Date(proximoPartido.fecha).toLocaleDateString('es-CL', {
-                    weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit'
-                  })}
-                </span>
+                <span>{new Date(proximoPartido.fecha).toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}</span>
               </div>
-
               <div className="flex items-center justify-center gap-4 mb-3">
                 <div className="flex flex-col items-center gap-1.5">
                   <div className="w-12 h-12 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md" style={{ backgroundColor: proxLocal?.colorPrimario || '#1E293B' }}>
@@ -153,14 +139,8 @@ export function MarcadorEnVivo() {
                   <span className="text-xs font-bold text-[var(--text)] text-center leading-tight max-w-[100px]">{proximoPartido.equipoVisitaNombre}</span>
                 </div>
               </div>
-
-              {countdown && (
-                <p className="text-lg font-black font-display text-[var(--accent)] mb-1">{countdown}</p>
-              )}
-
-              {proximoPartido.estadio && (
-                <p className="text-[10px] text-[var(--text-muted)] flex items-center justify-center gap-1"><MapPin className="h-3 w-3" />{proximoPartido.estadio}</p>
-              )}
+              {countdown && <p className="text-lg font-black font-display text-[var(--accent)] mb-1">{countdown}</p>}
+              {proximoPartido.estadio && <p className="text-[10px] text-[var(--text-muted)] flex items-center justify-center gap-1"><MapPin className="h-3 w-3" />{proximoPartido.estadio}</p>}
             </>
           ) : (
             <>
@@ -180,12 +160,8 @@ export function MarcadorEnVivo() {
       <div className={cn('relative rounded-[var(--radius)] border-2 overflow-hidden transition-all duration-300', 'border-[var(--accent)]/30 bg-[var(--bg-card)] shadow-lg', goalFlash && 'animate-goal-flash')}>
         <div className="bg-gradient-to-r from-[var(--accent)] to-[var(--accent-hover)] px-4 py-1.5 flex items-center justify-between">
           <BadgeEnVivo size="sm" />
-          <div className="flex items-center gap-1.5 text-white text-xs font-semibold">
-            <Clock className="h-3.5 w-3.5" />
-            {minActual}&apos;
-          </div>
+          <div className="flex items-center gap-1.5 text-white text-xs font-semibold"><Clock className="h-3.5 w-3.5" />{minActual}&apos;</div>
         </div>
-
         <div className="flex items-center justify-between px-4 py-5 gap-3">
           <div className="flex-1 flex flex-col items-center gap-2">
             <div className="w-14 h-14 rounded-full flex items-center justify-center text-white text-lg font-bold shadow-md" style={{ backgroundColor: localEquipo?.colorPrimario || '#1E293B' }}>
@@ -205,19 +181,14 @@ export function MarcadorEnVivo() {
             <p className="text-sm font-bold text-[var(--text)] text-center leading-tight">{visNombre}</p>
           </div>
         </div>
-
         {(penalesLocal > 0 || penalesVisita > 0) ? (
           <div className="px-4 pb-3 text-center">
             <span className="text-[10px] font-semibold text-[var(--accent)] uppercase tracking-wider">Penales</span>
-            <div className="flex items-center justify-center gap-2 text-sm font-bold text-[var(--text)]">
-              <span>{penalesLocal}</span><span className="text-[var(--text-muted)]">-</span><span>{penalesVisita}</span>
-            </div>
+            <div className="flex items-center justify-center gap-2 text-sm font-bold text-[var(--text)]"><span>{penalesLocal}</span><span className="text-[var(--text-muted)]">-</span><span>{penalesVisita}</span></div>
           </div>
         ) : null}
-
         <div className="flex items-center justify-center gap-1 pb-3 text-[10px] text-[var(--text-muted)]">
-          <RefreshCw className="h-3 w-3" />
-          <span>Actualizado en tiempo real</span>
+          <RefreshCw className="h-3 w-3" /><span>Actualizado en tiempo real</span>
         </div>
       </div>
     </div>

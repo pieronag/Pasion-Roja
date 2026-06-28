@@ -33,19 +33,17 @@ export function PartidoPageClient() {
     return () => unsub();
   }, []);
 
-  // Load next Malleco match (no composite index)
+  // Load next Malleco match - solo partidos donde juega de local
   useEffect(() => {
     if (!principalId) return;
     const q = query(
       collection(db, 'partidos'),
-      orderBy('fecha', 'asc'),
-      fLimit(50)
+      where('equipoLocalId', '==', principalId)
     );
     const unsub = onSnapshot(q, (snap) => {
       const partidos = snap.docs.map(d => ({ id: d.id, ...d.data() } as Partido));
-      const match = partidos.find(
-        p => p.estado === 'programado' && (p.equipoLocalId === principalId || p.equipoVisitaId === principalId)
-      );
+      partidos.sort((a, b) => b.fecha - a.fecha);
+      const match = partidos.find(p => p.estado === 'programado');
       setProximoPartido(match || null);
     }, (err) => console.warn('Error loading next match:', err));
     return () => unsub();
