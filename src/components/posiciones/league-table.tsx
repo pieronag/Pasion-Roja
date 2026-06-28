@@ -62,7 +62,8 @@ export function LeagueTable({ equipos, ascensos = 0, descensos = 0, liguillaDesd
                 )}>
                   <div className="flex items-center justify-center gap-0.5">
                     <span>{pos}</span>
-                    {eq.posicionAnterior != null && (
+                    {esMalleco && <Star className="h-3.5 w-3.5 text-yellow-500 fill-yellow-500" />}
+                    {eq.posicionAnterior != null && !esMalleco && (
                       eq.posicionAnterior > pos ? (
                         <span className="text-emerald-500 text-sm font-bold" title={`Subió del puesto ${eq.posicionAnterior}`}>▲</span>
                       ) : eq.posicionAnterior < pos ? (
