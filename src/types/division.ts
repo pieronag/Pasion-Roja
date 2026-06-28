@@ -8,4 +8,9 @@ export interface Division {
   tipo: TipoDivision;
   activa: boolean;
   equipoIds: string[];
+  totalJornadas: number;
+  tieneCuadrangular: boolean;
+  equiposCuadrangular: number;
+  ascensos: number;
+  descensos: number;
 }

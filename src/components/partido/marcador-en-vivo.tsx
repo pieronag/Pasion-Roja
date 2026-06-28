@@ -130,6 +130,21 @@ export function MarcadorEnVivo() {
           </div>
         </div>
 
+        {/* Penales */}
+        {(partidoDb?.penalesLocal !== undefined && partidoDb?.penalesLocal > 0) ||
+         (partidoDb?.penalesVisita !== undefined && partidoDb?.penalesVisita > 0) ||
+         (livePartido?.penalesLocal !== undefined && livePartido?.penalesLocal > 0) ||
+         (livePartido?.penalesVis !== undefined && livePartido?.penalesVis > 0) ? (
+          <div className="px-4 pb-3 text-center">
+            <span className="text-[10px] font-semibold text-[var(--accent)] uppercase tracking-wider">Penales</span>
+            <div className="flex items-center justify-center gap-2 text-sm font-bold text-[var(--text)]">
+              <span>{partidoDb?.penalesLocal ?? livePartido?.penalesLocal ?? 0}</span>
+              <span className="text-[var(--text-muted)]">-</span>
+              <span>{partidoDb?.penalesVisita ?? livePartido?.penalesVis ?? 0}</span>
+            </div>
+          </div>
+        ) : null}
+
         <div className="flex items-center justify-center gap-1 pb-3 text-[10px] text-[var(--text-muted)]">
           <RefreshCw className="h-3 w-3" />
           <span>Actualizado en tiempo real</span>

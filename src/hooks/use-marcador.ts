@@ -4,13 +4,21 @@ import { useState, useEffect } from 'react';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
-interface LiveScore {
+export interface LiveScore {
   id: string;
   equipoLocal: string;
   equipoVis: string;
+  equipoLocalId?: string;
+  equipoVisitaId?: string;
   marcadorLocal: number;
   marcadorVis: number;
+  penalesLocal?: number;
+  penalesVis?: number;
   minuto: string;
+  minutoSegundos?: number;
+  estadoTiempo?: string;
+  tiempoInicio?: number;
+  inicioPartido?: number;
   actualizadoEn: number;
   deporteId?: string;
 }

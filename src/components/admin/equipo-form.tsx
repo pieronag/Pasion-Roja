@@ -164,7 +164,7 @@ export function EquipoForm({ equipo, onClose }: { equipo?: Equipo; onClose?: () 
               <SelectTrigger><SelectValue placeholder={deporteId ? 'Seleccionar división' : 'Primero elige deporte'} /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="">Sin división</SelectItem>
-                {filteredDivisiones.map((d) => <SelectItem key={d.id} value={d.id}>{d.nombre} ({d.temporada})</SelectItem>)}
+                {[...filteredDivisiones].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es')).map((d) => <SelectItem key={d.id} value={d.id}>{d.nombre} ({d.temporada})</SelectItem>)}
               </SelectContent>
             </Select>
           </div>

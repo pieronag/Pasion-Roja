@@ -55,7 +55,7 @@ export default function AdminEquiposPage() {
     if (filterDeporte && e.deporteId !== filterDeporte) return false;
     if (filterDivision && e.divisionId !== filterDivision) return false;
     return true;
-  });
+  }).sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
 
   const handleDelete = async (id: string) => { if (confirm('¿Eliminar este equipo?')) await deleteDoc(doc(db, 'equipos', id)); };
 

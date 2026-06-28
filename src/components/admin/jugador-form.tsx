@@ -140,7 +140,7 @@ export function JugadorForm({ jugador, equipoId: defaultEquipoId, deporteId: def
               <SelectTrigger><SelectValue placeholder={deporteId ? 'Seleccionar equipo' : 'Primero deporte'} /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="">Sin equipo</SelectItem>
-                {equipos.map((e) => <SelectItem key={e.id} value={e.id}>{e.nombre}</SelectItem>)}
+                {[...equipos].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es')).map((e) => <SelectItem key={e.id} value={e.id}>{e.nombre}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
