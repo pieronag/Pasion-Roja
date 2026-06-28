@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Loader } from '@/components/shared/loader';
 import { EmptyState } from '@/components/shared/empty-state';
 import { MetricCard } from '@/components/admin/metric-card';
-import { Shield, Plus, Trash2, Trophy, Users, Save, X, CheckCircle2, AlertCircle, ListChecks } from 'lucide-react';
+import { Shield, Plus, Trash2, Trophy, Users, Save, X, CheckCircle2, AlertCircle, ListChecks, Pencil } from 'lucide-react';
 import type { Division, TipoLiguilla } from '@/types/division';
 
 export default function AdminDivisionesPage() {
@@ -152,7 +152,7 @@ export default function AdminDivisionesPage() {
                     <td className="p-3 text-center text-sm text-[var(--text-secondary)]">↑{d.ascensos || 0} / ↓{d.descensos || 0}</td>
                     <td className="p-3 text-center text-sm text-[var(--text-secondary)]">{count}</td>
                     <td className="p-3 text-right"><div className="flex justify-end gap-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(d)}><Shield className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(d)}><Pencil className="h-4 w-4" /></Button>
                       <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400" onClick={() => eliminar(d.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
                     </div></td>
                   </tr>

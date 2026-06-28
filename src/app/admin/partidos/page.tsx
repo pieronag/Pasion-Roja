@@ -71,6 +71,17 @@ export default function AdminPartidosPage() {
     }
   }, [deportes, filterDeporte]);
 
+  // Auto-select division when only one exists for the selected sport
+  useEffect(() => {
+    const divs = divisiones.filter(d => d.deporteId === filterDeporte);
+    if (divs.length === 1 && !filterDivision) {
+      setFilterDivision(divs[0].id);
+    }
+    if (divs.length === 0) {
+      setFilterDivision('');
+    }
+  }, [filterDeporte, divisiones, filterDivision]);
+
   const divisionesFiltradas = divisiones.filter(d => !filterDeporte || d.deporteId === filterDeporte);
 
   // No auto-select division (user must choose)
@@ -120,7 +131,6 @@ export default function AdminPartidosPage() {
 
   const abrirEditar = (p: Partido) => {
     setEditPartido(p);
-    setEditDivisionId(p.divisionId || filterDivision || '');
     setEditModalEstado(p.estado);
     setEditModalLocal(p.marcadorLocal);
     setEditModalVis(p.marcadorVisita);
@@ -131,7 +141,6 @@ export default function AdminPartidosPage() {
     setEditSaving(true);
     try {
       await updateDoc(doc(db, 'partidos', editPartido.id), {
-        divisionId: editDivisionId,
         estado: editModalEstado as EstadoPartido,
         marcadorLocal: editModalLocal,
         marcadorVisita: editModalVis,
@@ -318,24 +327,6 @@ export default function AdminPartidosPage() {
                     <Input type="number" min={0} value={editModalVis} onChange={(e) => setEditModalVis(parseInt(e.target.value) || 0)} className="w-full text-center text-lg font-bold" />
                   </div>
                 </div>
-              </div>
-
-              {/* División */}
-              <div className="space-y-1">
-                <Label className="text-xs text-[var(--text-muted)]">División / Liga</Label>
-                {(() => {
-                  const deporteIdPartido = editPartido?.deporteId;
-                  const divsFiltradas = divisiones.filter(d => d.deporteId === deporteIdPartido);
-                  return (
-                    <Select value={editDivisionId} onValueChange={setEditDivisionId}>
-                      <SelectTrigger><SelectValue placeholder={deporteIdPartido ? 'Seleccionar división' : 'El partido no tiene deporte'} /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="">Sin división</SelectItem>
-                        {divsFiltradas.map((d) => <SelectItem key={d.id} value={d.id}>{d.nombre}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  );
-                })()}
               </div>
 
               <div className="flex justify-end gap-2 pt-1 border-t border-[var(--border)]">
