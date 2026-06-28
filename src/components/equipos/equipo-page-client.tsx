@@ -13,6 +13,7 @@ import { EmptyState } from '@/components/shared/empty-state';
 import type { Equipo } from '@/types/equipo';
 import { ArrowLeft, Calendar, Users, MapPin, CalendarDays } from 'lucide-react';
 import Link from 'next/link';
+import { slugify } from '@/lib/utils';
 
 interface Props {
   equipoId: string;
@@ -27,13 +28,11 @@ export function EquipoPageClient({ equipoId, lookupBy = 'id' }: Props) {
 
   useEffect(() => {
     if (lookupBy === 'nombre') {
-      const nombre = equipoId.trim();
-      const q = query(collection(db, 'equipos'), where('nombre', '==', nombre), fLimit(1));
+      const slugUrl = equipoId.trim().toLowerCase();
+      const q = query(collection(db, 'equipos'));
       getDocs(q).then((snap) => {
-        if (!snap.empty) {
-          const d = snap.docs[0];
-          setEquipo({ ...d.data(), id: d.id, _id: d.id } as any);
-        }
+        const found = snap.docs.find((d) => slugify(d.data().nombre || '') === slugUrl);
+        if (found) setEquipo({ id: found.id, ...found.data() } as Equipo);
         setLoading(false);
       }).catch(() => setLoading(false));
     } else {
