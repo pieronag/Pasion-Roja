@@ -1,8 +1,13 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { collection, query, where, orderBy, limit, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import type { Equipo } from '@/types/equipo';
+import type { Partido } from '@/types/partido';
 import { Star, MapPin } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface ClubCardProps {
   equipo: Equipo;
@@ -11,6 +16,31 @@ interface ClubCardProps {
 }
 
 export function ClubCard({ equipo, esPrincipal, deporteNombre }: ClubCardProps) {
+  const [ultimos5, setUltimos5] = useState<{ resultado: 'G' | 'E' | 'P' }[]>([]);
+
+  useEffect(() => {
+    const q = query(
+      collection(db, 'partidos'),
+      where('estado', '==', 'finalizado'),
+      orderBy('fecha', 'desc'),
+      limit(10)
+    );
+    const unsub = onSnapshot(q, (snap) => {
+      const partidos = snap.docs.map(d => ({ id: d.id, ...d.data() } as Partido));
+      const delEquipo = partidos.filter(p => p.equipoLocalId === equipo.id || p.equipoVisitaId === equipo.id).slice(0, 5);
+      const res = delEquipo.map(p => {
+        const localGano = p.marcadorLocal > p.marcadorVisita;
+        const empate = p.marcadorLocal === p.marcadorVisita;
+        const esLocal = p.equipoLocalId === equipo.id;
+        if (empate) return { resultado: 'E' as const };
+        if ((esLocal && localGano) || (!esLocal && !localGano)) return { resultado: 'G' as const };
+        return { resultado: 'P' as const };
+      });
+      setUltimos5(res);
+    });
+    return () => unsub();
+  }, [equipo.id]);
+
   return (
     <Link
       href={`/equipos/${equipo.id}`}
@@ -39,6 +69,24 @@ export function ClubCard({ equipo, esPrincipal, deporteNombre }: ClubCardProps) 
             <p className="text-[10px] text-[var(--text-muted)] mt-0.5 flex items-center gap-1">
               <MapPin className="h-3 w-3" /> {equipo.ciudad || equipo.estadio}
             </p>
+          )}
+
+          {/* Últimos 5 resultados */}
+          {ultimos5.length > 0 && (
+            <div className="flex items-center gap-1 mt-2">
+              <span className="text-[9px] text-[var(--text-muted)] mr-0.5">Últ.5:</span>
+              {ultimos5.map((r, i) => (
+                <span
+                  key={i}
+                  className={cn(
+                    'inline-flex items-center justify-center w-4 h-4 rounded-full text-[7px] font-bold text-white',
+                    r.resultado === 'G' ? 'bg-[var(--success)]' : r.resultado === 'E' ? 'bg-[var(--warning)]' : 'bg-[var(--error)]'
+                  )}
+                >
+                  {r.resultado}
+                </span>
+              ))}
+            </div>
           )}
         </div>
         <span className={`text-xs font-medium ${esPrincipal ? 'text-yellow-600' : 'text-[var(--accent)]'} opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0`}>
