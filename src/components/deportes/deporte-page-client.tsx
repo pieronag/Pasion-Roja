@@ -60,9 +60,6 @@ export function DeportePageClient({ deporteId }: { deporteId: string }) {
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
         <div className="relative z-10 max-w-7xl mx-auto px-4 w-full h-full flex flex-col justify-end pb-4 md:pb-6">
-          <Link href="/deportes" className="flex items-center justify-center w-8 h-8 text-white/70 hover:text-white mb-2 bg-black/30 rounded-full backdrop-blur-sm hover:bg-black/50 transition-all" title="Volver">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-[var(--radius)] bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
               <SportIcon sport={deporte.icono} size={24} />
