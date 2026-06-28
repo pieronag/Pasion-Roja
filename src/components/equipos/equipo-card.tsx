@@ -1,14 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
+import { cn, equipoUrl } from '@/lib/utils';
 import type { Equipo } from '@/types/equipo';
 import { MapPin } from 'lucide-react';
 
 export function EquipoCard({ equipo }: { equipo: Equipo }) {
   return (
     <Link
-      href={`/equipos/${equipo.id}`}
+      href={equipoUrl(equipo.id, equipo.nombre)}
       className="flex items-center gap-4 p-4 rounded-xl border border-[var(--border)] bg-[var(--bg-card)] hover:border-[var(--accent)] hover:shadow-md transition-all group"
     >
       <div

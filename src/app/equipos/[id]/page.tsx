@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { EquipoPageClient } from '@/components/equipos/equipo-page-client';
+import { extractIdFromSlug } from '@/lib/utils';
 
 interface Props { params: Promise<{ id: string }>; }
 
@@ -10,5 +11,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function EquipoPage({ params }: Props) {
   const { id } = await params;
-  return <EquipoPageClient equipoId={id} />;
+  const equipoId = extractIdFromSlug(id);
+  return <EquipoPageClient equipoId={equipoId} />;
 }

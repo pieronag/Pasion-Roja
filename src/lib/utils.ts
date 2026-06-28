@@ -40,6 +40,23 @@ export function formatRelativeTime(timestamp: number): string {
   return `hace ${days}d`;
 }
 
+export function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+export function equipoUrl(id: string, nombre: string): string {
+  return `/equipos/${slugify(nombre)}-${id}`;
+}
+
+export function extractIdFromSlug(slug: string): string {
+  const parts = slug.split('-');
+  return parts[parts.length - 1];
+}
+
 export function compressImage(
   file: File,
   maxWidth: number = 800,

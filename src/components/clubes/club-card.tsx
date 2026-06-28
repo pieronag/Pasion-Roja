@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { collection, query, where, orderBy, limit, onSnapshot } from 'firebase/firestore';
+import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Equipo } from '@/types/equipo';
 import type { Partido } from '@/types/partido';
 import { Star, MapPin } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, equipoUrl } from '@/lib/utils';
 
 interface ClubCardProps {
   equipo: Equipo;
@@ -19,15 +19,15 @@ export function ClubCard({ equipo, esPrincipal, deporteNombre }: ClubCardProps) 
   const [ultimos5, setUltimos5] = useState<{ resultado: 'G' | 'E' | 'P' }[]>([]);
 
   useEffect(() => {
-    const q = query(
-      collection(db, 'partidos'),
-      where('estado', '==', 'finalizado'),
-      orderBy('fecha', 'desc'),
-      limit(10)
-    );
+    // Query all partidos ordered by fecha, filter locally for this team
+    const q = query(collection(db, 'partidos'), orderBy('fecha', 'desc'), limit(50));
     const unsub = onSnapshot(q, (snap) => {
-      const partidos = snap.docs.map(d => ({ id: d.id, ...d.data() } as Partido));
-      const delEquipo = partidos.filter(p => p.equipoLocalId === equipo.id || p.equipoVisitaId === equipo.id).slice(0, 5);
+      const todos = snap.docs.map(d => ({ id: d.id, ...d.data() } as Partido));
+      // Filter: finalized matches where this team participated
+      const delEquipo = todos.filter(
+        p => p.estado === 'finalizado' && (p.equipoLocalId === equipo.id || p.equipoVisitaId === equipo.id)
+      ).slice(0, 5);
+
       const res = delEquipo.map(p => {
         const localGano = p.marcadorLocal > p.marcadorVisita;
         const empate = p.marcadorLocal === p.marcadorVisita;
@@ -37,13 +37,16 @@ export function ClubCard({ equipo, esPrincipal, deporteNombre }: ClubCardProps) 
         return { resultado: 'P' as const };
       });
       setUltimos5(res);
+    }, (err) => {
+      // Silently handle Firestore index errors
+      console.warn('Error fetching partidos for club card:', err);
     });
     return () => unsub();
   }, [equipo.id]);
 
   return (
     <Link
-      href={`/equipos/${equipo.id}`}
+      href={equipoUrl(equipo.id, equipo.nombre)}
       className={`block rounded-[var(--radius)] border ${esPrincipal ? 'border-yellow-500/40 bg-yellow-500/[0.06] hover:border-yellow-500' : 'border-[var(--border)] bg-[var(--bg-card)] hover:border-[var(--accent)]'} hover:shadow-md transition-all group`}
     >
       <div className="p-4 flex items-center gap-4">

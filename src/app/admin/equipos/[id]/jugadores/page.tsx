@@ -1,16 +1,17 @@
 'use client';
 
 import { useState, useEffect, use } from 'react';
-import { collection, query, where, onSnapshot, doc, deleteDoc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { JugadorForm } from '@/components/admin/jugador-form';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogBody } from '@/components/ui/dialog';
 import { Loader } from '@/components/shared/loader';
 import { EmptyState } from '@/components/shared/empty-state';
 import { StatusBadge } from '@/components/admin/status-badge';
 import { MetricCard } from '@/components/admin/metric-card';
-import { Users, Plus, Pencil, Trash2, ArrowLeft, ExternalLink, CheckCircle, TrendingUp } from 'lucide-react';
+import { Users, Plus, Pencil, Trash2, ArrowLeft, ExternalLink, CheckCircle, TrendingUp, Save } from 'lucide-react';
 import Link from 'next/link';
 import type { Jugador } from '@/types/jugador';
 
@@ -20,6 +21,8 @@ export default function AdminEquipoJugadoresPage({ params }: { params: Promise<{
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Jugador | null>(null);
   const [showCreate, setShowCreate] = useState(false);
+  const [editingGoles, setEditingGoles] = useState<string | null>(null);
+  const [editGolesVal, setEditGolesVal] = useState(0);
 
   useEffect(() => {
     const q = query(collection(db, 'jugadores'), where('equipoId', '==', id));
@@ -32,6 +35,18 @@ export default function AdminEquipoJugadoresPage({ params }: { params: Promise<{
 
   const eliminar = async (jugadorId: string) => { if (confirm('¿Eliminar jugador?')) await deleteDoc(doc(db, 'jugadores', jugadorId)); };
 
+  const iniciarEdicionGol = (j: Jugador) => {
+    setEditingGoles(j.id);
+    setEditGolesVal(j.estadisticasTemp?.goles || 0);
+  };
+
+  const guardarGol = async (jugadorId: string) => {
+    await updateDoc(doc(db, 'jugadores', jugadorId), {
+      estadisticasTemp: { goles: editGolesVal },
+    });
+    setEditingGoles(null);
+  };
+
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
@@ -41,7 +56,7 @@ export default function AdminEquipoJugadoresPage({ params }: { params: Promise<{
         </div>
         <Dialog open={showCreate && !editing} onOpenChange={setShowCreate}>
           <DialogTrigger asChild><Button><Plus className="h-4 w-4 mr-1.5" /> Añadir Jugador</Button></DialogTrigger>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-lg">
             <DialogHeader><DialogTitle>Nuevo Jugador</DialogTitle></DialogHeader>
             <DialogBody><JugadorForm equipoId={id} onClose={() => setShowCreate(false)} /></DialogBody>
           </DialogContent>
@@ -61,7 +76,7 @@ export default function AdminEquipoJugadoresPage({ params }: { params: Promise<{
               <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-left w-12">#</th>
               <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-left">Nombre</th>
               <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-left">Posición</th>
-              <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-center hidden sm:table-cell">Goles</th>
+              <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-center w-24">Goles</th>
               <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-center">Estado</th>
               <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-right">Acciones</th>
             </tr></thead>
@@ -71,7 +86,18 @@ export default function AdminEquipoJugadoresPage({ params }: { params: Promise<{
                   <td className="p-3 text-center font-bold text-[var(--accent)] font-mono text-sm">{j.numero}</td>
                   <td className="p-3"><div className="flex items-center gap-2.5"><div className="w-7 h-7 rounded-full bg-[var(--bg-secondary)] flex items-center justify-center text-[10px] font-bold text-[var(--text-muted)] overflow-hidden">{j.fotoBase64 ? <img src={j.fotoBase64} alt="" className="w-full h-full object-cover" /> : `${j.nombre[0]}${j.apellido[0]}`}</div><span className="text-sm font-medium text-[var(--text)]">{j.nombre} {j.apellido}</span></div></td>
                   <td className="p-3 text-sm text-[var(--text-secondary)]">{j.posicion || '—'}</td>
-                  <td className="p-3 text-center font-bold text-[var(--accent)] hidden sm:table-cell">{j.estadisticasTemp?.goles || 0}</td>
+                  <td className="p-3 text-center">
+                    {editingGoles === j.id ? (
+                      <div className="flex items-center justify-center gap-1">
+                        <Input type="number" min={0} value={editGolesVal} onChange={(e) => setEditGolesVal(parseInt(e.target.value) || 0)} className="w-16 h-8 text-center text-sm font-bold" />
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => guardarGol(j.id)} title="Guardar"><Save className="h-3.5 w-3.5 text-emerald-500" /></Button>
+                      </div>
+                    ) : (
+                      <button onClick={() => iniciarEdicionGol(j)} className="font-bold text-[var(--accent)] cursor-pointer hover:bg-[var(--bg-hover)] rounded px-2 py-0.5 transition-colors" title="Editar goles">
+                        {j.estadisticasTemp?.goles || 0}
+                      </button>
+                    )}
+                  </td>
                   <td className="p-3 text-center"><StatusBadge status={j.activo ? 'success' : 'error'} label={j.activo ? 'Activo' : 'Inactivo'} /></td>
                   <td className="p-3 text-right"><div className="flex justify-end gap-1">
                     <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditing(j); setShowCreate(true); }} title="Editar"><Pencil className="h-4 w-4" /></Button>
@@ -86,7 +112,7 @@ export default function AdminEquipoJugadoresPage({ params }: { params: Promise<{
       )}
 
       <Dialog open={showCreate && !!editing} onOpenChange={(o) => { if (!o) { setEditing(null); setShowCreate(false); }}}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>Editar Jugador</DialogTitle></DialogHeader>
           <DialogBody>{editing && <JugadorForm jugador={editing} onClose={() => { setEditing(null); setShowCreate(false); }} />}</DialogBody>
         </DialogContent>
