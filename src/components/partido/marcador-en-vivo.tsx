@@ -43,16 +43,18 @@ export function MarcadorEnVivo() {
     return () => unsub();
   }, []);
 
-  // Use partidos collection if available, fallback to partidos_en_vivo
-  const localNombre = partidoDb?.equipoLocalNombre || livePartido?.equipoLocal || '';
-  const visNombre = partidoDb?.equipoVisitaNombre || livePartido?.equipoVis || '';
-  const localScore = partidoDb?.marcadorLocal ?? livePartido?.marcadorLocal ?? 0;
-  const visScore = partidoDb?.marcadorVisita ?? livePartido?.marcadorVis ?? 0;
-  const minActual = partidoDb?.minuto || livePartido?.minuto || '0';
+  // Only show live match when there's an active match in the partidos collection
+  const localNombre = partidoDb?.equipoLocalNombre || '';
+  const visNombre = partidoDb?.equipoVisitaNombre || '';
+  const localScore = partidoDb?.marcadorLocal ?? 0;
+  const visScore = partidoDb?.marcadorVisita ?? 0;
+  const minActual = partidoDb?.minuto || '0';
+  const penalesLocal = partidoDb?.penalesLocal ?? livePartido?.penalesLocal ?? 0;
+  const penalesVisita = partidoDb?.penalesVisita ?? livePartido?.penalesVis ?? 0;
 
   const localEquipo = equiposMap[partidoDb?.equipoLocalId || ''] || equiposMap[localNombre];
   const visEquipo = equiposMap[partidoDb?.equipoVisitaId || ''] || equiposMap[visNombre];
-  const isLive = !!(partidoDb || livePartido);
+  const isLive = !!partidoDb;
 
   useEffect(() => {
     if (!isLive) return;
@@ -131,16 +133,13 @@ export function MarcadorEnVivo() {
         </div>
 
         {/* Penales */}
-        {(partidoDb?.penalesLocal !== undefined && partidoDb?.penalesLocal > 0) ||
-         (partidoDb?.penalesVisita !== undefined && partidoDb?.penalesVisita > 0) ||
-         (livePartido?.penalesLocal !== undefined && livePartido?.penalesLocal > 0) ||
-         (livePartido?.penalesVis !== undefined && livePartido?.penalesVis > 0) ? (
+        {(penalesLocal > 0 || penalesVisita > 0) ? (
           <div className="px-4 pb-3 text-center">
             <span className="text-[10px] font-semibold text-[var(--accent)] uppercase tracking-wider">Penales</span>
             <div className="flex items-center justify-center gap-2 text-sm font-bold text-[var(--text)]">
-              <span>{partidoDb?.penalesLocal ?? livePartido?.penalesLocal ?? 0}</span>
+              <span>{penalesLocal}</span>
               <span className="text-[var(--text-muted)]">-</span>
-              <span>{partidoDb?.penalesVisita ?? livePartido?.penalesVis ?? 0}</span>
+              <span>{penalesVisita}</span>
             </div>
           </div>
         ) : null}
