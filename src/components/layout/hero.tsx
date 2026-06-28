@@ -1,11 +1,11 @@
 'use client';
 
 import { MarcadorEnVivo } from '@/components/partido/marcador-en-vivo';
-import { ReproductorYouTube } from '@/components/transmision/reproductor-youtube';
 import { ListaNoticias } from '@/components/noticias/lista-noticias';
 import { SportsTicker } from '@/components/shared/sports-ticker';
 import { LiveNowBar } from '@/components/shared/live-now-bar';
 import { DeportesGrid } from '@/components/deportes/deportes-grid';
+import { ClubesDestacados } from '@/components/clubes/clubes-destacados';
 import { SponsorsGrid } from '@/components/sponsors/sponsors-grid';
 import { useTransmision } from '@/hooks/use-transmision';
 
@@ -39,6 +39,8 @@ export function Hero() {
         </h2>
         <DeportesGrid />
       </section>
+
+      <ClubesDestacados />
 
       <section className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between mb-4">

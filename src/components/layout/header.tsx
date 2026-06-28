@@ -43,7 +43,7 @@ export function Header() {
               )}>
                 <Icon className="h-4 w-4" />
                 {link.label}
-                {link.href === '/tv' && <BadgeEnVivo size="sm" className="absolute -top-1 -right-1" />}
+                {link.href === '/tv' && <BadgeEnVivo size="sm" className="ml-1.5 relative" />}
               </Link>
             );
           })}

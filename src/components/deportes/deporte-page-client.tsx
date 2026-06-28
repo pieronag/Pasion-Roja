@@ -60,8 +60,8 @@ export function DeportePageClient({ deporteId }: { deporteId: string }) {
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
         <div className="relative z-10 max-w-7xl mx-auto px-4 w-full h-full flex flex-col justify-end pb-4 md:pb-6">
-          <Link href="/deportes" className="inline-flex items-center gap-1 text-xs text-white/70 hover:text-white mb-2 bg-black/30 px-2.5 py-1 rounded-[var(--radius-sm)] backdrop-blur-sm w-fit">
-            <ArrowLeft className="h-3.5 w-3.5" /> Todos los deportes
+          <Link href="/deportes" className="flex items-center justify-center w-8 h-8 text-white/70 hover:text-white mb-2 bg-black/30 rounded-full backdrop-blur-sm hover:bg-black/50 transition-all" title="Volver">
+            <ArrowLeft className="h-4 w-4" />
           </Link>
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-[var(--radius)] bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
@@ -77,7 +77,7 @@ export function DeportePageClient({ deporteId }: { deporteId: string }) {
         {divisiones.length > 0 && !selectedDivisionId && (
           <div>
             <h2 className="text-lg font-bold text-[var(--text)] mb-4 flex items-center gap-2">
-              <Trophy className="h-5 w-5 text-[var(--accent)]" /> Divisiones disponibles
+              <Trophy className="h-5 w-5 text-[var(--accent)]" /> Divisiones Disponibles
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
               {divisiones.map((div) => {
@@ -88,7 +88,7 @@ export function DeportePageClient({ deporteId }: { deporteId: string }) {
                   <button
                     key={div.id}
                     onClick={() => setSelectedDivisionId(div.id)}
-                    className="text-left rounded-[var(--radius)] border border-[var(--border)] bg-[var(--bg-card)] hover:border-[var(--accent)] hover:shadow-md transition-all group overflow-hidden"
+                    className="text-left rounded-[var(--radius)] border border-[var(--border)] bg-[var(--bg-card)] hover:border-[var(--accent)] hover:shadow-md hover:cursor-pointer transition-all group overflow-hidden"
                   >
                     {div.bannerBase64 && (
                       <div className="h-24 overflow-hidden bg-[var(--bg-secondary)]">
@@ -159,14 +159,14 @@ export function DeportePageClient({ deporteId }: { deporteId: string }) {
           <>
             {/* Back + Title */}
             <div className="flex items-center justify-between mb-4">
-              <div>
-                <button onClick={() => setSelectedDivisionId('')} className="text-xs text-[var(--text-secondary)] hover:text-[var(--accent)] flex items-center gap-1 mb-1 transition-colors">
-                  <ArrowLeft className="h-3.5 w-3.5" /> {deporte.nombre} / Divisiones
+              <div className="flex items-center gap-3">
+                <button onClick={() => setSelectedDivisionId('')} className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--accent)] transition-all" title="Volver">
+                  <ArrowLeft className="h-4 w-4" />
                 </button>
-                <h2 className="text-xl font-bold text-[var(--text)] flex items-center gap-2">
-                  {selectedDivision.nombre}
-                  <span className="text-xs font-normal text-[var(--text-muted)]">{selectedDivision.temporada}</span>
-                </h2>
+                <div>
+                  <h2 className="text-xl font-bold text-[var(--text)]">{selectedDivision.nombre}</h2>
+                  <p className="text-xs text-[var(--text-muted)]">{deporte.nombre} · Temporada {selectedDivision.temporada}</p>
+                </div>
               </div>
               <div className="flex gap-2 flex-wrap">
                 {selectedDivision.ascensos > 0 && (
