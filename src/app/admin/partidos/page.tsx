@@ -310,7 +310,7 @@ export default function AdminPartidosPage() {
                       ) : (
                         <button onClick={() => { setEditingStatusId(p.id); setEditStatus(p.estado); }} className="cursor-pointer hover:opacity-80 transition-opacity">
                           {p.estado === 'en_vivo' && (p.equipoLocalId === principalId || p.equipoVisitaId === principalId) ? (
-                            <StatusBadge status="error" label="?? En Vivo" />
+                            <StatusBadge status="error" label="En Vivo" />
                           ) : p.estado === 'en_vivo' ? (
                             <StatusBadge status="info" label="Transmitiendo" />
                           ) : p.estado === 'finalizado' ? (
@@ -329,7 +329,7 @@ export default function AdminPartidosPage() {
                             min={0}
                             value={editScoreLocal}
                             onChange={e => setEditScoreLocal(parseInt(e.target.value) || 0)}
-                            className="w-12 h-7 text-center text-sm font-bold"
+                            className="w-16 h-8 text-center text-sm font-bold"
                           />
                           <span className="text-xs text-[var(--text-muted)]">-</span>
                           <Input
@@ -337,7 +337,7 @@ export default function AdminPartidosPage() {
                             min={0}
                             value={editScoreVis}
                             onChange={e => setEditScoreVis(parseInt(e.target.value) || 0)}
-                            className="w-12 h-7 text-center text-sm font-bold"
+                            className="w-16 h-8 text-center text-sm font-bold"
                           />
                           <button
                             onClick={async () => {

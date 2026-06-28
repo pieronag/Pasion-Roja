@@ -188,76 +188,78 @@ export default function AdminDivisionesPage() {
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>{editing ? 'Editar' : 'Nueva'} División</DialogTitle></DialogHeader>
           <DialogBody>
-            <div className="space-y-4">
+            <div className="space-y-3">
               {error && <div className="flex items-center gap-2 p-2.5 rounded-[var(--radius-sm)] bg-red-500/10 border"><AlertCircle className="h-4 w-4 text-red-400 flex-shrink-0" /><p className="text-xs text-red-400">{error}</p></div>}
               {success && <div className="flex items-center gap-2 p-2.5 rounded-[var(--radius-sm)] bg-emerald-500/10 border"><CheckCircle2 className="h-4 w-4 text-emerald-400" /><p className="text-xs text-emerald-400">{success}</p></div>}
 
+              {/* Row 1: Basic info + Jornadas */}
               <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Nombre</Label><Input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: Primera División" /></div>
-                <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Temporada</Label><Input value={temporada} onChange={(e) => setTemporada(e.target.value)} /></div>
-              </div>
-              <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Deporte</Label>
-                <Select value={deporteId} onValueChange={setDeporteId}>
-                  <SelectTrigger><SelectValue placeholder="Seleccionar" /></SelectTrigger>
-                  <SelectContent>{deportes.map((d) => <SelectItem key={d.id} value={d.id}><span className="flex items-center gap-1.5"><SportIcon sport={d.icono} size={14} /><span>{d.nombre}</span></span></SelectItem>)}</SelectContent>
-                </Select>
-              </div>
-
-              <div className="border-t border-[var(--border)] pt-3">
-                <h4 className="text-xs font-semibold text-[var(--text)] mb-3">📅 Jornadas</h4>
-                <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Total de jornadas</Label><Input type="number" value={totalJornadas} onChange={(e) => setTotalJornadas(e.target.value)} min={1} max={99} /></div>
-              </div>
-
-              <div className="border-t border-[var(--border)] pt-3">
-                <h4 className="text-xs font-semibold text-[var(--text)] mb-3">🏆 Playoff / Liguilla</h4>
-                <div className="flex items-center gap-2 mb-2">
-                  <input type="checkbox" id="tieneCuad" checked={tieneCuadrangular} onChange={(e) => setTieneCuadrangular(e.target.checked)} className="w-4 h-4 rounded border-[var(--border)] text-[var(--accent)]" />
-                  <Label htmlFor="tieneCuad" className="text-xs text-[var(--text-secondary)]">Tiene fase final (playoff/liguilla)</Label>
-                </div>
-                {tieneCuadrangular && (
-                  <div className="space-y-2">
-                    <div className="space-y-1">
-                      <Label className="text-xs text-[var(--text-muted)]">Formato</Label>
-                      <Select value={tipoLiguilla} onValueChange={(v: TipoLiguilla) => setTipoLiguilla(v)}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="cuadrangular">🏟️ Cuadrangular (eliminación directa)</SelectItem>
-                          <SelectItem value="liguilla">📊 Liguilla (todos contra todos)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Clasifican desde puesto</Label><Input type="number" value={puestosDesde} onChange={(e) => setPuestosDesde(e.target.value)} min={1} max={20} /></div>
-                      <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Hasta puesto</Label><Input type="number" value={puestosHasta} onChange={(e) => setPuestosHasta(e.target.value)} min={1} max={20} /></div>
-                    </div>
-                    <div className="text-[10px] text-[var(--text-muted)] p-2 rounded bg-[var(--bg-secondary)]">
-                      Ejemplo: Del puesto <strong>{puestosDesde}</strong> al <strong>{puestosHasta}</strong> clasifican a {tipoLiguilla === 'cuadrangular' ? 'cuadrangular' : 'liguilla'} ({Math.max(0, (parseInt(puestosHasta) || 4) - (parseInt(puestosDesde) || 1) + 1)} equipos)
-                    </div>
+                <div className="space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Nombre</Label><Input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: Primera División" /></div>
+                    <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Temporada</Label><Input value={temporada} onChange={(e) => setTemporada(e.target.value)} /></div>
                   </div>
-                )}
-              </div>
-
-              <div className="border-t border-[var(--border)] pt-3">
-                <h4 className="text-xs font-semibold text-[var(--text)] mb-3">📊 Ascensos y Descensos</h4>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Ascienden</Label><Input type="number" value={ascensos} onChange={(e) => setAscensos(e.target.value)} min={0} max={10} /></div>
-                  <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Descienden</Label><Input type="number" value={descensos} onChange={(e) => setDescensos(e.target.value)} min={0} max={10} /></div>
+                  <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Deporte</Label>
+                    <Select value={deporteId} onValueChange={setDeporteId}>
+                      <SelectTrigger><SelectValue placeholder="Seleccionar" /></SelectTrigger>
+                      <SelectContent>{deportes.map((d) => <SelectItem key={d.id} value={d.id}><span className="flex items-center gap-1.5"><SportIcon sport={d.icono} size={14} /><span>{d.nombre}</span></span></SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="text-xs font-semibold text-[var(--text)]">📅 Jornadas</h4>
+                  <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Total</Label><Input type="number" value={totalJornadas} onChange={(e) => setTotalJornadas(e.target.value)} min={1} max={99} /></div>
+                  <h4 className="text-xs font-semibold text-[var(--text)] pt-2">📊 Ascensos / Descensos</h4>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Ascienden</Label><Input type="number" value={ascensos} onChange={(e) => setAscensos(e.target.value)} min={0} max={10} /></div>
+                    <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Descienden</Label><Input type="number" value={descensos} onChange={(e) => setDescensos(e.target.value)} min={0} max={10} /></div>
+                  </div>
                 </div>
               </div>
 
-              <div className="border-t border-[var(--border)] pt-3">
-                <h4 className="text-xs font-semibold text-[var(--text)] mb-3">📊 Descenso y Promoción</h4>
-                <div className="flex items-center gap-2 mb-2">
-                  <input type="checkbox" id="tieneProm" checked={tipoPromocion === 'promocion'} onChange={(e) => setTipoPromocion(e.target.checked ? 'promocion' : 'none')} className="w-4 h-4 rounded border-[var(--border)] text-[var(--accent)]" />
-                  <Label htmlFor="tieneProm" className="text-xs text-[var(--text-secondary)]">Tiene promoción (repechaje)</Label>
+              {/* Row 2: Playoff + Promoción */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <h4 className="text-xs font-semibold text-[var(--text)] mb-2">🏆 Playoff / Liguilla</h4>
+                  <label className="flex items-center gap-2 mb-2 cursor-pointer">
+                    <input type="checkbox" checked={tieneCuadrangular} onChange={(e) => setTieneCuadrangular(e.target.checked)} className="w-4 h-4 rounded border-[var(--border)] text-[var(--accent)]" />
+                    <span className="text-xs text-[var(--text-secondary)]">Tiene fase final</span>
+                  </label>
+                  {tieneCuadrangular && (
+                    <div className="space-y-2">
+                      <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Formato</Label>
+                        <Select value={tipoLiguilla} onValueChange={(v: TipoLiguilla) => setTipoLiguilla(v)}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="cuadrangular">Cuadrangular</SelectItem>
+                            <SelectItem value="liguilla">Liguilla</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Desde puesto</Label><Input type="number" value={puestosDesde} onChange={(e) => setPuestosDesde(e.target.value)} min={1} max={20} /></div>
+                        <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Hasta puesto</Label><Input type="number" value={puestosHasta} onChange={(e) => setPuestosHasta(e.target.value)} min={1} max={20} /></div>
+                      </div>
+                      <div className="text-[10px] text-[var(--text-muted)] p-1.5 rounded bg-[var(--bg-secondary)]">
+                        {Math.max(0, (parseInt(puestosHasta) || 4) - (parseInt(puestosDesde) || 1) + 1)} equipos clasifican
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Desde puesto</Label><Input type="number" value={puestosPromocionDesde} onChange={(e) => setPuestosPromocionDesde(e.target.value)} min={1} max={20} disabled={tipoPromocion !== 'promocion'} /></div>
-                  <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Hasta puesto</Label><Input type="number" value={puestosPromocionHasta} onChange={(e) => setPuestosPromocionHasta(e.target.value)} min={1} max={20} disabled={tipoPromocion !== 'promocion'} /></div>
+                <div>
+                  <h4 className="text-xs font-semibold text-[var(--text)] mb-2">📊 Promoción (Repechaje)</h4>
+                  <label className="flex items-center gap-2 mb-2 cursor-pointer">
+                    <input type="checkbox" checked={tipoPromocion === 'promocion'} onChange={(e) => setTipoPromocion(e.target.checked ? 'promocion' : 'none')} className="w-4 h-4 rounded border-[var(--border)] text-[var(--accent)]" />
+                    <span className="text-xs text-[var(--text-secondary)]">Tiene promoción</span>
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Desde puesto</Label><Input type="number" value={puestosPromocionDesde} onChange={(e) => setPuestosPromocionDesde(e.target.value)} min={1} max={20} disabled={tipoPromocion !== 'promocion'} /></div>
+                    <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Hasta puesto</Label><Input type="number" value={puestosPromocionHasta} onChange={(e) => setPuestosPromocionHasta(e.target.value)} min={1} max={20} disabled={tipoPromocion !== 'promocion'} /></div>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2 pt-1 border-t border-[var(--border)]">
+              <div className="flex justify-end gap-2 pt-2 border-t border-[var(--border)]">
                 <Button variant="ghost" size="sm" onClick={() => { setShowForm(false); setEditing(null); }}><X className="h-3.5 w-3.5 mr-1" /> Cancelar</Button>
                 <Button onClick={guardar} loading={saving} size="sm"><Save className="h-3.5 w-3.5 mr-1" /> {editing ? 'Guardar Cambios' : 'Crear División'}</Button>
               </div>
