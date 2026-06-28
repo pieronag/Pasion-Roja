@@ -104,7 +104,7 @@ export default function AdminPartidosPage() {
   const filtered = partidos.filter((p) => {
     if (filterDeporte && p.deporteId !== filterDeporte) return false;
     if (filterDivision && p.divisionId !== filterDivision) return false;
-    if (p.jornada !== jornadaActual) return false;
+    if (jornadaActual > 0 && p.jornada !== jornadaActual) return false;
     if (search) { const q = search.toLowerCase(); if (!p.equipoLocalNombre?.toLowerCase().includes(q) && !p.equipoVisitaNombre?.toLowerCase().includes(q)) return false; }
     return true;
   }).sort((a, b) => a.fecha - b.fecha);
@@ -191,19 +191,26 @@ export default function AdminPartidosPage() {
 
       <div className="flex items-center justify-between p-3 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--bg-secondary)]">
         <div className="flex items-center gap-1">
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setJornadaActual(0)} title="Todas"><span className="text-xs font-bold">T</span></Button>
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setJornadaActual(1)} disabled={jornadaActual <= 1} title="Primera jornada"><ChevronsLeft className="h-4 w-4" /></Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setJornadaActual(j => Math.max(1, j - 1))} disabled={jornadaActual <= 1} title="Anterior"><ChevronLeft className="h-4 w-4" /></Button>
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setJornadaActual(j => Math.max(0, j - 1))} disabled={jornadaActual <= 0} title="Anterior"><ChevronLeft className="h-4 w-4" /></Button>
         </div>
         <div className="text-center">
-          <span className="text-sm font-bold text-[var(--text)]">JORNADA {jornadaActual}</span>
-          <span className="text-xs text-[var(--text-muted)] ml-2">de {totalJornadas}</span>
-          {minFecha && maxFecha && (
+          {jornadaActual > 0 ? (
+            <>
+              <span className="text-sm font-bold text-[var(--text)]">JORNADA {jornadaActual}</span>
+              <span className="text-xs text-[var(--text-muted)] ml-2">de {totalJornadas}</span>
+            </>
+          ) : (
+            <span className="text-sm font-bold text-[var(--text)]">TODAS LAS JORNADAS</span>
+          )}
+          {jornadaActual > 0 && minFecha && maxFecha && (
             <div className="text-[10px] text-[var(--text-muted)] mt-0.5">📅 {formatDateRange(minFecha, maxFecha)}</div>
           )}
           <div className="text-[10px] text-[var(--text-muted)]">{filtered.length} partidos</div>
         </div>
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setJornadaActual(j => Math.min(totalJornadas, j + 1))} disabled={jornadaActual >= totalJornadas} title="Siguiente"><ChevronRight className="h-4 w-4" /></Button>
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setJornadaActual(j => Math.min(j || 1, totalJornadas) + 1 > totalJornadas ? totalJornadas : (j || 0) + 1)} disabled={jornadaActual >= totalJornadas} title="Siguiente"><ChevronRight className="h-4 w-4" /></Button>
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setJornadaActual(totalJornadas)} disabled={jornadaActual >= totalJornadas} title="Última jornada"><ChevronsRight className="h-4 w-4" /></Button>
         </div>
       </div>

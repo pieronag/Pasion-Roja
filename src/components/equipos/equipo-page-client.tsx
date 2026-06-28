@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs, limit as fLimit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useJugadores } from '@/hooks/use-jugadores';
 import { usePartidos } from '@/hooks/use-partidos';
@@ -14,24 +14,41 @@ import type { Equipo } from '@/types/equipo';
 import { ArrowLeft, Calendar, Users, MapPin, CalendarDays } from 'lucide-react';
 import Link from 'next/link';
 
-export function EquipoPageClient({ equipoId }: { equipoId: string }) {
+interface Props {
+  equipoId: string;
+  lookupBy?: 'id' | 'nombre';
+}
+
+export function EquipoPageClient({ equipoId, lookupBy = 'id' }: Props) {
   const [equipo, setEquipo] = useState<Equipo | null>(null);
   const [loading, setLoading] = useState(true);
-  const { jugadores } = useJugadores(equipoId);
+  const { jugadores } = useJugadores(equipo?.id || '');
   const { partidos } = usePartidos({ max: 10 });
 
   useEffect(() => {
-    getDoc(doc(db, 'equipos', equipoId)).then((snap) => {
-      if (snap.exists()) setEquipo({ id: snap.id, ...snap.data() } as Equipo);
-      setLoading(false);
-    });
-  }, [equipoId]);
+    if (lookupBy === 'nombre') {
+      const nombre = equipoId.trim();
+      const q = query(collection(db, 'equipos'), where('nombre', '==', nombre), fLimit(1));
+      getDocs(q).then((snap) => {
+        if (!snap.empty) {
+          const d = snap.docs[0];
+          setEquipo({ ...d.data(), id: d.id, _id: d.id } as any);
+        }
+        setLoading(false);
+      }).catch(() => setLoading(false));
+    } else {
+      getDoc(doc(db, 'equipos', equipoId)).then((snap) => {
+        if (snap.exists()) setEquipo({ id: snap.id, ...snap.data() } as Equipo);
+        setLoading(false);
+      }).catch(() => setLoading(false));
+    }
+  }, [equipoId, lookupBy]);
 
   if (loading) return <div className="p-4"><Skeleton className="h-48 w-full rounded-2xl mb-4" /><Skeleton className="h-64 w-full rounded-xl" /></div>;
   if (!equipo) return <EmptyState title="Equipo no encontrado" />;
 
   const partidosEquipo = partidos.filter(
-    (p) => p.equipoLocalId === equipoId || p.equipoVisitaId === equipoId
+    (p) => p.equipoLocalId === equipo.id || p.equipoVisitaId === equipo.id
   );
 
   return (
@@ -56,7 +73,7 @@ export function EquipoPageClient({ equipoId }: { equipoId: string }) {
             <h1 className="text-2xl md:text-3xl font-black font-display">{equipo.nombre}</h1>
             <div className="flex flex-wrap gap-3 mt-2 text-sm text-white/80">
               <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{equipo.ciudad || equipo.estadio}</span>
-              <span className="flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" />Fundado {equipo.fundacion}</span>
+              {equipo.fundacion ? <span className="flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" />Fundado {equipo.fundacion}</span> : null}
             </div>
           </div>
         </div>

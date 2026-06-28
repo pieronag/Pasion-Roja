@@ -46,7 +46,7 @@ export function ClubCard({ equipo, esPrincipal, deporteNombre }: ClubCardProps) 
 
   return (
     <Link
-      href={equipoUrl(equipo.id, equipo.nombre)}
+      href={equipoUrl(equipo.nombre)}
       className={`block rounded-[var(--radius)] border ${esPrincipal ? 'border-yellow-500/40 bg-yellow-500/[0.06] hover:border-yellow-500' : 'border-[var(--border)] bg-[var(--bg-card)] hover:border-[var(--accent)]'} hover:shadow-md transition-all group`}
     >
       <div className="p-4 flex items-center gap-4">
