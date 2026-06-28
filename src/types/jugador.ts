@@ -12,6 +12,10 @@ export interface Jugador {
   nacionalidad: string;
   altura: number;
   peso: number;
+  pie: string;
+  fichado: string;
+  contratoHasta: string;
+  valorMercado: string;
   activo: boolean;
   estadisticasTemp: Record<string, number>;
   temporadaActual: string;

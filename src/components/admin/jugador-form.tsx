@@ -4,35 +4,45 @@ import { useState, useEffect } from 'react';
 import { collection, addDoc, updateDoc, doc, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useDeportes } from '@/hooks/use-deportes';
+import { useEquiposMap } from '@/hooks/use-equipos-map';
 import { SportIcon } from '@/components/shared/sport-icons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Users, Save, X, Upload, CheckCircle2, AlertCircle, Ruler, Weight, Cake, Flag, Hash } from 'lucide-react';
+import { Users, Save, X, Upload, CheckCircle2, AlertCircle, Ruler, Weight, Cake, Flag, Hash, DollarSign, CalendarDays } from 'lucide-react';
 import { compressImage } from '@/lib/utils';
 import type { Jugador } from '@/types/jugador';
 import type { Equipo } from '@/types/equipo';
 
-export function JugadorForm({ jugador, equipoId: defaultEquipoId, deporteId: defaultDeporteId, onClose }: { jugador?: Jugador; equipoId?: string; deporteId?: string; onClose?: () => void }) {
+export function JugadorForm({ jugador, equipoId: defaultEquipoId, onClose }: { jugador?: Jugador; equipoId?: string; onClose?: () => void }) {
   const { deportes } = useDeportes();
+  const { equiposMap } = useEquiposMap();
   const [equipos, setEquipos] = useState<Equipo[]>([]);
-  const [deporteId, setDeporteId] = useState(jugador?.deporteId || defaultDeporteId || '');
+
+  // Auto-detect Malleco's deporte and equipo
+  const principalEquipo = Object.values(equiposMap).find(e => e.esPrincipal);
+  const defaultDeporteId = jugador?.deporteId || principalEquipo?.deporteId || '';
+
+  const [deporteId, setDeporteId] = useState(defaultDeporteId);
   const [nombre, setNombre] = useState(jugador?.nombre || '');
   const [apellido, setApellido] = useState(jugador?.apellido || '');
   const [numero, setNumero] = useState(jugador?.numero?.toString() || '');
   const [posicion, setPosicion] = useState(jugador?.posicion || '');
-  const [equipoId, setEquipoId] = useState(jugador?.equipoId || defaultEquipoId || '');
+  const [equipoId, setEquipoId] = useState(jugador?.equipoId || defaultEquipoId || principalEquipo?.id || '');
   const [nacionalidad, setNacionalidad] = useState(jugador?.nacionalidad || 'Chilena');
   const [fechaNacimiento, setFechaNacimiento] = useState(jugador?.fechaNacimiento ? new Date(jugador.fechaNacimiento).toISOString().split('T')[0] : '');
   const [altura, setAltura] = useState(jugador?.altura?.toString() || '');
   const [peso, setPeso] = useState(jugador?.peso?.toString() || '');
+  const [pie, setPie] = useState(jugador?.pie || 'Derecho');
+  const [fichado, setFichado] = useState(jugador?.fichado || '');
+  const [contratoHasta, setContratoHasta] = useState(jugador?.contratoHasta || '');
+  const [valorMercado, setValorMercado] = useState(jugador?.valorMercado || '');
   const [fotoBase64, setFotoBase64] = useState(jugador?.fotoBase64 || '');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  // Load equipos when deporte changes
   useEffect(() => {
     if (!deporteId) { setEquipos([]); return; }
     const q = query(collection(db, 'equipos'), where('deporteId', '==', deporteId), where('activo', '==', true));
@@ -52,19 +62,13 @@ export function JugadorForm({ jugador, equipoId: defaultEquipoId, deporteId: def
     setSaving(true);
     try {
       const data = {
-        nombre: nombre.trim(),
-        apellido: apellido.trim(),
+        nombre: nombre.trim(), apellido: apellido.trim(),
         nombreCompleto: `${nombre.trim()} ${apellido.trim()}`,
-        numero: parseInt(numero) || 0,
-        posicion: posicion.trim(),
-        equipoId,
-        deporteId,
-        fotoBase64,
-        activo: true,
+        numero: parseInt(numero) || 0, posicion: posicion.trim(),
+        equipoId, deporteId, fotoBase64, activo: true,
         fechaNacimiento: fechaNacimiento ? new Date(fechaNacimiento).getTime() : 0,
-        nacionalidad,
-        altura: parseInt(altura) || 0,
-        peso: parseInt(peso) || 0,
+        nacionalidad, altura: parseInt(altura) || 0, peso: parseInt(peso) || 0,
+        pie, fichado, contratoHasta, valorMercado,
         estadisticasTemp: {} as Record<string, number>,
         temporadaActual: '2026',
       };
@@ -79,7 +83,7 @@ export function JugadorForm({ jugador, equipoId: defaultEquipoId, deporteId: def
   return (
     <div className="space-y-4">
       {error && <div className="flex items-center gap-2 p-2.5 rounded-[var(--radius-sm)] bg-red-500/10 border"><AlertCircle className="h-4 w-4 text-red-400 flex-shrink-0" /><p className="text-xs text-red-400">{error}</p></div>}
-      {success && <div className="flex items-center gap-2 p-2.5 rounded-[var(--radius-sm)] bg-green-500/10 border"><CheckCircle2 className="h-4 w-4 text-green-400" /><p className="text-xs text-green-400">Jugador guardado</p></div>}
+      {success && <div className="flex items-center gap-2 p-2.5 rounded-[var(--radius-sm)] bg-emerald-500/10 border"><CheckCircle2 className="h-4 w-4 text-emerald-400" /><p className="text-xs text-emerald-400">Jugador guardado</p></div>}
 
       {/* Foto + Nombre */}
       <div>
@@ -96,12 +100,12 @@ export function JugadorForm({ jugador, equipoId: defaultEquipoId, deporteId: def
         </div>
       </div>
 
-      {/* Información deportiva */}
+      {/* Información Deportiva */}
       <div>
         <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-1.5"><Hash className="h-3.5 w-3.5" /> Información Deportiva</h4>
         <div className="grid grid-cols-3 gap-2">
           <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Número</Label><Input type="number" value={numero} onChange={(e) => setNumero(e.target.value)} min={0} max={99} placeholder="00" /></div>
-          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Posición</Label><Input value={posicion} onChange={(e) => setPosicion(e.target.value)} placeholder="Delantero / Base / etc" /></div>
+          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Posición</Label><Input value={posicion} onChange={(e) => setPosicion(e.target.value)} placeholder="Delantero" /></div>
           <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Nacionalidad</Label>
             <Select value={nacionalidad} onValueChange={setNacionalidad}>
               <SelectTrigger><SelectValue /></SelectTrigger>
@@ -115,17 +119,33 @@ export function JugadorForm({ jugador, equipoId: defaultEquipoId, deporteId: def
         </div>
       </div>
 
-      {/* Físico */}
+      {/* Datos Físicos */}
       <div>
         <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-1.5"><Ruler className="h-3.5 w-3.5" /> Datos Físicos</h4>
-        <div className="grid grid-cols-3 gap-2">
-          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Fecha de nacimiento</Label><Input type="date" value={fechaNacimiento} onChange={(e) => setFechaNacimiento(e.target.value)} className="[color-scheme:dark]" /></div>
-          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Altura (cm)</Label><Input type="number" value={altura} onChange={(e) => setAltura(e.target.value)} placeholder="175" /></div>
-          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Peso (kg)</Label><Input type="number" value={peso} onChange={(e) => setPeso(e.target.value)} placeholder="70" /></div>
+        <div className="grid grid-cols-4 gap-2">
+          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Fecha nac.</Label><Input type="date" value={fechaNacimiento} onChange={(e) => setFechaNacimiento(e.target.value)} /></div>
+          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Altura</Label><Input type="number" value={altura} onChange={(e) => setAltura(e.target.value)} placeholder="175" /></div>
+          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Peso</Label><Input type="number" value={peso} onChange={(e) => setPeso(e.target.value)} placeholder="70" /></div>
+          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Pie</Label>
+            <Select value={pie} onValueChange={setPie}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent><SelectItem value="Derecho">Derecho</SelectItem><SelectItem value="Izquierdo">Izquierdo</SelectItem><SelectItem value="Ambos">Ambos</SelectItem></SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
-      {/* Asignación */}
+      {/* Contrato y Valor */}
+      <div>
+        <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-1.5"><DollarSign className="h-3.5 w-3.5" /> Contrato y Valor</h4>
+        <div className="grid grid-cols-3 gap-2">
+          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Fichado</Label><Input type="date" value={fichado} onChange={(e) => setFichado(e.target.value)} /></div>
+          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Contrato hasta</Label><Input type="date" value={contratoHasta} onChange={(e) => setContratoHasta(e.target.value)} /></div>
+          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Valor mercado</Label><Input value={valorMercado} onChange={(e) => setValorMercado(e.target.value)} placeholder="$100K" /></div>
+        </div>
+      </div>
+
+      {/* Asignación (pre-cargada) */}
       <div>
         <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-1.5"><Users className="h-3.5 w-3.5" /> Asignación</h4>
         <div className="grid grid-cols-2 gap-2">
