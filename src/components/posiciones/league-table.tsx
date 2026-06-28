@@ -2,6 +2,7 @@
 
 import type { EquipoPosicion } from '@/types/estadistica';
 import { cn } from '@/lib/utils';
+import { Star } from 'lucide-react';
 
 interface LeagueTableProps {
   equipos: EquipoPosicion[];
@@ -27,12 +28,13 @@ export function LeagueTable({ equipos, ascensos = 0, descensos = 0 }: LeagueTabl
             <th className="p-3 text-center text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">GC</th>
             <th className="p-3 text-center text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">DG</th>
             <th className="p-3 text-center text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">PTS</th>
-            <th className="p-3 text-center text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">Últ. 5</th>
+            <th className="p-3 text-center text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">Rendimiento</th>
           </tr>
         </thead>
         <tbody>
           {equipos.map((eq, i) => {
             const pos = i + 1;
+            const esMalleco = eq.nombre.toUpperCase().includes('MALLECO');
             const esAscenso = ascensos > 0 && pos <= ascensos;
             const esDescenso = descensos > 0 && pos > equipos.length - descensos;
             return (
@@ -40,15 +42,17 @@ export function LeagueTable({ equipos, ascensos = 0, descensos = 0 }: LeagueTabl
                 'border-b border-[var(--border-light)] hover:bg-[var(--bg-hover)] transition-colors',
                 esAscenso && 'bg-emerald-500/5',
                 esDescenso && 'bg-red-500/5',
+                esMalleco && 'bg-yellow-500/[0.08] border-l-2 border-yellow-500',
               )}>
-                <td className={cn('p-3 text-center font-bold font-mono', 
-                  esAscenso ? 'text-emerald-500' : esDescenso ? 'text-red-500' : 'text-[var(--text)]'
+                <td className={cn('p-3 text-center font-bold font-mono',
+                  esMalleco ? 'text-yellow-600' : esAscenso ? 'text-emerald-500' : esDescenso ? 'text-red-500' : 'text-[var(--text)]'
                 )}>{pos}</td>
                 <td className="p-3">
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1.5 flex-1 min-w-0">
                       {eq.logoBase64 && <img src={eq.logoBase64} alt="" className="w-5 h-5 object-contain flex-shrink-0" />}
-                      <span className="font-medium text-[var(--text)] whitespace-nowrap">{eq.nombre}</span>
+                      <span className={cn('font-medium whitespace-nowrap', esMalleco ? 'text-yellow-600 font-bold' : 'text-[var(--text)]')}>{eq.nombre}</span>
+                      {esMalleco && <Star className="h-3.5 w-3.5 text-yellow-500 fill-yellow-500 flex-shrink-0" />}
                     </div>
                     {esAscenso && <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded-full flex-shrink-0">↑</span>}
                     {esDescenso && <span className="text-[10px] font-bold text-red-500 bg-red-500/10 px-1.5 py-0.5 rounded-full flex-shrink-0">↓</span>}

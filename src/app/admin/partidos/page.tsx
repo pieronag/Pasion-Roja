@@ -42,6 +42,11 @@ export default function AdminPartidosPage() {
   const [editDivisionId, setEditDivisionId] = useState('');
   const [editSaving, setEditSaving] = useState(false);
   const [showFinalizados, setShowFinalizados] = useState(false);
+  const [editingScoreId, setEditingScoreId] = useState<string | null>(null);
+  const [editScoreLocal, setEditScoreLocal] = useState(0);
+  const [editScoreVis, setEditScoreVis] = useState(0);
+
+  const esMalleco = (nombre?: string) => nombre?.toUpperCase().includes('MALLECO');
 
   // Load partidos ordered by fecha ascending
   useEffect(() => {
@@ -127,6 +132,19 @@ export default function AdminPartidosPage() {
       await updateDoc(doc(db, 'partidos', editPartido.id), { divisionId: editDivisionId, actualizadoEn: Date.now() });
       setEditPartido(null);
     } catch {} finally { setEditSaving(false); }
+  };
+
+  const iniciarEdicionScore = (p: Partido) => {
+    setEditingScoreId(p.id);
+    setEditScoreLocal(p.marcadorLocal);
+    setEditScoreVis(p.marcadorVisita);
+  };
+
+  const guardarScore = async (id: string) => {
+    await updateDoc(doc(db, 'partidos', id), {
+      marcadorLocal: editScoreLocal, marcadorVisita: editScoreVis, actualizadoEn: Date.now(),
+    });
+    setEditingScoreId(null);
   };
 
   const partidosDivision = partidos.filter(p => !filterDeporte || p.deporteId === filterDeporte);
@@ -241,11 +259,36 @@ export default function AdminPartidosPage() {
                     <td className="p-3 text-sm text-[var(--text-muted)] font-medium">{fechaPartido.toLocaleDateString('es-CL', { day: 'numeric', month: 'long' }).toUpperCase()}</td>
                   <td className="p-3 text-sm font-mono text-[var(--text-muted)]">{hora}</td>
                     <td className="p-3"><div className="flex items-center gap-2"><span className="text-sm font-medium text-[var(--text)]">{p.equipoLocalNombre}</span><span className="text-xs text-[var(--text-muted)]">vs</span><span className="text-sm font-medium text-[var(--text)]">{p.equipoVisitaNombre}</span></div></td>
-                    <td className="p-3"><StatusBadge status={p.estado === 'en_vivo' ? 'error' : p.estado === 'finalizado' ? 'success' : 'neutral'} label={p.estado === 'en_vivo' ? 'En Vivo' : p.estado === 'finalizado' ? 'Finalizado' : 'Programado'} /></td>
-                    <td className="p-3 text-center"><span className="font-bold font-display text-base text-[var(--text)]">{p.marcadorLocal}</span><span className="text-[var(--text-muted)] mx-0.5">-</span><span className="font-bold font-display text-base text-[var(--text)]">{p.marcadorVisita}</span></td>
+                    <td className="p-3">
+                      {p.estado === 'en_vivo' && esMalleco(p.equipoLocalNombre) ? (
+                        <StatusBadge status="error" label="🔴 En Vivo" />
+                      ) : p.estado === 'en_vivo' ? (
+                        <StatusBadge status="info" label="Transmitiendo" />
+                      ) : p.estado === 'finalizado' ? (
+                        <StatusBadge status="success" label="Finalizado" />
+                      ) : (
+                        <StatusBadge status="neutral" label="Programado" />
+                      )}
+                    </td>
+                    <td className="p-3 text-center">
+                      {editingScoreId === p.id ? (
+                        <div className="flex items-center gap-1 justify-center">
+                          <Input type="number" min={0} value={editScoreLocal} onChange={(e) => setEditScoreLocal(parseInt(e.target.value) || 0)} className="w-12 h-8 text-center text-sm font-bold" />
+                          <span className="text-xs text-[var(--text-muted)]">-</span>
+                          <Input type="number" min={0} value={editScoreVis} onChange={(e) => setEditScoreVis(parseInt(e.target.value) || 0)} className="w-12 h-8 text-center text-sm font-bold" />
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => guardarScore(p.id)} title="Guardar"><CheckCircle className="h-3.5 w-3.5 text-emerald-500" /></Button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center gap-1 cursor-pointer hover:bg-[var(--bg-hover)] rounded px-1 py-0.5" onClick={() => iniciarEdicionScore(p)} title="Editar marcador">
+                          <span className="font-bold font-display text-base text-[var(--text)]">{p.marcadorLocal}</span>
+                          <span className="text-xs text-[var(--text-muted)]">-</span>
+                          <span className="font-bold font-display text-base text-[var(--text)]">{p.marcadorVisita}</span>
+                        </div>
+                      )}
+                    </td>
                     <td className="p-3 text-right"><div className="flex justify-end gap-1">
-                      {p.estado === 'programado' && <Button variant="ghost" size="icon" className="h-8 w-8 text-emerald-500 hover:text-emerald-600" onClick={() => cambiarEstado(p.id, 'en_vivo')} title="Iniciar"><Play className="h-4 w-4" /></Button>}
-                      {p.estado === 'en_vivo' && <Button variant="ghost" size="icon" className="h-8 w-8 text-emerald-500 hover:text-emerald-600" onClick={() => cambiarEstado(p.id, 'finalizado')} title="Finalizar"><CheckCircle className="h-4 w-4" /></Button>}
+                      {p.estado === 'programado' && esMalleco(p.equipoLocalNombre) && <Button variant="ghost" size="icon" className="h-8 w-8 text-emerald-500 hover:text-emerald-600" onClick={() => cambiarEstado(p.id, 'en_vivo')} title="Iniciar"><Play className="h-4 w-4" /></Button>}
+                      {p.estado === 'en_vivo' && esMalleco(p.equipoLocalNombre) && <Button variant="ghost" size="icon" className="h-8 w-8 text-emerald-500 hover:text-emerald-600" onClick={() => cambiarEstado(p.id, 'finalizado')} title="Finalizar"><CheckCircle className="h-4 w-4" /></Button>}
                       <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => abrirEditar(p)} title="Editar"><Pencil className="h-4 w-4" /></Button>
                       <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-600" onClick={() => eliminar(p.id)} title="Eliminar"><Trash2 className="h-4 w-4" /></Button>
                     </div></td>

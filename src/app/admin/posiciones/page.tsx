@@ -64,7 +64,7 @@ export default function AdminPosicionesPage() {
             </button>
           ))}
         </div>
-        <div className="w-48">
+        <div className="w-56">
           <Select value={selectedDivision} onValueChange={setSelectedDivision} disabled={!activeDeporte || divisionesFiltradas.length === 0}>
             <SelectTrigger><SelectValue placeholder="Seleccionar división" /></SelectTrigger>
             <SelectContent>

@@ -54,7 +54,9 @@ export function MarcadorEnVivo() {
 
   const localEquipo = equiposMap[partidoDb?.equipoLocalId || ''] || equiposMap[localNombre];
   const visEquipo = equiposMap[partidoDb?.equipoVisitaId || ''] || equiposMap[visNombre];
-  const isLive = !!partidoDb;
+  const esMalleco = (nombre?: string) => nombre?.toUpperCase().includes('MALLECO');
+  const isMallecoMatch = esMalleco(localNombre) || esMalleco(visNombre);
+  const isLive = !!partidoDb && isMallecoMatch;
 
   useEffect(() => {
     if (!isLive) return;
