@@ -233,7 +233,7 @@ export default function AdminPartidosPage() {
                 const hora = `${fechaPartido.getHours().toString().padStart(2, '0')}:${fechaPartido.getMinutes().toString().padStart(2, '0')}`;
                 return (
                   <tr key={p.id} className="border-b border-[var(--border)] hover:bg-[var(--bg-hover)] transition-colors">
-                    <td className="p-3 text-sm text-[var(--text-muted)]">{fechaPartido.toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit' })}</td>
+                    <td className="p-3 text-sm text-[var(--text-muted)] font-medium">{fechaPartido.toLocaleDateString('es-CL', { day: 'numeric', month: 'long' }).toUpperCase()}</td>
                   <td className="p-3 text-sm font-mono text-[var(--text-muted)]">{hora}</td>
                     <td className="p-3"><div className="flex items-center gap-2"><span className="text-sm font-medium text-[var(--text)]">{p.equipoLocalNombre}</span><span className="text-xs text-[var(--text-muted)]">vs</span><span className="text-sm font-medium text-[var(--text)]">{p.equipoVisitaNombre}</span></div></td>
                     <td className="p-3"><StatusBadge status={p.estado === 'en_vivo' ? 'error' : p.estado === 'finalizado' ? 'success' : 'neutral'} label={p.estado === 'en_vivo' ? 'En Vivo' : p.estado === 'finalizado' ? 'Finalizado' : 'Programado'} /></td>
@@ -262,11 +262,11 @@ export default function AdminPartidosPage() {
               <div className="space-y-1">
                 <Label className="text-xs text-[var(--text-muted)]">División / Liga</Label>
                 <Select value={editDivisionId} onValueChange={setEditDivisionId}>
-                  <SelectTrigger><SelectValue placeholder="Seleccionar división" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Asignar división" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">Sin división</SelectItem>
                     {divisiones
-                      .filter(d => !filterDeporte || d.deporteId === filterDeporte)
+                      .filter(d => d.deporteId === editPartido?.deporteId)
                       .map((d) => <SelectItem key={d.id} value={d.id}>{d.nombre}</SelectItem>)}
                   </SelectContent>
                 </Select>
