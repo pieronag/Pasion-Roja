@@ -8,6 +8,51 @@ import type { Deporte } from '@/types/deporte';
 import type { EquipoPosicion } from '@/types/estadistica';
 import { useEquiposMap } from './use-equipos-map';
 
+function calcularTabla(partidos: Partido[], sistema: { victoria: number; empate: number; derrota: number }, equiposMap: Record<string, any>): EquipoPosicion[] {
+  const map = new Map<string, EquipoPosicion>();
+
+  partidos.forEach((p) => {
+    [p.equipoLocalId, p.equipoVisitaId].forEach((id) => {
+      if (!map.has(id)) {
+        const eq = equiposMap[id];
+        map.set(id, {
+          equipoId: id,
+          nombre: eq?.nombre || (id === p.equipoLocalId ? p.equipoLocalNombre : p.equipoVisitaNombre),
+          nombreCorto: eq?.nombreCorto || '',
+          logoBase64: eq?.logoBase64 || '',
+          posicion: 0, posicionAnterior: null,
+          pj: 0, pg: 0, pe: 0, pp: 0, gf: 0, gc: 0, dg: 0, pts: 0, ultimos5: [],
+        });
+      }
+    });
+  });
+
+  partidos.forEach((p) => {
+    const local = map.get(p.equipoLocalId)!;
+    const visita = map.get(p.equipoVisitaId)!;
+    local.pj++; visita.pj++;
+    local.gf += p.marcadorLocal; local.gc += p.marcadorVisita;
+    visita.gf += p.marcadorVisita; visita.gc += p.marcadorLocal;
+    if (p.marcadorLocal > p.marcadorVisita) {
+      local.pg++; local.pts += sistema.victoria;
+      visita.pp++;
+      local.ultimos5.push('G'); visita.ultimos5.push('P');
+    } else if (p.marcadorLocal < p.marcadorVisita) {
+      visita.pg++; visita.pts += sistema.victoria;
+      local.pp++;
+      local.ultimos5.push('P'); visita.ultimos5.push('G');
+    } else {
+      local.pe++; visita.pe++;
+      local.pts += sistema.empate; visita.pts += sistema.empate;
+      local.ultimos5.push('E'); visita.ultimos5.push('E');
+    }
+    local.dg = local.gf - local.gc;
+    visita.dg = visita.gf - visita.gc;
+  });
+
+  return Array.from(map.values()).sort((a, b) => b.pts - a.pts || b.dg - a.dg || b.gf - a.gf);
+}
+
 export function usePosiciones(deporteId: string) {
   const { equiposMap } = useEquiposMap();
   const [partidos, setPartidos] = useState<Partido[]>([]);
@@ -34,49 +79,31 @@ export function usePosiciones(deporteId: string) {
 
   const tabla = useMemo(() => {
     if (!partidos.length) return [];
-    const equiposMapLocal = new Map<string, EquipoPosicion>();
     const sistema = deporte?.sistemaPuntos || { victoria: 3, empate: 1, derrota: 0 };
 
-    partidos.forEach((p) => {
-      [p.equipoLocalId, p.equipoVisitaId].forEach((id) => {
-        if (!equiposMapLocal.has(id)) {
-          const eq = equiposMap[id];
-          equiposMapLocal.set(id, {
-            equipoId: id,
-            nombre: eq?.nombre || (id === p.equipoLocalId ? p.equipoLocalNombre : p.equipoVisitaNombre),
-            nombreCorto: eq?.nombreCorto || '',
-            logoBase64: eq?.logoBase64 || '',
-            posicion: 0, pj: 0, pg: 0, pe: 0, pp: 0, gf: 0, gc: 0, dg: 0, pts: 0, ultimos5: [],
-          });
-        }
-      });
-    });
+    // Get unique jornadas sorted descending
+    const jornadas = [...new Set(partidos.map(p => p.jornada))].sort((a, b) => b - a);
 
-    partidos.forEach((p) => {
-      const local = equiposMapLocal.get(p.equipoLocalId)!;
-      const visita = equiposMapLocal.get(p.equipoVisitaId)!;
-      local.pj++; visita.pj++;
-      local.gf += p.marcadorLocal; local.gc += p.marcadorVisita;
-      visita.gf += p.marcadorVisita; visita.gc += p.marcadorLocal;
-      if (p.marcadorLocal > p.marcadorVisita) {
-        local.pg++; local.pts += sistema.victoria;
-        visita.pp++;
-        local.ultimos5.push('G'); visita.ultimos5.push('P');
-      } else if (p.marcadorLocal < p.marcadorVisita) {
-        visita.pg++; visita.pts += sistema.victoria;
-        local.pp++;
-        local.ultimos5.push('P'); visita.ultimos5.push('G');
-      } else {
-        local.pe++; visita.pe++;
-        local.pts += sistema.empate; visita.pts += sistema.empate;
-        local.ultimos5.push('E'); visita.ultimos5.push('E');
+    // Current table: all matches
+    const tablaActual = calcularTabla(partidos, sistema, equiposMap).map((e, i) => ({ ...e, posicion: i + 1 }));
+
+    // Previous table: matches from all jornadas except the latest one
+    let tablaAnterior: EquipoPosicion[] = [];
+    if (jornadas.length > 1) {
+      const partidosAnteriores = partidos.filter(p => p.jornada < jornadas[0]);
+      if (partidosAnteriores.length > 0) {
+        tablaAnterior = calcularTabla(partidosAnteriores, sistema, equiposMap).map((e, i) => ({ ...e, posicion: i + 1 }));
       }
-      local.dg = local.gf - local.gc;
-      visita.dg = visita.gf - visita.gc;
-    });
+    }
 
-    const sorted = Array.from(equiposMapLocal.values()).sort((a, b) => b.pts - a.pts || b.dg - a.dg || b.gf - a.gf);
-    return sorted.map((e, i) => ({ ...e, posicion: i + 1 }));
+    // Map previous positions
+    const posAnteriorMap = new Map<string, number>();
+    tablaAnterior.forEach(e => posAnteriorMap.set(e.equipoId, e.posicion));
+
+    return tablaActual.map(e => ({
+      ...e,
+      posicionAnterior: posAnteriorMap.get(e.equipoId) ?? null,
+    }));
   }, [partidos, deporte, equiposMap]);
 
   return { tabla, loading };

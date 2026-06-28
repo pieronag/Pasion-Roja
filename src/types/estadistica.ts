@@ -31,5 +31,6 @@ export interface EquipoPosicion {
   gc: number;
   dg: number;
   pts: number;
+  posicionAnterior: number | null;
   ultimos5: ('G' | 'E' | 'P')[];
 }

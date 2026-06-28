@@ -59,7 +59,20 @@ export function LeagueTable({ equipos, ascensos = 0, descensos = 0, liguillaDesd
               )}>
                 <td className={cn('p-3 text-center font-bold font-mono',
                   esMalleco ? 'text-yellow-600' : esAscensoDirecto ? 'text-emerald-500' : esPromocion ? 'text-amber-500' : esLiguilla ? 'text-sky-500' : esDescenso ? 'text-red-500' : 'text-[var(--text)]'
-                )}>{pos}</td>
+                )}>
+                  <div className="flex items-center justify-center gap-0.5">
+                    <span>{pos}</span>
+                    {eq.posicionAnterior != null && (
+                      eq.posicionAnterior > pos ? (
+                        <span className="text-emerald-500 text-[9px]" title={`Subió del puesto ${eq.posicionAnterior}`}>▲</span>
+                      ) : eq.posicionAnterior < pos ? (
+                        <span className="text-red-500 text-[9px]" title={`Bajó del puesto ${eq.posicionAnterior}`}>▼</span>
+                      ) : (
+                        <span className="text-[var(--text-muted)] text-[9px]" title={`Se mantiene en el puesto ${pos}`}>—</span>
+                      )
+                    )}
+                  </div>
+                </td>
                 <td className="p-3">
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1.5 flex-1 min-w-0">
