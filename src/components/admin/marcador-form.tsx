@@ -67,17 +67,20 @@ export function MarcadorForm() {
     return () => unsub();
   }, [principalId]);
 
-  // Countdown for next match
+  // Countdown for next match - actualiza cada segundo
   useEffect(() => {
     if (!proximoPartido?.fecha) return;
-    const timer = setInterval(() => {
+    const fn = () => {
       const diff = proximoPartido.fecha - Date.now();
       if (diff <= 0) { setCountdown('¡Comenzando!'); return; }
       const d = Math.floor(diff / 86400000);
       const h = Math.floor((diff % 86400000) / 3600000);
       const m = Math.floor((diff % 3600000) / 60000);
-      setCountdown(`${d}d ${h}h ${m}min`);
-    }, 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      setCountdown(`${d}d ${h}h ${m}m ${s}s`);
+    };
+    fn();
+    const timer = setInterval(fn, 1000);
     return () => clearInterval(timer);
   }, [proximoPartido]);
 
@@ -300,14 +303,14 @@ export function MarcadorForm() {
               <div className="text-center">
                 <p className="text-2xl font-black font-display text-amber-500 mb-2">{countdown}</p>
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  {proxLocal?.logoBase64 && <img src={proxLocal.logoBase64} alt="" className="w-6 h-6 object-contain" />}
+                  {proxLocal?.logoBase64 && <img src={proxLocal.logoBase64} alt="" className="w-6 h-6 object-contain logo-img" />}
                   <span className="text-sm font-bold text-[var(--text)]">{proxLocalNombre}</span>
                   <span className="text-xs text-[var(--text-muted)]">vs</span>
                   <span className="text-sm font-bold text-[var(--text)]">{proxVisNombre}</span>
-                  {proxVis?.logoBase64 && <img src={proxVis.logoBase64} alt="" className="w-6 h-6 object-contain" />}
+                  {proxVis?.logoBase64 && <img src={proxVis.logoBase64} alt="" className="w-6 h-6 object-contain logo-img" />}
                 </div>
-                <p className="text-xs text-[var(--text-secondary)]">
-                  🏟️ {proximoPartido.estadio || 'Por definir'} · Jornada {proximoPartido.jornada}
+                <p className="text-xs text-[var(--text-secondary)] flex items-center justify-center gap-1">
+                  <MapPin className="h-3.5 w-3.5" /> {proximoPartido.estadio || 'Por definir'} · Jornada {proximoPartido.jornada}
                 </p>
                 <p className="text-xs text-[var(--text-muted)] mt-1">
                   {new Date(proximoPartido.fecha).toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}
