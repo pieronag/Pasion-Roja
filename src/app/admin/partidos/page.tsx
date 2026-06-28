@@ -26,7 +26,6 @@ export default function AdminPartidosPage() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [search, setSearch] = useState('');
-  const [filterEstado, setFilterEstado] = useState('');
   const [filterDeporte, setFilterDeporte] = useState('');
   const [filterDivision, setFilterDivision] = useState('');
   const [jornadaActual, setJornadaActual] = useState(1);
@@ -65,18 +64,12 @@ export default function AdminPartidosPage() {
 
   const divisionesFiltradas = divisiones.filter(d => !filterDeporte || d.deporteId === filterDeporte);
 
-  // Auto-select division when only one exists for the sport
-  useEffect(() => {
-    if (divisionesFiltradas.length === 1 && !filterDivision) {
-      setFilterDivision(divisionesFiltradas[0].id);
-    }
-  }, [divisionesFiltradas, filterDivision]);
+  // No auto-select division (user must choose)
 
   const divSeleccionada = divisiones.find(d => d.id === (filterDivision || divisionId));
-  const totalJornadas = divSeleccionada?.totalJornadas || 38;
+  const totalJornadas = divSeleccionada?.totalJornadas || Math.max(...partidos.map(p => p.jornada), 38);
 
   const filtered = partidos.filter((p) => {
-    if (filterEstado && p.estado !== filterEstado) return false;
     if (filterDeporte && p.deporteId !== filterDeporte) return false;
     if (filterDivision && p.divisionId !== filterDivision) return false;
     if (p.jornada !== jornadaActual) return false;
@@ -120,9 +113,9 @@ export default function AdminPartidosPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <div><h2 className="text-lg font-bold text-[var(--text)]">Partidos</h2><p className="text-sm text-[var(--text-secondary)]">{partidos.length} partidos registrados</p></div>
-        <Button onClick={() => setShowForm(!showForm)}><Plus className="h-4 w-4 mr-1.5" /> Nuevo Partido</Button>
+      <div>
+        <h2 className="text-lg font-bold text-[var(--text)]">Partidos</h2>
+        <p className="text-sm text-[var(--text-secondary)]">{partidos.length} partidos registrados</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -132,12 +125,18 @@ export default function AdminPartidosPage() {
         <MetricCard label="Finalizados" value={partidos.filter(p=>p.estado==='finalizado').length} icon={CheckCircle} gradient="from-emerald-500 to-emerald-600" />
       </div>
 
-      {/* Filters */}
+      {/* Filters + New Match Button */}
       <div className="flex flex-wrap gap-2 items-end">
         <div className="relative flex-1 min-w-[200px] max-w-xs"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-muted)]" /><Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar equipo..." className="pl-9" /></div>
-        <div className="w-36"><Select value={filterEstado} onValueChange={setFilterEstado}><SelectTrigger><SelectValue placeholder="Estado" /></SelectTrigger><SelectContent><SelectItem value="">Todos</SelectItem><SelectItem value="en_vivo">En Vivo</SelectItem><SelectItem value="programado">Programado</SelectItem><SelectItem value="finalizado">Finalizado</SelectItem></SelectContent></Select></div>
-        <div className="w-36"><Select value={filterDeporte} onValueChange={(v) => { setFilterDeporte(v); setFilterDivision(''); }}><SelectTrigger><SelectValue placeholder="Deporte" /></SelectTrigger><SelectContent><SelectItem value="">Todos</SelectItem>{deportes.map((d) => <SelectItem key={d.id} value={d.id}><span className="flex items-center gap-1.5"><SportIcon sport={d.icono} size={14} /><span>{d.nombre}</span></span></SelectItem>)}</SelectContent></Select></div>
-        <div className="w-36"><Select value={filterDivision} onValueChange={setFilterDivision} disabled={!filterDeporte}><SelectTrigger><SelectValue placeholder="División" /></SelectTrigger><SelectContent><SelectItem value="">Todas</SelectItem>{divisionesFiltradas.map((d) => <SelectItem key={d.id} value={d.id}>{d.nombre}</SelectItem>)}</SelectContent></Select></div>
+        <div className="w-44"><Select value={filterDeporte} onValueChange={(v) => { setFilterDeporte(v); setFilterDivision(''); }}><SelectTrigger><SelectValue placeholder="Deporte" /></SelectTrigger><SelectContent><SelectItem value="">Todos</SelectItem>{deportes.map((d) => <SelectItem key={d.id} value={d.id}><span className="flex items-center gap-1.5"><SportIcon sport={d.icono} size={14} /><span>{d.nombre}</span></span></SelectItem>)}</SelectContent></Select></div>
+        <div className="w-48"><Select value={filterDivision} onValueChange={setFilterDivision} disabled={!filterDeporte}><SelectTrigger><SelectValue placeholder="División" /></SelectTrigger><SelectContent><SelectItem value="">Todas</SelectItem>{divisionesFiltradas.map((d) => <SelectItem key={d.id} value={d.id}>{d.nombre}</SelectItem>)}</SelectContent></Select></div>
+        <Button onClick={() => {
+          if (filterDeporte) { setDeporteId(filterDeporte); setDivisionId(filterDivision); }
+          setJornadaNuevo(jornadaActual.toString());
+          setShowForm(!showForm);
+        }} size="sm">
+          <Plus className="h-4 w-4 mr-1.5" /> Nuevo Partido
+        </Button>
       </div>
 
       {/* Jornada Navigation */}
@@ -157,40 +156,41 @@ export default function AdminPartidosPage() {
         </div>
       </div>
 
-      {/* New match form */}
+      {/* New match form - simplified */}
       {showForm && (
         <div className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--bg-card)] p-4 space-y-3 animate-fade-in">
-          <h3 className="font-semibold text-sm text-[var(--text)]">Crear partido en Jornada {jornadaNuevo}</h3>
-          <div className="grid grid-cols-4 gap-2">
-            <div className="space-y-1"><Label className="text-[10px] text-[var(--text-muted)]">Deporte</Label><Select value={deporteId} onValueChange={(v) => { setDeporteId(v); setDivisionId(''); setLocalId(''); setVisitaId(''); }}><SelectTrigger><SelectValue placeholder="Deporte" /></SelectTrigger><SelectContent>{deportes.map((d) => <SelectItem key={d.id} value={d.id}><span className="flex items-center gap-1.5"><SportIcon sport={d.icono} size={14} /><span>{d.nombre}</span></span></SelectItem>)}</SelectContent></Select></div>
-            <div className="space-y-1"><Label className="text-[10px] text-[var(--text-muted)]">División</Label><Select value={divisionId} onValueChange={setDivisionId} disabled={!deporteId}><SelectTrigger><SelectValue placeholder="División" /></SelectTrigger><SelectContent><SelectItem value="">Sin división</SelectItem>{divisiones.filter(d=>d.deporteId===deporteId).map((d) => <SelectItem key={d.id} value={d.id}>{d.nombre}</SelectItem>)}</SelectContent></Select></div>
-            <div className="space-y-1"><Label className="text-[10px] text-[var(--text-muted)]">Jornada</Label><Input type="number" value={jornadaNuevo} onChange={(e) => setJornadaNuevo(e.target.value)} min={1} /></div>
-            <div className="space-y-1"><Label className="text-[10px] text-[var(--text-muted)]">Fecha / Hora</Label><Input type="datetime-local" value={fecha} onChange={(e) => setFecha(e.target.value)} /></div>
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-sm text-[var(--text)]">
+              Nuevo partido — Jornada {jornadaNuevo}
+              {filterDeporte && <span className="text-xs text-[var(--text-muted)] font-normal ml-2">· {deportes.find(d => d.id === filterDeporte)?.nombre}</span>}
+              {filterDivision && <span className="text-xs text-[var(--text-muted)] font-normal ml-1">· {divisiones.find(d => d.id === filterDivision)?.nombre}</span>}
+            </h3>
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-3 gap-3">
+            <div className="space-y-1"><Label className="text-[10px] text-[var(--text-muted)]">Fecha / Hora</Label><Input type="datetime-local" value={fecha} onChange={(e) => setFecha(e.target.value)} /></div>
             <div className="space-y-1"><Label className="text-[10px] text-[var(--text-muted)]">Local</Label>
-              <Select value={localId} onValueChange={setLocalId} disabled={!deporteId}>
-                <SelectTrigger><SelectValue placeholder={deporteId ? equiposDisponibles.length === 0 ? 'No hay equipos disponibles' : 'Seleccionar local' : 'Primero deporte'} /></SelectTrigger>
+              <Select value={localId} onValueChange={setLocalId}>
+                <SelectTrigger><SelectValue placeholder={equiposDisponibles.length === 0 ? 'No disponibles' : 'Seleccionar'} /></SelectTrigger>
                 <SelectContent>
-                  {equiposDisponibles.length === 0 && <SelectItem value="" disabled>Todos los equipos tienen partido</SelectItem>}
+                  {equiposDisponibles.length === 0 && <SelectItem value="" disabled>Todos con partido</SelectItem>}
                   {equiposDisponibles.map((e) => <SelectItem key={e.id} value={e.id}>{e.nombre}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1"><Label className="text-[10px] text-[var(--text-muted)]">Visita</Label>
-              <Select value={visitaId} onValueChange={setVisitaId} disabled={!deporteId}>
-                <SelectTrigger><SelectValue placeholder={deporteId ? 'Seleccionar visita' : 'Primero deporte'} /></SelectTrigger>
+              <Select value={visitaId} onValueChange={setVisitaId}>
+                <SelectTrigger><SelectValue placeholder={equiposDisponibles.length === 0 ? 'No disponibles' : 'Seleccionar'} /></SelectTrigger>
                 <SelectContent>
-                  {equiposDisponibles.length === 0 && <SelectItem value="" disabled>Todos los equipos tienen partido</SelectItem>}
+                  {equiposDisponibles.length === 0 && <SelectItem value="" disabled>Todos con partido</SelectItem>}
                   {equiposDisponibles.map((e) => <SelectItem key={e.id} value={e.id}>{e.nombre}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
           </div>
-          {equiposDisponibles.length < 2 && <p className="text-xs text-amber-500">Se necesitan al menos 2 equipos disponibles en esta jornada</p>}
+          {equiposDisponibles.length < 2 && <p className="text-xs text-amber-500">Se necesitan al menos 2 equipos disponibles</p>}
           <div className="flex justify-end gap-2">
             <Button variant="outline" size="sm" onClick={() => setShowForm(false)}>Cancelar</Button>
-            <Button onClick={crearPartido} loading={saveLoading} size="sm" disabled={equiposDisponibles.length < 2}>
+            <Button onClick={crearPartido} loading={saveLoading} size="sm" disabled={equiposDisponibles.length < 2 || !fecha || !localId || !visitaId}>
               <Plus className="h-3.5 w-3.5 mr-1" /> Crear Partido
             </Button>
           </div>
@@ -198,7 +198,7 @@ export default function AdminPartidosPage() {
       )}
 
       {/* Partidos list */}
-      {loading ? <Loader /> : !filtered.length ? <EmptyState title="Sin partidos en esta jornada" description={filterEstado || filterDeporte || filterDivision ? 'Prueba cambiando los filtros' : ''} /> : (
+      {loading ? <Loader /> : !filtered.length ? <EmptyState title="Sin partidos en esta jornada" description={filterDeporte || filterDivision ? 'Prueba cambiando los filtros' : ''} /> : (
         <div className="border border-[var(--border)] rounded-[var(--radius)] overflow-hidden">
           <table className="w-full">
             <thead><tr className="bg-[var(--bg-secondary)] border-b border-[var(--border)]">
