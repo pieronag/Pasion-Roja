@@ -23,7 +23,7 @@ export function DeporteForm({ deporte, onClose }: { deporte?: Deporte; onClose?:
 
   const handleBanner = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) { const b64 = await compressImage(file, 1200, 0.7); setBannerBase64(b64); }
+    if (file) { const b64 = await compressImage(file, 1200, 0.7, 400); setBannerBase64(b64); }
   };
 
   const handleSubmit = async () => {

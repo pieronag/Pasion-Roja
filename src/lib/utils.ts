@@ -43,7 +43,8 @@ export function formatRelativeTime(timestamp: number): string {
 export function compressImage(
   file: File,
   maxWidth: number = 800,
-  quality: number = 0.6
+  quality: number = 0.6,
+  maxHeight?: number
 ): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -51,11 +52,28 @@ export function compressImage(
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement('canvas');
-        const scale = Math.min(maxWidth / img.width, 1);
-        canvas.width = img.width * scale;
-        canvas.height = img.height * scale;
-        const ctx = canvas.getContext('2d')!;
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        let scale = Math.min(maxWidth / img.width, 1);
+        let w = Math.round(img.width * scale);
+        let h = Math.round(img.height * scale);
+
+        // If maxHeight is specified and height exceeds it, crop from center
+        if (maxHeight && h > maxHeight) {
+          // First resize to fill width
+          canvas.width = maxWidth;
+          canvas.height = maxHeight;
+          const ctx = canvas.getContext('2d')!;
+          // Calculate crop: resize so width fills, height overflows
+          const cropScale = maxWidth / img.width;
+          const cropH = img.height * cropScale;
+          const offsetY = Math.max(0, (cropH - maxHeight) / 2);
+          ctx.drawImage(img, 0, -offsetY / cropScale, img.width, img.height, 0, 0, maxWidth, maxHeight);
+        } else {
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d')!;
+          ctx.drawImage(img, 0, 0, w, h);
+        }
+
         canvas.toBlob(
           (blob) => {
             if (!blob) return reject(new Error('Compression failed'));
