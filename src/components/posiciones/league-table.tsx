@@ -11,9 +11,10 @@ interface LeagueTableProps {
   liguillaDesde?: number;
   liguillaHasta?: number;
   tipoLiguilla?: string;
+  equipoPrincipalId?: string;
 }
 
-export function LeagueTable({ equipos, ascensos = 0, descensos = 0, liguillaDesde = 0, liguillaHasta = 0, tipoLiguilla }: LeagueTableProps) {
+export function LeagueTable({ equipos, ascensos = 0, descensos = 0, liguillaDesde = 0, liguillaHasta = 0, tipoLiguilla, equipoPrincipalId }: LeagueTableProps) {
   if (!equipos.length) return null;
 
   const tieneLiguilla = liguillaDesde > 0 && liguillaHasta >= liguillaDesde;
@@ -39,7 +40,7 @@ export function LeagueTable({ equipos, ascensos = 0, descensos = 0, liguillaDesd
         <tbody>
           {equipos.map((eq, i) => {
             const pos = i + 1;
-            const esMalleco = eq.nombre.toUpperCase().includes('MALLECO');
+            const esMalleco = eq.equipoId === equipoPrincipalId;
             const esAscensoDirecto = ascensos > 0 && pos <= ascensos;
             const esLiguilla = tieneLiguilla && pos >= liguillaDesde && pos <= liguillaHasta && !esAscensoDirecto;
             const esDescenso = descensos > 0 && pos > equipos.length - descensos;

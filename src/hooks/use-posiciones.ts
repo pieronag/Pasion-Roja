@@ -6,8 +6,10 @@ import { db } from '@/lib/firebase';
 import type { Partido } from '@/types/partido';
 import type { Deporte } from '@/types/deporte';
 import type { EquipoPosicion } from '@/types/estadistica';
+import { useEquiposMap } from './use-equipos-map';
 
 export function usePosiciones(deporteId: string) {
+  const { equiposMap } = useEquiposMap();
   const [partidos, setPartidos] = useState<Partido[]>([]);
   const [deporte, setDeporte] = useState<Deporte | null>(null);
   const [loading, setLoading] = useState(true);
@@ -32,17 +34,18 @@ export function usePosiciones(deporteId: string) {
 
   const tabla = useMemo(() => {
     if (!partidos.length) return [];
-    const equiposMap = new Map<string, EquipoPosicion>();
+    const equiposMapLocal = new Map<string, EquipoPosicion>();
     const sistema = deporte?.sistemaPuntos || { victoria: 3, empate: 1, derrota: 0 };
 
     partidos.forEach((p) => {
       [p.equipoLocalId, p.equipoVisitaId].forEach((id) => {
-        if (!equiposMap.has(id)) {
-          equiposMap.set(id, {
+        if (!equiposMapLocal.has(id)) {
+          const eq = equiposMap[id];
+          equiposMapLocal.set(id, {
             equipoId: id,
-            nombre: id === p.equipoLocalId ? p.equipoLocalNombre : p.equipoVisitaNombre,
-            nombreCorto: '',
-            logoBase64: '',
+            nombre: eq?.nombre || (id === p.equipoLocalId ? p.equipoLocalNombre : p.equipoVisitaNombre),
+            nombreCorto: eq?.nombreCorto || '',
+            logoBase64: eq?.logoBase64 || '',
             posicion: 0, pj: 0, pg: 0, pe: 0, pp: 0, gf: 0, gc: 0, dg: 0, pts: 0, ultimos5: [],
           });
         }
@@ -50,8 +53,8 @@ export function usePosiciones(deporteId: string) {
     });
 
     partidos.forEach((p) => {
-      const local = equiposMap.get(p.equipoLocalId)!;
-      const visita = equiposMap.get(p.equipoVisitaId)!;
+      const local = equiposMapLocal.get(p.equipoLocalId)!;
+      const visita = equiposMapLocal.get(p.equipoVisitaId)!;
       local.pj++; visita.pj++;
       local.gf += p.marcadorLocal; local.gc += p.marcadorVisita;
       visita.gf += p.marcadorVisita; visita.gc += p.marcadorLocal;
@@ -72,9 +75,9 @@ export function usePosiciones(deporteId: string) {
       visita.dg = visita.gf - visita.gc;
     });
 
-    const sorted = Array.from(equiposMap.values()).sort((a, b) => b.pts - a.pts || b.dg - a.dg || b.gf - a.gf);
+    const sorted = Array.from(equiposMapLocal.values()).sort((a, b) => b.pts - a.pts || b.dg - a.dg || b.gf - a.gf);
     return sorted.map((e, i) => ({ ...e, posicion: i + 1 }));
-  }, [partidos, deporte]);
+  }, [partidos, deporte, equiposMap]);
 
   return { tabla, loading };
 }

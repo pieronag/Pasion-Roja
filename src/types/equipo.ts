@@ -12,6 +12,7 @@ export interface Equipo {
   ciudad: string;
   entrenador: string;
   activo: boolean;
+  esPrincipal: boolean;
   redes?: {
     instagram?: string;
     facebook?: string;

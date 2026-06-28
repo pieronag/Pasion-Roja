@@ -16,11 +16,13 @@ import { StatusBadge } from '@/components/admin/status-badge';
 import { MetricCard } from '@/components/admin/metric-card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogBody } from '@/components/ui/dialog';
 import { Swords, Plus, Trash2, Search, Play, CheckCircle, Calendar, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Pencil, Save, X } from 'lucide-react';
+import { useEquiposMap } from '@/hooks/use-equipos-map';
 import type { Partido, EstadoPartido } from '@/types/partido';
 import type { Division } from '@/types/division';
 
 export default function AdminPartidosPage() {
   const { equipos } = useEquipos();
+  const { equiposMap } = useEquiposMap();
   const { deportes } = useDeportes();
   const [partidos, setPartidos] = useState<Partido[]>([]);
   const [divisiones, setDivisiones] = useState<Division[]>([]);
@@ -45,7 +47,7 @@ export default function AdminPartidosPage() {
   const [editModalLocal, setEditModalLocal] = useState(0);
   const [editModalVis, setEditModalVis] = useState(0);
 
-  const esMalleco = (nombre?: string) => nombre?.toUpperCase().includes('MALLECO');
+  const principalId = Object.values(equiposMap).find(e => e.esPrincipal)?.id;
 
   // Load partidos ordered by fecha ascending
   useEffect(() => {
@@ -262,8 +264,8 @@ export default function AdminPartidosPage() {
                   <td className="p-3 text-sm font-mono text-[var(--text-muted)]">{hora}</td>
                     <td className="p-3"><div className="flex items-center gap-2"><span className="text-sm font-medium text-[var(--text)]">{p.equipoLocalNombre}</span><span className="text-xs text-[var(--text-muted)]">vs</span><span className="text-sm font-medium text-[var(--text)]">{p.equipoVisitaNombre}</span></div></td>
                     <td className="p-3">
-                      {p.estado === 'en_vivo' && esMalleco(p.equipoLocalNombre) ? (
-                        <StatusBadge status="error" label="🔴 En Vivo" />
+                      {p.estado === 'en_vivo' && (p.equipoLocalId === principalId || p.equipoVisitaId === principalId) ? (
+                        <StatusBadge status="error" label="?? En Vivo" />
                       ) : p.estado === 'en_vivo' ? (
                         <StatusBadge status="info" label="Transmitiendo" />
                       ) : p.estado === 'finalizado' ? (
@@ -278,8 +280,8 @@ export default function AdminPartidosPage() {
                       <span className="font-bold font-display text-base text-[var(--text)]">{p.marcadorVisita}</span>
                     </td>
                     <td className="p-3 text-right"><div className="flex justify-end gap-1">
-                      {p.estado === 'programado' && esMalleco(p.equipoLocalNombre) && <Button variant="ghost" size="icon" className="h-8 w-8 text-emerald-500 hover:text-emerald-600" onClick={() => cambiarEstado(p.id, 'en_vivo')} title="Iniciar"><Play className="h-4 w-4" /></Button>}
-                      {p.estado === 'en_vivo' && esMalleco(p.equipoLocalNombre) && <Button variant="ghost" size="icon" className="h-8 w-8 text-emerald-500 hover:text-emerald-600" onClick={() => cambiarEstado(p.id, 'finalizado')} title="Finalizar"><CheckCircle className="h-4 w-4" /></Button>}
+                      {p.estado === 'programado' && (p.equipoLocalId === principalId || p.equipoVisitaId === principalId) && <Button variant="ghost" size="icon" className="h-8 w-8 text-emerald-500 hover:text-emerald-600" onClick={() => cambiarEstado(p.id, 'en_vivo')} title="Iniciar"><Play className="h-4 w-4" /></Button>}
+                      {p.estado === 'en_vivo' && (p.equipoLocalId === principalId || p.equipoVisitaId === principalId) && <Button variant="ghost" size="icon" className="h-8 w-8 text-emerald-500 hover:text-emerald-600" onClick={() => cambiarEstado(p.id, 'finalizado')} title="Finalizar"><CheckCircle className="h-4 w-4" /></Button>}
                       <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => abrirEditar(p)} title="Editar"><Pencil className="h-4 w-4" /></Button>
                       <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-600" onClick={() => eliminar(p.id)} title="Eliminar"><Trash2 className="h-4 w-4" /></Button>
                     </div></td>
@@ -305,10 +307,10 @@ export default function AdminPartidosPage() {
                 <Select value={editModalEstado} onValueChange={setEditModalEstado}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="programado">📅 Programado</SelectItem>
-                    <SelectItem value="en_vivo">🔴 En Vivo</SelectItem>
-                    <SelectItem value="finalizado">✅ Finalizado</SelectItem>
-                    <SelectItem value="suspendido">⏸️ Suspendido</SelectItem>
+                    <SelectItem value="programado">?? Programado</SelectItem>
+                    <SelectItem value="en_vivo">?? En Vivo</SelectItem>
+                    <SelectItem value="finalizado">? Finalizado</SelectItem>
+                    <SelectItem value="suspendido">?? Suspendido</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

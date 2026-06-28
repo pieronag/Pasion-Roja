@@ -14,10 +14,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { MetricCard } from '@/components/admin/metric-card';
 import { Trophy, RefreshCw, Shield, Swords, TrendingUp, ListChecks } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useEquiposMap } from '@/hooks/use-equipos-map';
 import type { Division } from '@/types/division';
 
 export default function AdminPosicionesPage() {
   const { deportes } = useDeportes();
+  const { equiposMap } = useEquiposMap();
   const [divisiones, setDivisiones] = useState<Division[]>([]);
   const [selectedDeporte, setSelectedDeporte] = useState('');
   const [selectedDivision, setSelectedDivision] = useState('');
@@ -99,6 +101,7 @@ export default function AdminPosicionesPage() {
           liguillaDesde={divSeleccionada?.puestosLiguillaDesde || 0}
           liguillaHasta={divSeleccionada?.puestosLiguillaHasta || 0}
           tipoLiguilla={divSeleccionada?.tipoLiguilla || ''}
+          equipoPrincipalId={Object.values(equiposMap).find(e => e.esPrincipal)?.id}
         />
       )}
       {tabla.length === 0 && !loading && activeDeporte && <EmptyState title="Sin datos" description="No hay partidos finalizados en este deporte" />}

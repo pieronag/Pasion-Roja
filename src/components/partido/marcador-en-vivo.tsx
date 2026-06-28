@@ -43,19 +43,23 @@ export function MarcadorEnVivo() {
     return () => unsub();
   }, []);
 
-  // Only show live match when there's an active match in the partidos collection
-  const localNombre = partidoDb?.equipoLocalNombre || '';
-  const visNombre = partidoDb?.equipoVisitaNombre || '';
+  // Get real team names from equipos collection by ID
+  const localEquipoData = equiposMap[partidoDb?.equipoLocalId || ''];
+  const visEquipoData = equiposMap[partidoDb?.equipoVisitaId || ''];
+  const localNombre = localEquipoData?.nombre || partidoDb?.equipoLocalNombre || '';
+  const visNombre = visEquipoData?.nombre || partidoDb?.equipoVisitaNombre || '';
   const localScore = partidoDb?.marcadorLocal ?? 0;
   const visScore = partidoDb?.marcadorVisita ?? 0;
   const minActual = partidoDb?.minuto || '0';
   const penalesLocal = partidoDb?.penalesLocal ?? livePartido?.penalesLocal ?? 0;
   const penalesVisita = partidoDb?.penalesVisita ?? livePartido?.penalesVis ?? 0;
 
-  const localEquipo = equiposMap[partidoDb?.equipoLocalId || ''] || equiposMap[localNombre];
-  const visEquipo = equiposMap[partidoDb?.equipoVisitaId || ''] || equiposMap[visNombre];
-  const esMalleco = (nombre?: string) => nombre?.toUpperCase().includes('MALLECO');
-  const isMallecoMatch = esMalleco(localNombre) || esMalleco(visNombre);
+  const localEquipo = localEquipoData || visEquipoData;
+  const visEquipo = visEquipoData || localEquipoData;
+
+  // Find principal team by ID
+  const principalId = Object.values(equiposMap).find(e => e.esPrincipal)?.id;
+  const isMallecoMatch = partidoDb?.equipoLocalId === principalId || partidoDb?.equipoVisitaId === principalId;
   const isLive = !!partidoDb && isMallecoMatch;
 
   useEffect(() => {

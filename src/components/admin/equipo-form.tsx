@@ -35,6 +35,7 @@ export function EquipoForm({ equipo, onClose, defaultDeporteId, defaultDivisionI
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [esPrincipal, setEsPrincipal] = useState(equipo?.esPrincipal || false);
 
   // Load ALL divisions for display in the table (not just filtered ones)
   useEffect(() => {
@@ -82,6 +83,7 @@ export function EquipoForm({ equipo, onClose, defaultDeporteId, defaultDivisionI
         colorSecundario: color2,
         logoBase64,
         activo: true,
+        esPrincipal,
       };
 
       if (equipo) {
@@ -189,6 +191,16 @@ export function EquipoForm({ equipo, onClose, defaultDeporteId, defaultDivisionI
           <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Presidente</Label><Input value={presidente} onChange={(e) => setPresidente(e.target.value)} /></div>
           <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Teléfono</Label><Input value={telefono} onChange={(e) => setTelefono(e.target.value)} placeholder="+56 9 ..." /></div>
         </div>
+      </div>
+
+      {/* Sección: Club Principal */}
+      <div>
+        <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-1.5"><Shield className="h-3.5 w-3.5" /> Club Principal</h4>
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" checked={esPrincipal} onChange={(e) => setEsPrincipal(e.target.checked)} className="w-4 h-4 rounded border-[var(--border)] text-[var(--accent)]" />
+          <span className="text-xs text-[var(--text-secondary)]">Marcar como club principal de la plataforma</span>
+        </label>
+        {esPrincipal && <p className="text-[10px] text-amber-500 mt-1">Este equipo será destacado en la página principal, posiciones y marcadores.</p>}
       </div>
 
       {/* Sección: Identidad Visual */}
