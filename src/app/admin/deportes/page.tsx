@@ -84,7 +84,7 @@ export default function AdminDeportesPage() {
               <Card key={d.id} className="group hover:shadow-lg transition-all overflow-hidden">
                 {/* Banner or gradient header */}
                 {d.bannerBase64 ? (
-                  <div className="h-28 relative overflow-hidden bg-[var(--bg-secondary)]">
+                  <div className="h-32 relative overflow-hidden bg-[var(--bg-secondary)]">
                     <img src={d.bannerBase64} alt="" className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                     <div className="absolute bottom-3 left-4 flex items-center gap-3">

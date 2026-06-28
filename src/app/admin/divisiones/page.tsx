@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Loader } from '@/components/shared/loader';
 import { EmptyState } from '@/components/shared/empty-state';
 import { MetricCard } from '@/components/admin/metric-card';
-import { Shield, Plus, Trash2, Trophy, Users, Save, X, CheckCircle2, AlertCircle, ListChecks, Pencil, Star, Image as ImageIcon } from 'lucide-react';
+import { Shield, Plus, Trash2, Trophy, Users, Save, X, CheckCircle2, AlertCircle, ListChecks, Pencil, Star, Image as ImageIcon, CalendarDays, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { compressImage } from '@/lib/utils';
 import type { Division, TipoLiguilla } from '@/types/division';
@@ -216,9 +216,9 @@ export default function AdminDivisionesPage() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <h4 className="text-xs font-semibold text-[var(--text)]">📅 Jornadas</h4>
+                  <h4 className="text-xs font-semibold text-[var(--text)] flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5" /> Jornadas</h4>
                   <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Total</Label><Input type="number" value={totalJornadas} onChange={(e) => setTotalJornadas(e.target.value)} min={1} max={99} /></div>
-                  <h4 className="text-xs font-semibold text-[var(--text)] pt-2">📊 Ascensos / Descensos</h4>
+                  <h4 className="text-xs font-semibold text-[var(--text)] pt-2 flex items-center gap-1.5"><TrendingUp className="h-3.5 w-3.5" /> Ascensos / Descensos</h4>
                   <div className="grid grid-cols-2 gap-2">
                     <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Ascienden</Label><Input type="number" value={ascensos} onChange={(e) => setAscensos(e.target.value)} min={0} max={10} /></div>
                     <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Descienden</Label><Input type="number" value={descensos} onChange={(e) => setDescensos(e.target.value)} min={0} max={10} /></div>
@@ -229,7 +229,7 @@ export default function AdminDivisionesPage() {
               {/* Row 2: Playoff + Promoción */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <h4 className="text-xs font-semibold text-[var(--text)] mb-2">🏆 Playoff / Liguilla</h4>
+                  <h4 className="text-xs font-semibold text-[var(--text)] mb-2 flex items-center gap-1.5"><Trophy className="h-3.5 w-3.5" /> Playoff / Liguilla</h4>
                   <label className="flex items-center gap-2 mb-2 cursor-pointer">
                     <input type="checkbox" checked={tieneCuadrangular} onChange={(e) => setTieneCuadrangular(e.target.checked)} className="w-4 h-4 rounded border-[var(--border)] text-[var(--accent)]" />
                     <span className="text-xs text-[var(--text-secondary)]">Tiene fase final</span>
@@ -256,7 +256,7 @@ export default function AdminDivisionesPage() {
                   )}
                 </div>
                 <div>
-                  <h4 className="text-xs font-semibold text-[var(--text)] mb-2">📊 Promoción (Repechaje)</h4>
+                  <h4 className="text-xs font-semibold text-[var(--text)] mb-2 flex items-center gap-1.5"><TrendingUp className="h-3.5 w-3.5" /> Promoción (Repechaje)</h4>
                   <label className="flex items-center gap-2 mb-2 cursor-pointer">
                     <input type="checkbox" checked={tipoPromocion === 'promocion'} onChange={(e) => setTipoPromocion(e.target.checked ? 'promocion' : 'none')} className="w-4 h-4 rounded border-[var(--border)] text-[var(--accent)]" />
                     <span className="text-xs text-[var(--text-secondary)]">Tiene promoción</span>
@@ -270,7 +270,7 @@ export default function AdminDivisionesPage() {
 
               {/* Banner */}
               <div>
-                <h4 className="text-xs font-semibold text-[var(--text)] mb-2">🖼️ Banner de la división</h4>
+                <h4 className="text-xs font-semibold text-[var(--text)] mb-2 flex items-center gap-1.5"><ImageIcon className="h-3.5 w-3.5" /> Banner de la división</h4>
                 <label className="flex flex-col items-center justify-center p-3 rounded-[var(--radius-sm)] border-2 border-dashed border-[var(--border)] cursor-pointer hover:border-[var(--accent)] transition-colors">
                   {bannerBase64 ? (
                     <div className="relative w-full">

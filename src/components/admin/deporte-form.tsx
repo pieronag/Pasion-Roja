@@ -69,7 +69,7 @@ export function DeporteForm({ deporte, onClose }: { deporte?: Deporte; onClose?:
         <label className="flex flex-col items-center justify-center p-4 rounded-[var(--radius-sm)] border-2 border-dashed border-[var(--border)] cursor-pointer hover:border-[var(--accent)] transition-colors">
           {bannerBase64 ? (
             <div className="relative w-full">
-              <img src={bannerBase64} alt="Banner" className="w-full h-24 object-cover rounded-[var(--radius-xs)]" />
+              <img src={bannerBase64} alt="Banner" className="w-full h-20 object-cover rounded-[var(--radius-xs)]" />
               <button type="button" onClick={(e) => { e.stopPropagation(); setBannerBase64(''); }} className="absolute top-1 right-1 rounded-full bg-black/50 p-1"><X className="h-3 w-3 text-white" /></button>
             </div>
           ) : (
