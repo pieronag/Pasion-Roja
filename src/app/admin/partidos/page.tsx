@@ -197,6 +197,9 @@ export default function AdminPartidosPage() {
         <div className="text-center">
           <span className="text-sm font-bold text-[var(--text)]">JORNADA {jornadaActual}</span>
           <span className="text-xs text-[var(--text-muted)] ml-2">de {totalJornadas}</span>
+          {minFecha && maxFecha && (
+            <div className="text-[10px] text-[var(--text-muted)] mt-0.5">📅 {formatDateRange(minFecha, maxFecha)}</div>
+          )}
           <div className="text-[10px] text-[var(--text-muted)]">{filtered.length} partidos</div>
         </div>
         <div className="flex items-center gap-1">
@@ -204,12 +207,6 @@ export default function AdminPartidosPage() {
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setJornadaActual(totalJornadas)} disabled={jornadaActual >= totalJornadas} title="Última jornada"><ChevronsRight className="h-4 w-4" /></Button>
         </div>
       </div>
-
-      {minFecha && maxFecha && (
-        <div className="text-xs text-[var(--text-muted)] text-center -mt-3">
-          📅 {formatDateRange(minFecha, maxFecha)}
-        </div>
-      )}
 
       {showForm && (
         <div className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--bg-card)] p-4 space-y-3 animate-fade-in">
@@ -272,7 +269,21 @@ export default function AdminPartidosPage() {
                   <tr key={p.id} className="border-b border-[var(--border)] hover:bg-[var(--bg-hover)] transition-colors">
                     <td className="p-3 text-sm text-[var(--text-muted)] font-medium">{fechaPartido.toLocaleDateString('es-CL', { day: 'numeric', month: 'long' }).toUpperCase()}</td>
                     <td className="p-3 text-sm font-mono text-[var(--text-muted)]">{hora}</td>
-                    <td className="p-3"><div className="flex items-center gap-2"><span className="text-sm font-medium text-[var(--text)]">{eqLocalNombre}</span><span className="text-xs text-[var(--text-muted)]">vs</span><span className="text-sm font-medium text-[var(--text)]">{eqVisNombre}</span></div></td>
+                    <td className="p-3"><div className="flex items-center gap-2">
+                      {equiposMap[p.equipoLocalId]?.logoBase64 ? (
+                        <img src={equiposMap[p.equipoLocalId].logoBase64} alt="" className="w-5 h-5 object-contain flex-shrink-0" />
+                      ) : (
+                        <div className="w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-bold text-white flex-shrink-0" style={{ backgroundColor: equiposMap[p.equipoLocalId]?.colorPrimario || '#64748B' }}>{eqLocalNombre[0]}</div>
+                      )}
+                      <span className="text-sm font-medium text-[var(--text)]">{eqLocalNombre}</span>
+                      <span className="text-xs text-[var(--text-muted)]">vs</span>
+                      {equiposMap[p.equipoVisitaId]?.logoBase64 ? (
+                        <img src={equiposMap[p.equipoVisitaId].logoBase64} alt="" className="w-5 h-5 object-contain flex-shrink-0" />
+                      ) : (
+                        <div className="w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-bold text-white flex-shrink-0" style={{ backgroundColor: equiposMap[p.equipoVisitaId]?.colorPrimario || '#64748B' }}>{eqVisNombre[0]}</div>
+                      )}
+                      <span className="text-sm font-medium text-[var(--text)]">{eqVisNombre}</span>
+                    </div></td>
                     <td className="p-3">
                       {editingStatusId === p.id ? (
                         <div className="flex items-center gap-1">

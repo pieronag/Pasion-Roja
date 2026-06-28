@@ -45,20 +45,20 @@ export function LeagueTable({ equipos, ascensos = 0, descensos = 0, liguillaDesd
             const pos = i + 1;
             const esMalleco = eq.equipoId === equipoPrincipalId;
             const esAscensoDirecto = ascensos > 0 && pos <= ascensos;
-            const esPromocion = tienePromocion && !esAscensoDirecto && pos >= promocionDesde && pos <= promocionHasta;
-            const esLiguilla = tieneLiguilla && !esAscensoDirecto && !esPromocion && pos >= liguillaDesde && pos <= liguillaHasta;
-            const esDescenso = descensos > 0 && !esAscensoDirecto && !esPromocion && !esLiguilla && pos > equipos.length - descensos;
+            const esPromocion = tienePromocion && pos >= promocionDesde && pos <= promocionHasta;
+            const esLiguilla = tieneLiguilla && pos >= liguillaDesde && pos <= liguillaHasta;
+            const esDescenso = descensos > 0 && pos > equipos.length - descensos;
             return (
               <tr key={eq.equipoId} className={cn(
                 'border-b border-[var(--border-light)] hover:bg-[var(--bg-hover)] transition-colors',
-                esAscensoDirecto && 'bg-emerald-500/5',
-                esPromocion && 'bg-orange-500/5',
-                esLiguilla && 'bg-sky-500/5',
-                esDescenso && 'bg-red-500/5',
-                esMalleco && 'bg-yellow-500/[0.08] border-l-2 border-yellow-500',
+                esMalleco && 'bg-yellow-500/[0.12] border-l-2 border-yellow-500',
+                !esMalleco && esAscensoDirecto && 'bg-emerald-500/5',
+                !esMalleco && esPromocion && 'bg-yellow-500/5',
+                !esMalleco && esLiguilla && 'bg-sky-500/5',
+                !esMalleco && esDescenso && 'bg-red-500/5',
               )}>
                 <td className={cn('p-3 text-center font-bold font-mono',
-                  esMalleco ? 'text-yellow-600' : esAscensoDirecto ? 'text-emerald-500' : esPromocion ? 'text-orange-500' : esLiguilla ? 'text-sky-500' : esDescenso ? 'text-red-500' : 'text-[var(--text)]'
+                  esMalleco ? 'text-yellow-600' : esAscensoDirecto ? 'text-emerald-500' : esPromocion ? 'text-amber-500' : esLiguilla ? 'text-sky-500' : esDescenso ? 'text-red-500' : 'text-[var(--text)]'
                 )}>{pos}</td>
                 <td className="p-3">
                   <div className="flex items-center gap-2">
@@ -67,10 +67,11 @@ export function LeagueTable({ equipos, ascensos = 0, descensos = 0, liguillaDesd
                       <span className={cn('font-medium whitespace-nowrap', esMalleco ? 'text-yellow-600 font-bold' : 'text-[var(--text)]')}>{eq.nombre}</span>
                       {esMalleco && <Star className="h-3.5 w-3.5 text-yellow-500 fill-yellow-500 flex-shrink-0" />}
                     </div>
-                    {esAscensoDirecto && <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded-full flex-shrink-0">↑</span>}
-                    {esPromocion && <span className="text-[10px] font-bold text-orange-500 bg-orange-500/10 px-1.5 py-0.5 rounded-full flex-shrink-0">↕</span>}
-                    {esLiguilla && <ListChecks className="h-3.5 w-3.5 text-sky-500 flex-shrink-0" />}
-                    {esDescenso && <span className="text-[10px] font-bold text-red-500 bg-red-500/10 px-1.5 py-0.5 rounded-full flex-shrink-0">↓</span>}
+                    {esMalleco && <span className="text-[10px] font-bold text-yellow-600 bg-yellow-500/10 px-1.5 py-0.5 rounded-full flex-shrink-0">⭐</span>}
+                    {!esMalleco && esAscensoDirecto && <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded-full flex-shrink-0">↑</span>}
+                    {!esMalleco && esPromocion && <span className="text-[10px] font-bold text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded-full flex-shrink-0">↕</span>}
+                    {!esMalleco && esLiguilla && <ListChecks className="h-3.5 w-3.5 text-sky-500 flex-shrink-0" />}
+                    {!esMalleco && esDescenso && <span className="text-[10px] font-bold text-red-500 bg-red-500/10 px-1.5 py-0.5 rounded-full flex-shrink-0">↓</span>}
                   </div>
                 </td>
                 <td className="p-3 text-center text-[var(--text)]">{eq.pj}</td>
@@ -99,10 +100,11 @@ export function LeagueTable({ equipos, ascensos = 0, descensos = 0, liguillaDesd
         </tbody>
       </table>
       <div className="px-3 py-2 border-t border-[var(--border)] bg-[var(--bg-secondary)] text-[10px] text-[var(--text-muted)] flex flex-wrap gap-3">
-        {ascensos > 0 && <span><span className="text-emerald-500 font-bold">↑</span> Ascenso directo: {ascensos} equipo(s)</span>}
-        {tienePromocion && <span><span className="text-orange-500 font-bold">↕</span> Promoción: puestos {promocionDesde} al {promocionHasta}</span>}
-        {tieneLiguilla && <span><span className="text-sky-500"><ListChecks className="h-3 w-3 inline" /></span> {tipoLiguilla === 'cuadrangular' ? 'Cuadrangular' : 'Liguilla'}: puestos {liguillaDesde} al {liguillaHasta}</span>}
-        {descensos > 0 && <span><span className="text-red-500 font-bold">↓</span> Descenso: {descensos} equipo(s)</span>}
+        {equipoPrincipalId && <span><span className="text-yellow-600">⭐</span> Club principal</span>}
+        {ascensos > 0 && <span><span className="text-emerald-500 font-bold">↑</span> Ascenso directo: {ascensos}</span>}
+        {tienePromocion && <span><span className="text-amber-500 font-bold">↕</span> Promoción: {promocionDesde}-{promocionHasta}</span>}
+        {tieneLiguilla && <span><span className="text-sky-500"><ListChecks className="h-3 w-3 inline" /></span> {tipoLiguilla === 'cuadrangular' ? 'Cuadrangular' : 'Liguilla'}: {liguillaDesde}-{liguillaHasta}</span>}
+        {descensos > 0 && <span><span className="text-red-500 font-bold">↓</span> Descenso: {descensos}</span>}
       </div>
     </div>
   );

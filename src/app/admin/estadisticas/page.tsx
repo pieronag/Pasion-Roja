@@ -14,7 +14,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Loader } from '@/components/shared/loader';
 import { EmptyState } from '@/components/shared/empty-state';
 import { MetricCard } from '@/components/admin/metric-card';
-import { TrendingUp, Save, Search, Users, Shield } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { TrendingUp, Save, Search, Users, Shield, Star } from 'lucide-react';
 import type { Jugador } from '@/types/jugador';
 import type { Division } from '@/types/division';
 
@@ -55,6 +56,13 @@ export default function AdminEstadisticasPage() {
 
   const divisionesFiltradas = divisiones.filter(d => d.deporteId === deporteId);
 
+  // Auto-select first division when sport changes
+  useEffect(() => {
+    if (divisionesFiltradas.length === 1 && !filterDivision) {
+      setFilterDivision(divisionesFiltradas[0].id);
+    }
+  }, [divisionesFiltradas, filterDivision]);
+
   const filtered = jugadores.filter((j) => {
     if (filterDivision && j.equipoId) {
       const eq = equiposMap[j.equipoId];
@@ -63,6 +71,7 @@ export default function AdminEstadisticasPage() {
     return `${j.nombre} ${j.apellido}`.toLowerCase().includes(search.toLowerCase());
   });
   const deporte = deportes.find((d) => d.id === deporteId);
+  const principalId = Object.values(equiposMap).find(e => e.esPrincipal)?.id;
   const statsKeys = deporte?.estadisticasDisponibles || ['goles', 'asistencias'];
 
   const startEdit = (j: Jugador) => { setEditing(j.id); setStats(j.estadisticasTemp || {}); };
@@ -131,10 +140,11 @@ export default function AdminEstadisticasPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.filter((j) => j.activo).map((j) => (
-                <tr key={j.id} className="border-b border-[var(--border)] hover:bg-[var(--bg-hover)] transition-colors">
-                  <td className="p-3 text-center font-bold text-[var(--accent)] font-mono text-sm">{j.numero}</td>
-                  <td className="p-3 font-medium text-sm text-[var(--text)]">{j.nombre} {j.apellido}</td>
+              {filtered.filter((j) => j.activo).map((j) => {
+                const esMalleco = j.equipoId === principalId;
+                return <tr key={j.id} className={cn('border-b border-[var(--border)] hover:bg-[var(--bg-hover)] transition-colors', esMalleco && 'bg-yellow-500/[0.08] border-l-2 border-yellow-500')}>
+                  <td className="p-3 text-center font-bold font-mono text-sm text-[var(--text)]">{j.numero}</td>
+                  <td className="p-3 font-medium text-sm text-[var(--text)]">{j.nombre} {j.apellido} {esMalleco && <Star className="h-3 w-3 text-yellow-500 fill-yellow-500 inline" />}</td>
                   <td className="p-3 text-sm text-[var(--text-secondary)] hidden md:table-cell">
                     <span className="flex items-center gap-1.5">
                       <Shield className="h-3.5 w-3.5 text-[var(--text-muted)]" />
@@ -159,7 +169,7 @@ export default function AdminEstadisticasPage() {
                     )}
                   </td>
                 </tr>
-              ))}
+              })}
             </tbody>
           </table>
         </div>
