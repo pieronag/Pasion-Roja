@@ -14,8 +14,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Loader } from '@/components/shared/loader';
 import { EmptyState } from '@/components/shared/empty-state';
 import { MetricCard } from '@/components/admin/metric-card';
-import { Shield, Plus, Trash2, Trophy, Users, Save, X, CheckCircle2, AlertCircle, ListChecks, Pencil, Star } from 'lucide-react';
+import { Shield, Plus, Trash2, Trophy, Users, Save, X, CheckCircle2, AlertCircle, ListChecks, Pencil, Star, Image as ImageIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { compressImage } from '@/lib/utils';
 import type { Division, TipoLiguilla } from '@/types/division';
 
 export default function AdminDivisionesPage() {
@@ -43,6 +44,12 @@ export default function AdminDivisionesPage() {
   const [tipoPromocion, setTipoPromocion] = useState<'none' | 'promocion'>('none');
   const [puestosPromocionDesde, setPuestosPromocionDesde] = useState('1');
   const [puestosPromocionHasta, setPuestosPromocionHasta] = useState('4');
+  const [bannerBase64, setBannerBase64] = useState('');
+
+  const handleBanner = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) { const b64 = await compressImage(file, 1200, 0.7); setBannerBase64(b64); }
+  };
 
   useEffect(() => {
     const unsub = onSnapshot(query(collection(db, 'divisiones')), (snap) => {
@@ -60,7 +67,7 @@ export default function AdminDivisionesPage() {
     setEquiposCuadrangular('4'); setAscensos('2'); setDescensos('2');
     setTipoLiguilla('none'); setPuestosDesde('1'); setPuestosHasta('4');
     setTipoPromocion('none'); setPuestosPromocionDesde('1'); setPuestosPromocionHasta('4');
-    setError(''); setSuccess('');
+    setBannerBase64(''); setError(''); setSuccess('');
   };
 
   const openCreate = () => { resetForm(); setEditing(null); setShowForm(true); };
@@ -76,6 +83,7 @@ export default function AdminDivisionesPage() {
     setTipoPromocion(d.tipoPromocion || 'none');
     setPuestosPromocionDesde(d.puestosPromocionDesde?.toString() || '1');
     setPuestosPromocionHasta(d.puestosPromocionHasta?.toString() || '4');
+    setBannerBase64(d.bannerBase64 || '');
     setShowForm(true);
   };
 
@@ -97,6 +105,7 @@ export default function AdminDivisionesPage() {
         tipoPromocion: tienePromocion ? 'promocion' as const : 'none' as const,
         puestosPromocionDesde: tienePromocion ? parseInt(puestosPromocionDesde) || 1 : 0,
         puestosPromocionHasta: tienePromocion ? parseInt(puestosPromocionHasta) || 4 : 0,
+        bannerBase64: bannerBase64 || '',
         ascensos: parseInt(ascensos) || 0,
         descensos: parseInt(descensos) || 0,
       };
@@ -257,6 +266,20 @@ export default function AdminDivisionesPage() {
                     <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Hasta puesto</Label><Input type="number" value={puestosPromocionHasta} onChange={(e) => setPuestosPromocionHasta(e.target.value)} min={1} max={20} disabled={tipoPromocion !== 'promocion'} /></div>
                   </div>
                 </div>
+              </div>
+
+              {/* Banner */}
+              <div>
+                <h4 className="text-xs font-semibold text-[var(--text)] mb-2">🖼️ Banner de la división</h4>
+                <label className="flex flex-col items-center justify-center p-3 rounded-[var(--radius-sm)] border-2 border-dashed border-[var(--border)] cursor-pointer hover:border-[var(--accent)] transition-colors">
+                  {bannerBase64 ? (
+                    <div className="relative w-full">
+                      <img src={bannerBase64} alt="" className="w-full h-16 object-cover rounded-[var(--radius-xs)]" />
+                      <button type="button" onClick={(e) => { e.stopPropagation(); setBannerBase64(''); }} className="absolute top-1 right-1 rounded-full bg-black/50 p-1"><X className="h-3 w-3 text-white" /></button>
+                    </div>
+                  ) : <><ImageIcon className="h-5 w-5 text-[var(--text-muted)] mb-1" /><p className="text-xs text-[var(--text-secondary)]">Banner para landing</p></>}
+                  <input type="file" accept="image/*" className="hidden" onChange={handleBanner} />
+                </label>
               </div>
 
               <div className="flex justify-end gap-2 pt-2 border-t border-[var(--border)]">

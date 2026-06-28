@@ -18,6 +18,7 @@ export interface Division {
   tipoPromocion: 'none' | 'promocion';
   puestosPromocionDesde: number;
   puestosPromocionHasta: number;
+  bannerBase64: string;
   ascensos: number;
   descensos: number;
 }

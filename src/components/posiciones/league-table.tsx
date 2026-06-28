@@ -64,11 +64,11 @@ export function LeagueTable({ equipos, ascensos = 0, descensos = 0, liguillaDesd
                     <span>{pos}</span>
                     {eq.posicionAnterior != null && (
                       eq.posicionAnterior > pos ? (
-                        <span className="text-emerald-500 text-[9px]" title={`Subió del puesto ${eq.posicionAnterior}`}>▲</span>
+                        <span className="text-emerald-500 text-sm font-bold" title={`Subió del puesto ${eq.posicionAnterior}`}>▲</span>
                       ) : eq.posicionAnterior < pos ? (
-                        <span className="text-red-500 text-[9px]" title={`Bajó del puesto ${eq.posicionAnterior}`}>▼</span>
+                        <span className="text-red-500 text-sm font-bold" title={`Bajó del puesto ${eq.posicionAnterior}`}>▼</span>
                       ) : (
-                        <span className="text-[var(--text-muted)] text-[9px]" title={`Se mantiene en el puesto ${pos}`}>—</span>
+                        <span className="text-[var(--text-muted)] text-sm font-bold" title={`Se mantiene en el puesto ${pos}`}>—</span>
                       )
                     )}
                   </div>
