@@ -70,7 +70,7 @@ export default function AdminPosicionesPage() {
         <div className="flex gap-1.5 flex-wrap">
           {deportes.map((d) => (
             <button key={d.id} onClick={() => { setSelectedDeporte(d.id); setSelectedDivision(''); }} className={cn('flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius-sm)] text-xs font-medium transition-colors', activeDeporte === d.id ? 'bg-[var(--accent)] text-white' : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]')}>
-              <SportIcon sport={d.icono} size={14} /> {d.nombre}
+              <SportIcon sport={d.icono} size={14} className={activeDeporte === d.id ? 'text-white' : ''} /> {d.nombre}
             </button>
           ))}
         </div>
@@ -101,6 +101,8 @@ export default function AdminPosicionesPage() {
           liguillaDesde={divSeleccionada?.puestosLiguillaDesde || 0}
           liguillaHasta={divSeleccionada?.puestosLiguillaHasta || 0}
           tipoLiguilla={divSeleccionada?.tipoLiguilla || ''}
+          promocionDesde={divSeleccionada?.puestosPromocionDesde || 0}
+          promocionHasta={divSeleccionada?.puestosPromocionHasta || 0}
           equipoPrincipalId={Object.values(equiposMap).find(e => e.esPrincipal)?.id}
         />
       )}

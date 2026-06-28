@@ -6,6 +6,7 @@ import { db } from '@/lib/firebase';
 import { EquipoForm } from '@/components/admin/equipo-form';
 import { SportIcon } from '@/components/shared/sport-icons';
 import { useDeportes } from '@/hooks/use-deportes';
+import { useEquiposMap } from '@/hooks/use-equipos-map';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -13,13 +14,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Loader } from '@/components/shared/loader';
 import { EmptyState } from '@/components/shared/empty-state';
 import { MetricCard } from '@/components/admin/metric-card';
-import { Shield, Plus, Pencil, Trash2, Search, Users, MapPin, Eye, ExternalLink, Trophy } from 'lucide-react';
+import { Shield, Plus, Pencil, Trash2, Search, Users, MapPin, Eye, ExternalLink, Trophy, Star } from 'lucide-react';
 import Link from 'next/link';
 import type { Equipo } from '@/types/equipo';
 import type { Division } from '@/types/division';
 
 export default function AdminEquiposPage() {
   const { deportes } = useDeportes();
+  const { equiposMap } = useEquiposMap();
+  const principalId = Object.values(equiposMap).find(e => e.esPrincipal)?.id;
   const [equipos, setEquipos] = useState<Equipo[]>([]);
   const [allDivisiones, setAllDivisiones] = useState<Division[]>([]);
   const [filterDivisiones, setFilterDivisiones] = useState<Division[]>([]);
@@ -102,13 +105,19 @@ export default function AdminEquiposPage() {
                 const deporte = deportes.find((d) => d.id === e.deporteId);
                 const division = allDivisiones.find((d) => d.id === e.divisionId);
                 return (
-                  <tr key={e.id} className="border-b border-[var(--border)] hover:bg-[var(--bg-hover)] transition-colors">
+                  <tr key={e.id} className={`border-b border-[var(--border)] hover:bg-[var(--bg-hover)] transition-colors ${e.id === principalId ? 'bg-yellow-50 dark:bg-yellow-950/20' : ''}`}>
                     <td className="p-3">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-[var(--radius-sm)] flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style={{ backgroundColor: e.colorPrimario || '#E11D48' }}>
                           {e.logoBase64 ? <img src={e.logoBase64} alt="" className="w-7 h-7 object-contain" /> : e.nombreCorto?.slice(0, 3) || e.nombre.slice(0, 3)}
                         </div>
-                        <div><p className="font-medium text-sm text-[var(--text)]">{e.nombre}</p><p className="text-[11px] text-[var(--text-muted)]">{e.nombreCorto}{e.entrenador ? ` · ${e.entrenador}` : ''}</p></div>
+                        <div>
+                          <p className="font-medium text-sm text-[var(--text)] flex items-center gap-1.5">
+                            {e.nombre}
+                            {e.id === principalId && <Star className="h-3.5 w-3.5 text-yellow-500 fill-yellow-500" />}
+                          </p>
+                          <p className="text-[11px] text-[var(--text-muted)]">{e.nombreCorto}{e.entrenador ? ` · ${e.entrenador}` : ''}</p>
+                        </div>
                       </div>
                     </td>
                     <td className="p-3 text-sm text-[var(--text-secondary)] hidden md:table-cell"><span className="flex items-center gap-1.5"><SportIcon sport={deporte?.icono || ''} size={14} /><span>{deporte?.nombre || '—'}</span></span></td>

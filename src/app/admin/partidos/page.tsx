@@ -1,7 +1,7 @@
 ﻿'use client';
 
-import { useState, useEffect } from 'react';
-import { collection, query, orderBy, onSnapshot, addDoc, updateDoc, doc, deleteDoc, where } from 'firebase/firestore';
+import { useState, useEffect, useRef } from 'react';
+import { collection, query, orderBy, onSnapshot, addDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { SportIcon } from '@/components/shared/sport-icons';
 import { useEquipos } from '@/hooks/use-equipos';
@@ -14,8 +14,7 @@ import { Loader } from '@/components/shared/loader';
 import { EmptyState } from '@/components/shared/empty-state';
 import { StatusBadge } from '@/components/admin/status-badge';
 import { MetricCard } from '@/components/admin/metric-card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogBody } from '@/components/ui/dialog';
-import { Swords, Plus, Trash2, Search, Play, CheckCircle, Calendar, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Pencil, Save, X } from 'lucide-react';
+import { Swords, Plus, Trash2, Search, Play, CheckCircle, Calendar, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Save, X } from 'lucide-react';
 import { useEquiposMap } from '@/hooks/use-equipos-map';
 import type { Partido, EstadoPartido } from '@/types/partido';
 import type { Division } from '@/types/division';
@@ -40,16 +39,15 @@ export default function AdminPartidosPage() {
   const [jornadaNuevo, setJornadaNuevo] = useState('1');
   const [estadio, setEstadio] = useState('');
   const [saveLoading, setSaveLoading] = useState(false);
-  const [editPartido, setEditPartido] = useState<Partido | null>(null);
-  const [editDivisionId, setEditDivisionId] = useState('');
-  const [editSaving, setEditSaving] = useState(false);
-  const [editModalEstado, setEditModalEstado] = useState<string>('');
-  const [editModalLocal, setEditModalLocal] = useState(0);
-  const [editModalVis, setEditModalVis] = useState(0);
+  const [editingScoreId, setEditingScoreId] = useState<string | null>(null);
+  const [editScoreLocal, setEditScoreLocal] = useState(0);
+  const [editScoreVis, setEditScoreVis] = useState(0);
+  const [editingStatusId, setEditingStatusId] = useState<string | null>(null);
+  const [editStatus, setEditStatus] = useState<string>('');
+  const autoSelectedRef = useRef(false);
 
   const principalId = Object.values(equiposMap).find(e => e.esPrincipal)?.id;
 
-  // Load partidos ordered by fecha ascending
   useEffect(() => {
     const unsub = onSnapshot(query(collection(db, 'partidos'), orderBy('fecha', 'asc')), (snap) => {
       setPartidos(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Partido)));
@@ -58,7 +56,6 @@ export default function AdminPartidosPage() {
     return () => unsub();
   }, []);
 
-  // Load divisions for filter
   useEffect(() => {
     const unsub = onSnapshot(query(collection(db, 'divisiones')), (snap) => {
       setDivisiones(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Division)));
@@ -66,14 +63,12 @@ export default function AdminPartidosPage() {
     return () => unsub();
   }, []);
 
-  // Auto-select deporte when only one exists
   useEffect(() => {
     if (deportes.length === 1 && !filterDeporte) {
       setFilterDeporte(deportes[0].id);
     }
   }, [deportes, filterDeporte]);
 
-  // Auto-select division when only one exists for the selected sport
   useEffect(() => {
     const divs = divisiones.filter(d => d.deporteId === filterDeporte);
     if (divs.length === 1 && !filterDivision) {
@@ -84,9 +79,24 @@ export default function AdminPartidosPage() {
     }
   }, [filterDeporte, divisiones, filterDivision]);
 
-  const divisionesFiltradas = divisiones.filter(d => !filterDeporte || d.deporteId === filterDeporte);
+  useEffect(() => {
+    if (loading || partidos.length === 0 || autoSelectedRef.current) return;
+    autoSelectedRef.current = true;
+    const now = Date.now();
+    let closest = 1;
+    let minDiff = Infinity;
+    const jornadas = [...new Set(partidos.map(p => p.jornada))];
+    for (const j of jornadas) {
+      const fechas = partidos.filter(p => p.jornada === j).map(p => p.fecha);
+      if (fechas.length === 0) continue;
+      const avg = fechas.reduce((a, b) => a + b, 0) / fechas.length;
+      const diff = Math.abs(avg - now);
+      if (diff < minDiff) { minDiff = diff; closest = j; }
+    }
+    setJornadaActual(closest);
+  }, [loading, partidos]);
 
-  // No auto-select division (user must choose)
+  const divisionesFiltradas = divisiones.filter(d => !filterDeporte || d.deporteId === filterDeporte);
 
   const divSeleccionada = divisiones.find(d => d.id === (filterDivision || divisionId));
   const totalJornadas = divSeleccionada?.totalJornadas || Math.max(...partidos.map(p => p.jornada), 38);
@@ -99,7 +109,21 @@ export default function AdminPartidosPage() {
     return true;
   }).sort((a, b) => a.fecha - b.fecha);
 
-  // Teams already playing in this jornada
+  const fechasJornada = filtered.map(p => p.fecha).filter(Boolean);
+  const minFecha = fechasJornada.length > 0 ? new Date(Math.min(...fechasJornada)) : null;
+  const maxFecha = fechasJornada.length > 0 ? new Date(Math.max(...fechasJornada)) : null;
+
+  const formatDateRange = (min: Date, max: Date) => {
+    const opts: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long' };
+    if (min.getTime() === max.getTime()) {
+      return min.toLocaleDateString('es-CL', opts);
+    }
+    if (min.getMonth() === max.getMonth() && min.getFullYear() === max.getFullYear()) {
+      return `${min.toLocaleDateString('es-CL', { day: 'numeric' })} - ${max.toLocaleDateString('es-CL', opts)}`;
+    }
+    return `${min.toLocaleDateString('es-CL', opts)} - ${max.toLocaleDateString('es-CL', opts)}`;
+  };
+
   const equiposEnJornada = partidos
     .filter(p => p.jornada === parseInt(jornadaNuevo) && p.deporteId === deporteId)
     .flatMap(p => [p.equipoLocalId, p.equipoVisitaId]);
@@ -128,31 +152,13 @@ export default function AdminPartidosPage() {
     setShowForm(false); setSaveLoading(false);
   };
 
-  const cambiarEstado = async (id: string, estado: EstadoPartido) => { await updateDoc(doc(db, 'partidos', id), { estado, actualizadoEn: Date.now() }); };
-  const eliminar = async (id: string) => { if (confirm('¿Eliminar partido?')) await deleteDoc(doc(db, 'partidos', id)); };
-
-  const abrirEditar = (p: Partido) => {
-    setEditPartido(p);
-    setEditModalEstado(p.estado);
-    setEditModalLocal(p.marcadorLocal);
-    setEditModalVis(p.marcadorVisita);
+  const cambiarEstado = async (id: string, estado: EstadoPartido) => {
+    await updateDoc(doc(db, 'partidos', id), { estado, actualizadoEn: Date.now() });
   };
 
-  const guardarEditar = async () => {
-    if (!editPartido) return;
-    setEditSaving(true);
-    try {
-      await updateDoc(doc(db, 'partidos', editPartido.id), {
-        estado: editModalEstado as EstadoPartido,
-        marcadorLocal: editModalLocal,
-        marcadorVisita: editModalVis,
-        actualizadoEn: Date.now(),
-      });
-      setEditPartido(null);
-    } catch {} finally { setEditSaving(false); }
+  const eliminar = async (id: string) => {
+    if (confirm('¿Eliminar partido?')) await deleteDoc(doc(db, 'partidos', id));
   };
-
-  // Score editing moved to edit modal
 
   const partidosDivision = partidos.filter(p => !filterDeporte || p.deporteId === filterDeporte);
 
@@ -170,7 +176,6 @@ export default function AdminPartidosPage() {
         <MetricCard label="Finalizados" value={partidos.filter(p=>p.estado==='finalizado').length} icon={CheckCircle} gradient="from-emerald-500 to-emerald-600" />
       </div>
 
-      {/* Filters + New Match Button */}
       <div className="flex flex-wrap gap-2 items-end">
         <div className="relative flex-1 min-w-[200px] max-w-xs"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-muted)]" /><Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar equipo..." className="pl-9" /></div>
         <div className="w-44"><Select value={filterDeporte} onValueChange={(v) => { setFilterDeporte(v); setFilterDivision(''); }}><SelectTrigger><SelectValue placeholder="Deporte" /></SelectTrigger><SelectContent><SelectItem value="">Todos</SelectItem>{deportes.map((d) => <SelectItem key={d.id} value={d.id}><span className="flex items-center gap-1.5"><SportIcon sport={d.icono} size={14} /><span>{d.nombre}</span></span></SelectItem>)}</SelectContent></Select></div>
@@ -184,7 +189,6 @@ export default function AdminPartidosPage() {
         </Button>
       </div>
 
-      {/* Jornada Navigation */}
       <div className="flex items-center justify-between p-3 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--bg-secondary)]">
         <div className="flex items-center gap-1">
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setJornadaActual(1)} disabled={jornadaActual <= 1} title="Primera jornada"><ChevronsLeft className="h-4 w-4" /></Button>
@@ -201,7 +205,12 @@ export default function AdminPartidosPage() {
         </div>
       </div>
 
-      {/* New match form - simplified */}
+      {minFecha && maxFecha && (
+        <div className="text-xs text-[var(--text-muted)] text-center -mt-3">
+          📅 {formatDateRange(minFecha, maxFecha)}
+        </div>
+      )}
+
       {showForm && (
         <div className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--bg-card)] p-4 space-y-3 animate-fade-in">
           <div className="flex items-center justify-between">
@@ -242,7 +251,6 @@ export default function AdminPartidosPage() {
         </div>
       )}
 
-      {/* Partidos list */}
       {loading ? <Loader /> : !filtered.length ? <EmptyState title="Sin partidos en esta jornada" description={filterDeporte || filterDivision ? 'Prueba cambiando los filtros' : ''} /> : (
         <div className="border border-[var(--border)] rounded-[var(--radius)] overflow-hidden">
           <table className="w-full">
@@ -263,28 +271,93 @@ export default function AdminPartidosPage() {
                 return (
                   <tr key={p.id} className="border-b border-[var(--border)] hover:bg-[var(--bg-hover)] transition-colors">
                     <td className="p-3 text-sm text-[var(--text-muted)] font-medium">{fechaPartido.toLocaleDateString('es-CL', { day: 'numeric', month: 'long' }).toUpperCase()}</td>
-                  <td className="p-3 text-sm font-mono text-[var(--text-muted)]">{hora}</td>
+                    <td className="p-3 text-sm font-mono text-[var(--text-muted)]">{hora}</td>
                     <td className="p-3"><div className="flex items-center gap-2"><span className="text-sm font-medium text-[var(--text)]">{eqLocalNombre}</span><span className="text-xs text-[var(--text-muted)]">vs</span><span className="text-sm font-medium text-[var(--text)]">{eqVisNombre}</span></div></td>
                     <td className="p-3">
-                      {p.estado === 'en_vivo' && (p.equipoLocalId === principalId || p.equipoVisitaId === principalId) ? (
-                        <StatusBadge status="error" label="?? En Vivo" />
-                      ) : p.estado === 'en_vivo' ? (
-                        <StatusBadge status="info" label="Transmitiendo" />
-                      ) : p.estado === 'finalizado' ? (
-                        <StatusBadge status="success" label="Finalizado" />
+                      {editingStatusId === p.id ? (
+                        <div className="flex items-center gap-1">
+                          <select
+                            value={editStatus}
+                            onChange={e => setEditStatus(e.target.value)}
+                            className="text-xs border border-[var(--border)] rounded px-1 py-0.5 bg-[var(--bg)] text-[var(--text)] outline-none"
+                          >
+                            <option value="programado">Programado</option>
+                            <option value="en_vivo">En Vivo</option>
+                            <option value="finalizado">Finalizado</option>
+                            <option value="suspendido">Suspendido</option>
+                          </select>
+                          <button
+                            onClick={async () => {
+                              await updateDoc(doc(db, 'partidos', p.id), { estado: editStatus as EstadoPartido, actualizadoEn: Date.now() });
+                              setEditingStatusId(null);
+                            }}
+                            className="p-0.5 text-emerald-500 hover:text-emerald-600"
+                          >
+                            <Save className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
                       ) : (
-                        <StatusBadge status="neutral" label="Programado" />
+                        <button onClick={() => { setEditingStatusId(p.id); setEditStatus(p.estado); }} className="cursor-pointer hover:opacity-80 transition-opacity">
+                          {p.estado === 'en_vivo' && (p.equipoLocalId === principalId || p.equipoVisitaId === principalId) ? (
+                            <StatusBadge status="error" label="?? En Vivo" />
+                          ) : p.estado === 'en_vivo' ? (
+                            <StatusBadge status="info" label="Transmitiendo" />
+                          ) : p.estado === 'finalizado' ? (
+                            <StatusBadge status="success" label="Finalizado" />
+                          ) : (
+                            <StatusBadge status="neutral" label="Programado" />
+                          )}
+                        </button>
                       )}
                     </td>
                     <td className="p-3 text-center">
-                      <span className="font-bold font-display text-base text-[var(--text)]">{p.marcadorLocal}</span>
-                      <span className="text-xs text-[var(--text-muted)] mx-0.5">-</span>
-                      <span className="font-bold font-display text-base text-[var(--text)]">{p.marcadorVisita}</span>
+                      {editingScoreId === p.id ? (
+                        <div className="flex items-center gap-1 justify-center">
+                          <Input
+                            type="number"
+                            min={0}
+                            value={editScoreLocal}
+                            onChange={e => setEditScoreLocal(parseInt(e.target.value) || 0)}
+                            className="w-12 h-7 text-center text-sm font-bold"
+                          />
+                          <span className="text-xs text-[var(--text-muted)]">-</span>
+                          <Input
+                            type="number"
+                            min={0}
+                            value={editScoreVis}
+                            onChange={e => setEditScoreVis(parseInt(e.target.value) || 0)}
+                            className="w-12 h-7 text-center text-sm font-bold"
+                          />
+                          <button
+                            onClick={async () => {
+                              await updateDoc(doc(db, 'partidos', p.id), { marcadorLocal: editScoreLocal, marcadorVisita: editScoreVis, actualizadoEn: Date.now() });
+                              setEditingScoreId(null);
+                            }}
+                            className="p-0.5 text-emerald-500 hover:text-emerald-600"
+                          >
+                            <Save className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            onClick={() => setEditingScoreId(null)}
+                            className="p-0.5 text-red-400 hover:text-red-600"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => { setEditingScoreId(p.id); setEditScoreLocal(p.marcadorLocal); setEditScoreVis(p.marcadorVisita); }}
+                          className="font-bold font-display text-base text-[var(--text)] hover:text-[var(--accent)] transition-colors cursor-pointer"
+                        >
+                          {p.marcadorLocal}
+                          <span className="text-xs text-[var(--text-muted)] mx-0.5">-</span>
+                          {p.marcadorVisita}
+                        </button>
+                      )}
                     </td>
                     <td className="p-3 text-right"><div className="flex justify-end gap-1">
                       {p.estado === 'programado' && (p.equipoLocalId === principalId || p.equipoVisitaId === principalId) && <Button variant="ghost" size="icon" className="h-8 w-8 text-emerald-500 hover:text-emerald-600" onClick={() => cambiarEstado(p.id, 'en_vivo')} title="Iniciar"><Play className="h-4 w-4" /></Button>}
                       {p.estado === 'en_vivo' && (p.equipoLocalId === principalId || p.equipoVisitaId === principalId) && <Button variant="ghost" size="icon" className="h-8 w-8 text-emerald-500 hover:text-emerald-600" onClick={() => cambiarEstado(p.id, 'finalizado')} title="Finalizar"><CheckCircle className="h-4 w-4" /></Button>}
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => abrirEditar(p)} title="Editar"><Pencil className="h-4 w-4" /></Button>
                       <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-600" onClick={() => eliminar(p.id)} title="Eliminar"><Trash2 className="h-4 w-4" /></Button>
                     </div></td>
                   </tr>
@@ -294,53 +367,6 @@ export default function AdminPartidosPage() {
           </table>
         </div>
       )}
-
-      {/* Edit Dialog */}
-      <Dialog open={!!editPartido} onOpenChange={(o) => { if (!o) setEditPartido(null); }}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader><DialogTitle>Editar Partido</DialogTitle></DialogHeader>
-          <DialogBody>
-            <div className="space-y-4">
-              <div className="text-sm text-[var(--text)] font-medium">{editPartido?.equipoLocalNombre} vs {editPartido?.equipoVisitaNombre}</div>
-
-              {/* Estado */}
-              <div className="space-y-1">
-                <Label className="text-xs text-[var(--text-muted)]">Estado del partido</Label>
-                <Select value={editModalEstado} onValueChange={setEditModalEstado}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="programado">?? Programado</SelectItem>
-                    <SelectItem value="en_vivo">?? En Vivo</SelectItem>
-                    <SelectItem value="finalizado">? Finalizado</SelectItem>
-                    <SelectItem value="suspendido">?? Suspendido</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Marcador */}
-              <div>
-                <Label className="text-xs text-[var(--text-muted)] mb-1.5 block">Marcador final</Label>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1">
-                    <Label className="text-[10px] text-[var(--text-muted)]">{editPartido?.equipoLocalNombre}</Label>
-                    <Input type="number" min={0} value={editModalLocal} onChange={(e) => setEditModalLocal(parseInt(e.target.value) || 0)} className="w-full text-center text-lg font-bold" />
-                  </div>
-                  <span className="text-lg font-bold text-[var(--text-muted)] mt-5">-</span>
-                  <div className="flex-1">
-                    <Label className="text-[10px] text-[var(--text-muted)]">{editPartido?.equipoVisitaNombre}</Label>
-                    <Input type="number" min={0} value={editModalVis} onChange={(e) => setEditModalVis(parseInt(e.target.value) || 0)} className="w-full text-center text-lg font-bold" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-1 border-t border-[var(--border)]">
-                <Button variant="ghost" size="sm" onClick={() => setEditPartido(null)}><X className="h-3.5 w-3.5 mr-1" /> Cancelar</Button>
-                <Button onClick={guardarEditar} loading={editSaving} size="sm"><Save className="h-3.5 w-3.5 mr-1" /> Guardar Cambios</Button>
-              </div>
-            </div>
-          </DialogBody>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

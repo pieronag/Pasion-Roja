@@ -15,6 +15,9 @@ export interface Division {
   tipoLiguilla: TipoLiguilla;
   puestosLiguillaDesde: number;
   puestosLiguillaHasta: number;
+  tipoPromocion: 'none' | 'promocion';
+  puestosPromocionDesde: number;
+  puestosPromocionHasta: number;
   ascensos: number;
   descensos: number;
 }

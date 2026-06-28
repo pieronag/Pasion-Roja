@@ -5,26 +5,44 @@ import { collection, query, onSnapshot, doc, updateDoc } from 'firebase/firestor
 import { db } from '@/lib/firebase';
 import { SportIcon } from '@/components/shared/sport-icons';
 import { useDeportes } from '@/hooks/use-deportes';
+import { useEquiposMap } from '@/hooks/use-equipos-map';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Loader } from '@/components/shared/loader';
 import { EmptyState } from '@/components/shared/empty-state';
 import { MetricCard } from '@/components/admin/metric-card';
-import { TrendingUp, Save, Search, Users } from 'lucide-react';
+import { TrendingUp, Save, Search, Users, Shield } from 'lucide-react';
 import type { Jugador } from '@/types/jugador';
+import type { Division } from '@/types/division';
 
 export default function AdminEstadisticasPage() {
   const { deportes } = useDeportes();
+  const { equiposMap } = useEquiposMap();
   const [deporteId, setDeporteId] = useState('');
+  const [divisiones, setDivisiones] = useState<Division[]>([]);
+  const [filterDivision, setFilterDivision] = useState('');
   const [jugadores, setJugadores] = useState<Jugador[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<string | null>(null);
   const [stats, setStats] = useState<Record<string, number>>({});
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    if (deportes.length === 1 && !deporteId) {
+      setDeporteId(deportes[0].id);
+    }
+  }, [deportes, deporteId]);
+
+  useEffect(() => {
+    const unsub = onSnapshot(query(collection(db, 'divisiones')), (snap) => {
+      setDivisiones(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Division)));
+    });
+    return () => unsub();
+  }, []);
 
   useEffect(() => {
     if (!deporteId) { setLoading(false); return; }
@@ -35,7 +53,15 @@ export default function AdminEstadisticasPage() {
     return () => unsub();
   }, [deporteId]);
 
-  const filtered = jugadores.filter((j) => `${j.nombre} ${j.apellido}`.toLowerCase().includes(search.toLowerCase()));
+  const divisionesFiltradas = divisiones.filter(d => d.deporteId === deporteId);
+
+  const filtered = jugadores.filter((j) => {
+    if (filterDivision && j.equipoId) {
+      const eq = equiposMap[j.equipoId];
+      if (eq?.divisionId !== filterDivision) return false;
+    }
+    return `${j.nombre} ${j.apellido}`.toLowerCase().includes(search.toLowerCase());
+  });
   const deporte = deportes.find((d) => d.id === deporteId);
   const statsKeys = deporte?.estadisticasDisponibles || ['goles', 'asistencias'];
 
@@ -54,12 +80,24 @@ export default function AdminEstadisticasPage() {
       <Card className="overflow-hidden">
         <div className="h-1 bg-gradient-to-r from-purple-500 to-purple-600" />
         <CardContent className="p-4">
-          <div className="space-y-1 max-w-xs">
-            <Label className="text-[10px] text-[var(--text-muted)]">Deporte</Label>
-            <Select value={deporteId} onValueChange={(v) => { setDeporteId(v); setEditing(null); }}>
-              <SelectTrigger><SelectValue placeholder="Seleccionar deporte" /></SelectTrigger>
-              <SelectContent>{deportes.map((d) => <SelectItem key={d.id} value={d.id}><span className="flex items-center gap-1.5"><SportIcon sport={d.icono} size={14} /><span>{d.nombre}</span></span></SelectItem>)}</SelectContent>
-            </Select>
+          <div className="flex flex-wrap gap-2">
+            <div className="space-y-1 max-w-xs">
+              <Label className="text-[10px] text-[var(--text-muted)]">Deporte</Label>
+              <Select value={deporteId} onValueChange={(v) => { setDeporteId(v); setFilterDivision(''); setEditing(null); }}>
+                <SelectTrigger><SelectValue placeholder="Seleccionar deporte" /></SelectTrigger>
+                <SelectContent>{deportes.map((d) => <SelectItem key={d.id} value={d.id}><span className="flex items-center gap-1.5"><SportIcon sport={d.icono} size={14} /><span>{d.nombre}</span></span></SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1 max-w-xs">
+              <Label className="text-[10px] text-[var(--text-muted)]">División</Label>
+              <Select value={filterDivision} onValueChange={setFilterDivision} disabled={!deporteId || divisionesFiltradas.length === 0}>
+                <SelectTrigger><SelectValue placeholder="Todas" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Todas</SelectItem>
+                  {divisionesFiltradas.map((d) => <SelectItem key={d.id} value={d.id}>{d.nombre}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -84,6 +122,7 @@ export default function AdminEstadisticasPage() {
               <tr className="bg-[var(--bg-secondary)] border-b border-[var(--border)]">
                 <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-left">#</th>
                 <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-left">Jugador</th>
+                <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-left hidden md:table-cell">Equipo</th>
                 <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-left">Posición</th>
                 {statsKeys.map((key) => (
                   <th key={key} className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-center">{key}</th>
@@ -96,6 +135,12 @@ export default function AdminEstadisticasPage() {
                 <tr key={j.id} className="border-b border-[var(--border)] hover:bg-[var(--bg-hover)] transition-colors">
                   <td className="p-3 text-center font-bold text-[var(--accent)] font-mono text-sm">{j.numero}</td>
                   <td className="p-3 font-medium text-sm text-[var(--text)]">{j.nombre} {j.apellido}</td>
+                  <td className="p-3 text-sm text-[var(--text-secondary)] hidden md:table-cell">
+                    <span className="flex items-center gap-1.5">
+                      <Shield className="h-3.5 w-3.5 text-[var(--text-muted)]" />
+                      {equiposMap[j.equipoId]?.nombre || <span className="text-[var(--text-muted)]">—</span>}
+                    </span>
+                  </td>
                   <td className="p-3 text-sm text-[var(--text-secondary)]">{j.posicion}</td>
                   {statsKeys.map((key) => (
                     <td key={key} className="p-3 text-center">

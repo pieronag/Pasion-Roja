@@ -14,7 +14,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Loader } from '@/components/shared/loader';
 import { EmptyState } from '@/components/shared/empty-state';
 import { MetricCard } from '@/components/admin/metric-card';
-import { Shield, Plus, Trash2, Trophy, Users, Save, X, CheckCircle2, AlertCircle, ListChecks, Pencil } from 'lucide-react';
+import { Shield, Plus, Trash2, Trophy, Users, Save, X, CheckCircle2, AlertCircle, ListChecks, Pencil, Star } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import type { Division, TipoLiguilla } from '@/types/division';
 
 export default function AdminDivisionesPage() {
@@ -39,6 +40,9 @@ export default function AdminDivisionesPage() {
   const [tipoLiguilla, setTipoLiguilla] = useState<TipoLiguilla>('none');
   const [puestosDesde, setPuestosDesde] = useState('1');
   const [puestosHasta, setPuestosHasta] = useState('4');
+  const [tipoPromocion, setTipoPromocion] = useState<'none' | 'promocion'>('none');
+  const [puestosPromocionDesde, setPuestosPromocionDesde] = useState('1');
+  const [puestosPromocionHasta, setPuestosPromocionHasta] = useState('4');
 
   useEffect(() => {
     const unsub = onSnapshot(query(collection(db, 'divisiones')), (snap) => {
@@ -55,6 +59,7 @@ export default function AdminDivisionesPage() {
     setTotalJornadas('30'); setTieneCuadrangular(false);
     setEquiposCuadrangular('4'); setAscensos('2'); setDescensos('2');
     setTipoLiguilla('none'); setPuestosDesde('1'); setPuestosHasta('4');
+    setTipoPromocion('none'); setPuestosPromocionDesde('1'); setPuestosPromocionHasta('4');
     setError(''); setSuccess('');
   };
 
@@ -68,6 +73,9 @@ export default function AdminDivisionesPage() {
     setTipoLiguilla(d.tipoLiguilla || 'none');
     setPuestosDesde(d.puestosLiguillaDesde?.toString() || '1');
     setPuestosHasta(d.puestosLiguillaHasta?.toString() || '4');
+    setTipoPromocion(d.tipoPromocion || 'none');
+    setPuestosPromocionDesde(d.puestosPromocionDesde?.toString() || '1');
+    setPuestosPromocionHasta(d.puestosPromocionHasta?.toString() || '4');
     setShowForm(true);
   };
 
@@ -75,6 +83,7 @@ export default function AdminDivisionesPage() {
     setError('');
     if (!nombre || !deporteId) { setError('Nombre y deporte requeridos'); return; }
     setSaving(true);
+    const tienePromocion = tipoPromocion === 'promocion';
     try {
       const data = {
         nombre: nombre.trim(), deporteId, temporada, tipo: 'liga' as const,
@@ -85,6 +94,9 @@ export default function AdminDivisionesPage() {
         tipoLiguilla: tieneCuadrangular ? tipoLiguilla : 'none',
         puestosLiguillaDesde: tieneCuadrangular ? parseInt(puestosDesde) || 1 : 0,
         puestosLiguillaHasta: tieneCuadrangular ? parseInt(puestosHasta) || 4 : 0,
+        tipoPromocion: tienePromocion ? 'promocion' as const : 'none' as const,
+        puestosPromocionDesde: tienePromocion ? parseInt(puestosPromocionDesde) || 1 : 0,
+        puestosPromocionHasta: tienePromocion ? parseInt(puestosPromocionHasta) || 4 : 0,
         ascensos: parseInt(ascensos) || 0,
         descensos: parseInt(descensos) || 0,
       };
@@ -100,6 +112,9 @@ export default function AdminDivisionesPage() {
   };
 
   const eliminar = async (id: string) => { if (confirm('¿Eliminar división?')) await deleteDoc(doc(db, 'divisiones', id)); };
+
+  const equipoPrincipal = equipos.find(e => e.esPrincipal);
+  const principalTeamId = equipoPrincipal?.id;
 
   return (
     <div className="space-y-5">
@@ -135,6 +150,7 @@ export default function AdminDivisionesPage() {
               <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-center">Jornadas</th>
               <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-center">Cuad.</th>
               <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-center">Asc/Desc</th>
+              <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-center">Prom.</th>
               <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-center">Equipos</th>
               <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-right">Acciones</th>
             </tr></thead>
@@ -142,14 +158,19 @@ export default function AdminDivisionesPage() {
               {divisionesFiltradas.map((d) => {
                 const deporte = deportes.find((x) => x.id === d.deporteId);
                 const count = equipos.filter((e) => d.equipoIds?.includes(e.id)).length;
+                const esDivisionPrincipal = principalTeamId && d.equipoIds?.includes(principalTeamId);
                 return (
-                  <tr key={d.id} className="border-b border-[var(--border)] hover:bg-[var(--bg-hover)] transition-colors">
-                    <td className="p-3 font-medium text-sm text-[var(--text)]">{d.nombre}</td>
+                  <tr key={d.id} className={cn('border-b border-[var(--border)] hover:bg-[var(--bg-hover)] transition-colors', esDivisionPrincipal && 'bg-yellow-500/[0.08]')}>
+                    <td className={cn('p-3 font-medium text-sm', esDivisionPrincipal ? 'text-yellow-600' : 'text-[var(--text)]')}>
+                      {d.nombre}
+                      {esDivisionPrincipal && <Star className="h-3.5 w-3.5 text-yellow-500 fill-yellow-500 inline ml-1" />}
+                    </td>
                     <td className="p-3 text-sm text-[var(--text-secondary)]"><span className="flex items-center gap-1.5"><SportIcon sport={deporte?.icono || ''} size={14} /><span>{deporte?.nombre}</span></span></td>
                     <td className="p-3 text-sm text-[var(--text-secondary)]">{d.temporada}</td>
                     <td className="p-3 text-center text-sm text-[var(--text)] font-semibold">{d.totalJornadas || 30}</td>
                     <td className="p-3 text-center text-sm">{d.tieneCuadrangular ? <span className="text-emerald-500 font-medium">Sí ({d.equiposCuadrangular})</span> : <span className="text-[var(--text-muted)]">No</span>}</td>
                     <td className="p-3 text-center text-sm text-[var(--text-secondary)]">↑{d.ascensos || 0} / ↓{d.descensos || 0}</td>
+                    <td className="p-3 text-center text-sm">{d.tipoPromocion === 'promocion' ? <span className="inline-flex items-center text-[10px] font-bold text-orange-500 bg-orange-500/10 px-1.5 py-0.5 rounded-full">{d.puestosPromocionDesde}-{d.puestosPromocionHasta}</span> : <span className="text-[var(--text-muted)]">—</span>}</td>
                     <td className="p-3 text-center text-sm text-[var(--text-secondary)]">{count}</td>
                     <td className="p-3 text-right"><div className="flex justify-end gap-1">
                       <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(d)}><Pencil className="h-4 w-4" /></Button>
@@ -221,6 +242,18 @@ export default function AdminDivisionesPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Ascienden</Label><Input type="number" value={ascensos} onChange={(e) => setAscensos(e.target.value)} min={0} max={10} /></div>
                   <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Descienden</Label><Input type="number" value={descensos} onChange={(e) => setDescensos(e.target.value)} min={0} max={10} /></div>
+                </div>
+              </div>
+
+              <div className="border-t border-[var(--border)] pt-3">
+                <h4 className="text-xs font-semibold text-[var(--text)] mb-3">📊 Descenso y Promoción</h4>
+                <div className="flex items-center gap-2 mb-2">
+                  <input type="checkbox" id="tieneProm" checked={tipoPromocion === 'promocion'} onChange={(e) => setTipoPromocion(e.target.checked ? 'promocion' : 'none')} className="w-4 h-4 rounded border-[var(--border)] text-[var(--accent)]" />
+                  <Label htmlFor="tieneProm" className="text-xs text-[var(--text-secondary)]">Tiene promoción (repechaje)</Label>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Desde puesto</Label><Input type="number" value={puestosPromocionDesde} onChange={(e) => setPuestosPromocionDesde(e.target.value)} min={1} max={20} disabled={tipoPromocion !== 'promocion'} /></div>
+                  <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Hasta puesto</Label><Input type="number" value={puestosPromocionHasta} onChange={(e) => setPuestosPromocionHasta(e.target.value)} min={1} max={20} disabled={tipoPromocion !== 'promocion'} /></div>
                 </div>
               </div>
 
