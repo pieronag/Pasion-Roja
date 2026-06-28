@@ -258,11 +258,13 @@ export default function AdminPartidosPage() {
               {filtered.map((p) => {
                 const fechaPartido = new Date(p.fecha);
                 const hora = `${fechaPartido.getHours().toString().padStart(2, '0')}:${fechaPartido.getMinutes().toString().padStart(2, '0')}`;
+                const eqLocalNombre = equiposMap[p.equipoLocalId]?.nombre || p.equipoLocalNombre;
+                const eqVisNombre = equiposMap[p.equipoVisitaId]?.nombre || p.equipoVisitaNombre;
                 return (
                   <tr key={p.id} className="border-b border-[var(--border)] hover:bg-[var(--bg-hover)] transition-colors">
                     <td className="p-3 text-sm text-[var(--text-muted)] font-medium">{fechaPartido.toLocaleDateString('es-CL', { day: 'numeric', month: 'long' }).toUpperCase()}</td>
                   <td className="p-3 text-sm font-mono text-[var(--text-muted)]">{hora}</td>
-                    <td className="p-3"><div className="flex items-center gap-2"><span className="text-sm font-medium text-[var(--text)]">{p.equipoLocalNombre}</span><span className="text-xs text-[var(--text-muted)]">vs</span><span className="text-sm font-medium text-[var(--text)]">{p.equipoVisitaNombre}</span></div></td>
+                    <td className="p-3"><div className="flex items-center gap-2"><span className="text-sm font-medium text-[var(--text)]">{eqLocalNombre}</span><span className="text-xs text-[var(--text-muted)]">vs</span><span className="text-sm font-medium text-[var(--text)]">{eqVisNombre}</span></div></td>
                     <td className="p-3">
                       {p.estado === 'en_vivo' && (p.equipoLocalId === principalId || p.equipoVisitaId === principalId) ? (
                         <StatusBadge status="error" label="?? En Vivo" />
