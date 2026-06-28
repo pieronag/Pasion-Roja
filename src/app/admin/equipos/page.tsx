@@ -67,7 +67,7 @@ export default function AdminEquiposPage() {
           <DialogTrigger asChild><Button><Plus className="h-4 w-4 mr-1.5" /> Nuevo Equipo</Button></DialogTrigger>
           <DialogContent className="max-w-xl">
             <DialogHeader><DialogTitle>Nuevo Equipo</DialogTitle></DialogHeader>
-            <DialogBody><EquipoForm onClose={() => setShowCreate(false)} /></DialogBody>
+            <DialogBody><EquipoForm onClose={() => setShowCreate(false)} defaultDeporteId={filterDeporte} defaultDivisionId={filterDivision} /></DialogBody>
           </DialogContent>
         </Dialog>
       </div>
@@ -82,7 +82,7 @@ export default function AdminEquiposPage() {
       <div className="flex flex-wrap gap-2">
         <div className="relative flex-1 min-w-[200px] max-w-xs"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-muted)]" /><Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar equipo..." className="pl-9" /></div>
         <div className="w-44"><Select value={filterDeporte} onValueChange={(v) => { setFilterDeporte(v); setFilterDivision(''); }}><SelectTrigger><SelectValue placeholder="Deporte" /></SelectTrigger><SelectContent><SelectItem value="">Todos</SelectItem>{deportes.map((d) => <SelectItem key={d.id} value={d.id}><span className="flex items-center gap-1.5"><SportIcon sport={d.icono} size={14} /><span>{d.nombre}</span></span></SelectItem>)}</SelectContent></Select></div>
-        <div className="w-44"><Select value={filterDivision} onValueChange={setFilterDivision} disabled={!filterDeporte}><SelectTrigger><SelectValue placeholder="División" /></SelectTrigger><SelectContent><SelectItem value="">Todas</SelectItem>{filterDivisiones.map((d) => <SelectItem key={d.id} value={d.id}>{d.nombre}</SelectItem>)}</SelectContent></Select></div>
+        <div className="w-48"><Select value={filterDivision} onValueChange={setFilterDivision} disabled={!filterDeporte}><SelectTrigger><SelectValue placeholder="División" /></SelectTrigger><SelectContent><SelectItem value="">Todas</SelectItem>{filterDivisiones.map((d) => <SelectItem key={d.id} value={d.id}>{d.nombre}</SelectItem>)}</SelectContent></Select></div>
       </div>
 
       {loading ? <Loader /> : !filtered.length ? <EmptyState title={search || filterDeporte || filterDivision ? 'Sin resultados' : 'Sin equipos'} /> : (

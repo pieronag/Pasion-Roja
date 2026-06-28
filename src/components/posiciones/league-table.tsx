@@ -40,8 +40,8 @@ export function LeagueTable({ equipos }: LeagueTableProps) {
               <td className="p-3 text-center font-bold text-[var(--text)]">{eq.posicion}</td>
               <td className="p-3">
                 <div className="flex items-center gap-2">
-                  {eq.logoBase64 && <img src={eq.logoBase64} alt="" className="w-5 h-5 object-contain" />}
-                  <span className="font-medium text-[var(--text)] truncate max-w-[120px]">{eq.nombre}</span>
+                  {eq.logoBase64 && <img src={eq.logoBase64} alt="" className="w-5 h-5 object-contain flex-shrink-0" />}
+                  <span className="font-medium text-[var(--text)] whitespace-nowrap">{eq.nombre}</span>
                 </div>
               </td>
               <td className="p-3 text-center text-[var(--text)]">{eq.pj}</td>

@@ -220,8 +220,8 @@ export default function AdminPartidosPage() {
         <div className="border border-[var(--border)] rounded-[var(--radius)] overflow-hidden">
           <table className="w-full">
             <thead><tr className="bg-[var(--bg-secondary)] border-b border-[var(--border)]">
-              <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-left w-24">Fecha</th>
-              <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-left w-16">Hora</th>
+              <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-left w-36">Fecha</th>
+              <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-left w-14">Hora</th>
               <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-left">Partido</th>
               <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-left">Estado</th>
               <th className="p-3 text-xs font-semibold text-[var(--text-muted)] uppercase text-center">Resultado</th>
@@ -261,15 +261,19 @@ export default function AdminPartidosPage() {
               <div className="text-sm text-[var(--text)] font-medium">{editPartido?.equipoLocalNombre} vs {editPartido?.equipoVisitaNombre}</div>
               <div className="space-y-1">
                 <Label className="text-xs text-[var(--text-muted)]">División / Liga</Label>
-                <Select value={editDivisionId} onValueChange={setEditDivisionId}>
-                  <SelectTrigger><SelectValue placeholder="Asignar división" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">Sin división</SelectItem>
-                    {divisiones
-                      .filter(d => d.deporteId === editPartido?.deporteId)
-                      .map((d) => <SelectItem key={d.id} value={d.id}>{d.nombre}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                {(() => {
+                  const deporteIdPartido = editPartido?.deporteId;
+                  const divsFiltradas = divisiones.filter(d => d.deporteId === deporteIdPartido);
+                  return (
+                    <Select value={editDivisionId} onValueChange={setEditDivisionId}>
+                      <SelectTrigger><SelectValue placeholder={deporteIdPartido ? 'Seleccionar división' : 'El partido no tiene deporte'} /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">Sin división</SelectItem>
+                        {divsFiltradas.map((d) => <SelectItem key={d.id} value={d.id}>{d.nombre}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  );
+                })()}
               </div>
               <div className="flex justify-end gap-2 pt-1 border-t border-[var(--border)]">
                 <Button variant="ghost" size="sm" onClick={() => setEditPartido(null)}><X className="h-3.5 w-3.5 mr-1" /> Cancelar</Button>

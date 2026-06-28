@@ -14,14 +14,14 @@ import { compressImage } from '@/lib/utils';
 import type { Equipo } from '@/types/equipo';
 import type { Division } from '@/types/division';
 
-export function EquipoForm({ equipo, onClose }: { equipo?: Equipo; onClose?: () => void }) {
+export function EquipoForm({ equipo, onClose, defaultDeporteId, defaultDivisionId }: { equipo?: Equipo; onClose?: () => void; defaultDeporteId?: string; defaultDivisionId?: string }) {
   const { deportes } = useDeportes();
   const [allDivisiones, setAllDivisiones] = useState<Division[]>([]);
   const [filteredDivisiones, setFilteredDivisiones] = useState<Division[]>([]);
   const [nombre, setNombre] = useState(equipo?.nombre || '');
   const [nombreCorto, setNombreCorto] = useState(equipo?.nombreCorto || '');
-  const [deporteId, setDeporteId] = useState(equipo?.deporteId || '');
-  const [divisionId, setDivisionId] = useState(equipo?.divisionId || '');
+  const [deporteId, setDeporteId] = useState(equipo?.deporteId || defaultDeporteId || '');
+  const [divisionId, setDivisionId] = useState(equipo?.divisionId || defaultDivisionId || '');
   const [ciudad, setCiudad] = useState(equipo?.ciudad || '');
   const [estadio, setEstadio] = useState(equipo?.estadio || '');
   const [fundacion, setFundacion] = useState(equipo?.fundacion?.toString() || '');
