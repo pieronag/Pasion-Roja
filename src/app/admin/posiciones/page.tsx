@@ -12,7 +12,7 @@ import { EmptyState } from '@/components/shared/empty-state';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { MetricCard } from '@/components/admin/metric-card';
-import { Trophy, RefreshCw, Shield, Swords, TrendingUp } from 'lucide-react';
+import { Trophy, RefreshCw, Shield, Swords, TrendingUp, ListChecks } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Division } from '@/types/division';
 
@@ -47,11 +47,19 @@ export default function AdminPosicionesPage() {
       <div><h2 className="text-lg font-bold text-[var(--text)]">Posiciones</h2><p className="text-sm text-[var(--text-secondary)]">Tablas calculadas automáticamente desde los resultados</p></div>
 
       {tabla.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <MetricCard label="Equipos" value={tabla.length} icon={Shield} gradient="from-blue-500 to-blue-600" />
           <MetricCard label="Partidos" value={Math.round(tabla.reduce((s,e)=>s+e.pj,0)/2)} icon={Swords} gradient="from-red-500 to-red-600" />
           <MetricCard label="Goles" value={tabla.reduce((s,e)=>s+e.gf,0)} icon={TrendingUp} gradient="from-orange-500 to-orange-600" />
           <MetricCard label="Prom. gol" value={(tabla.reduce((s,e)=>s+e.gf,0) / Math.max(1, tabla.length)).toFixed(1)} icon={TrendingUp} gradient="from-purple-500 to-purple-600" />
+          {divSeleccionada?.tipoLiguilla && divSeleccionada.tipoLiguilla !== 'none' && (
+            <MetricCard 
+              label={divSeleccionada.tipoLiguilla === 'cuadrangular' ? 'Cuadrangular' : 'Liguilla'} 
+              value={`${divSeleccionada.puestosLiguillaDesde}-${divSeleccionada.puestosLiguillaHasta}`} 
+              icon={ListChecks} 
+              gradient="from-sky-500 to-sky-600" 
+            />
+          )}
         </div>
       )}
 
@@ -88,6 +96,9 @@ export default function AdminPosicionesPage() {
           equipos={tabla} 
           ascensos={divSeleccionada?.ascensos || 0} 
           descensos={divSeleccionada?.descensos || 0} 
+          liguillaDesde={divSeleccionada?.puestosLiguillaDesde || 0}
+          liguillaHasta={divSeleccionada?.puestosLiguillaHasta || 0}
+          tipoLiguilla={divSeleccionada?.tipoLiguilla || ''}
         />
       )}
       {tabla.length === 0 && !loading && activeDeporte && <EmptyState title="Sin datos" description="No hay partidos finalizados en este deporte" />}

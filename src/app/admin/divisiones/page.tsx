@@ -14,8 +14,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Loader } from '@/components/shared/loader';
 import { EmptyState } from '@/components/shared/empty-state';
 import { MetricCard } from '@/components/admin/metric-card';
-import { Shield, Plus, Trash2, Trophy, Users, Save, X, CheckCircle2, AlertCircle } from 'lucide-react';
-import type { Division } from '@/types/division';
+import { Shield, Plus, Trash2, Trophy, Users, Save, X, CheckCircle2, AlertCircle, ListChecks } from 'lucide-react';
+import type { Division, TipoLiguilla } from '@/types/division';
 
 export default function AdminDivisionesPage() {
   const { deportes } = useDeportes();
@@ -36,6 +36,9 @@ export default function AdminDivisionesPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [filterDeporte, setFilterDeporte] = useState('');
+  const [tipoLiguilla, setTipoLiguilla] = useState<TipoLiguilla>('none');
+  const [puestosDesde, setPuestosDesde] = useState('1');
+  const [puestosHasta, setPuestosHasta] = useState('4');
 
   useEffect(() => {
     const unsub = onSnapshot(query(collection(db, 'divisiones')), (snap) => {
@@ -51,6 +54,7 @@ export default function AdminDivisionesPage() {
     setNombre(''); setDeporteId(''); setTemporada('2026');
     setTotalJornadas('30'); setTieneCuadrangular(false);
     setEquiposCuadrangular('4'); setAscensos('2'); setDescensos('2');
+    setTipoLiguilla('none'); setPuestosDesde('1'); setPuestosHasta('4');
     setError(''); setSuccess('');
   };
 
@@ -61,6 +65,9 @@ export default function AdminDivisionesPage() {
     setTieneCuadrangular(d.tieneCuadrangular || false);
     setEquiposCuadrangular(d.equiposCuadrangular?.toString() || '4');
     setAscensos(d.ascensos?.toString() || '2'); setDescensos(d.descensos?.toString() || '2');
+    setTipoLiguilla(d.tipoLiguilla || 'none');
+    setPuestosDesde(d.puestosLiguillaDesde?.toString() || '1');
+    setPuestosHasta(d.puestosLiguillaHasta?.toString() || '4');
     setShowForm(true);
   };
 
@@ -75,6 +82,9 @@ export default function AdminDivisionesPage() {
         totalJornadas: parseInt(totalJornadas) || 30,
         tieneCuadrangular,
         equiposCuadrangular: tieneCuadrangular ? parseInt(equiposCuadrangular) || 4 : 0,
+        tipoLiguilla: tieneCuadrangular ? tipoLiguilla : 'none',
+        puestosLiguillaDesde: tieneCuadrangular ? parseInt(puestosDesde) || 1 : 0,
+        puestosLiguillaHasta: tieneCuadrangular ? parseInt(puestosHasta) || 4 : 0,
         ascensos: parseInt(ascensos) || 0,
         descensos: parseInt(descensos) || 0,
       };
@@ -178,13 +188,31 @@ export default function AdminDivisionesPage() {
               </div>
 
               <div className="border-t border-[var(--border)] pt-3">
-                <h4 className="text-xs font-semibold text-[var(--text)] mb-3">🏆 Cuadrangular (Playoff)</h4>
+                <h4 className="text-xs font-semibold text-[var(--text)] mb-3">🏆 Playoff / Liguilla</h4>
                 <div className="flex items-center gap-2 mb-2">
                   <input type="checkbox" id="tieneCuad" checked={tieneCuadrangular} onChange={(e) => setTieneCuadrangular(e.target.checked)} className="w-4 h-4 rounded border-[var(--border)] text-[var(--accent)]" />
-                  <Label htmlFor="tieneCuad" className="text-xs text-[var(--text-secondary)]">Tiene cuadrangular final</Label>
+                  <Label htmlFor="tieneCuad" className="text-xs text-[var(--text-secondary)]">Tiene fase final (playoff/liguilla)</Label>
                 </div>
                 {tieneCuadrangular && (
-                  <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Equipos que clasifican</Label><Input type="number" value={equiposCuadrangular} onChange={(e) => setEquiposCuadrangular(e.target.value)} min={2} max={20} /></div>
+                  <div className="space-y-2">
+                    <div className="space-y-1">
+                      <Label className="text-xs text-[var(--text-muted)]">Formato</Label>
+                      <Select value={tipoLiguilla} onValueChange={(v: TipoLiguilla) => setTipoLiguilla(v)}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="cuadrangular">🏟️ Cuadrangular (eliminación directa)</SelectItem>
+                          <SelectItem value="liguilla">📊 Liguilla (todos contra todos)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Clasifican desde puesto</Label><Input type="number" value={puestosDesde} onChange={(e) => setPuestosDesde(e.target.value)} min={1} max={20} /></div>
+                      <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Hasta puesto</Label><Input type="number" value={puestosHasta} onChange={(e) => setPuestosHasta(e.target.value)} min={1} max={20} /></div>
+                    </div>
+                    <div className="text-[10px] text-[var(--text-muted)] p-2 rounded bg-[var(--bg-secondary)]">
+                      Ejemplo: Del puesto <strong>{puestosDesde}</strong> al <strong>{puestosHasta}</strong> clasifican a {tipoLiguilla === 'cuadrangular' ? 'cuadrangular' : 'liguilla'} ({Math.max(0, (parseInt(puestosHasta) || 4) - (parseInt(puestosDesde) || 1) + 1)} equipos)
+                    </div>
+                  </div>
                 )}
               </div>
 

@@ -2,16 +2,21 @@
 
 import type { EquipoPosicion } from '@/types/estadistica';
 import { cn } from '@/lib/utils';
-import { Star } from 'lucide-react';
+import { Star, ListChecks } from 'lucide-react';
 
 interface LeagueTableProps {
   equipos: EquipoPosicion[];
   ascensos?: number;
   descensos?: number;
+  liguillaDesde?: number;
+  liguillaHasta?: number;
+  tipoLiguilla?: string;
 }
 
-export function LeagueTable({ equipos, ascensos = 0, descensos = 0 }: LeagueTableProps) {
+export function LeagueTable({ equipos, ascensos = 0, descensos = 0, liguillaDesde = 0, liguillaHasta = 0, tipoLiguilla }: LeagueTableProps) {
   if (!equipos.length) return null;
+
+  const tieneLiguilla = liguillaDesde > 0 && liguillaHasta >= liguillaDesde;
 
   return (
     <div className="overflow-x-auto rounded-[var(--radius)] border border-[var(--border)]">
@@ -35,17 +40,19 @@ export function LeagueTable({ equipos, ascensos = 0, descensos = 0 }: LeagueTabl
           {equipos.map((eq, i) => {
             const pos = i + 1;
             const esMalleco = eq.nombre.toUpperCase().includes('MALLECO');
-            const esAscenso = ascensos > 0 && pos <= ascensos;
+            const esAscensoDirecto = ascensos > 0 && pos <= ascensos;
+            const esLiguilla = tieneLiguilla && pos >= liguillaDesde && pos <= liguillaHasta && !esAscensoDirecto;
             const esDescenso = descensos > 0 && pos > equipos.length - descensos;
             return (
               <tr key={eq.equipoId} className={cn(
                 'border-b border-[var(--border-light)] hover:bg-[var(--bg-hover)] transition-colors',
-                esAscenso && 'bg-emerald-500/5',
+                esAscensoDirecto && 'bg-emerald-500/5',
+                esLiguilla && 'bg-sky-500/5',
                 esDescenso && 'bg-red-500/5',
                 esMalleco && 'bg-yellow-500/[0.08] border-l-2 border-yellow-500',
               )}>
                 <td className={cn('p-3 text-center font-bold font-mono',
-                  esMalleco ? 'text-yellow-600' : esAscenso ? 'text-emerald-500' : esDescenso ? 'text-red-500' : 'text-[var(--text)]'
+                  esMalleco ? 'text-yellow-600' : esAscensoDirecto ? 'text-emerald-500' : esLiguilla ? 'text-sky-500' : esDescenso ? 'text-red-500' : 'text-[var(--text)]'
                 )}>{pos}</td>
                 <td className="p-3">
                   <div className="flex items-center gap-2">
@@ -54,7 +61,8 @@ export function LeagueTable({ equipos, ascensos = 0, descensos = 0 }: LeagueTabl
                       <span className={cn('font-medium whitespace-nowrap', esMalleco ? 'text-yellow-600 font-bold' : 'text-[var(--text)]')}>{eq.nombre}</span>
                       {esMalleco && <Star className="h-3.5 w-3.5 text-yellow-500 fill-yellow-500 flex-shrink-0" />}
                     </div>
-                    {esAscenso && <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded-full flex-shrink-0">↑</span>}
+                    {esAscensoDirecto && <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded-full flex-shrink-0">↑</span>}
+                    {esLiguilla && <ListChecks className="h-3.5 w-3.5 text-sky-500 flex-shrink-0" />}
                     {esDescenso && <span className="text-[10px] font-bold text-red-500 bg-red-500/10 px-1.5 py-0.5 rounded-full flex-shrink-0">↓</span>}
                   </div>
                 </td>
@@ -83,12 +91,11 @@ export function LeagueTable({ equipos, ascensos = 0, descensos = 0 }: LeagueTabl
           })}
         </tbody>
       </table>
-      {(ascensos > 0 || descensos > 0) && (
-        <div className="px-3 py-2 border-t border-[var(--border)] bg-[var(--bg-secondary)] text-[10px] text-[var(--text-muted)] flex gap-4">
-          {ascensos > 0 && <span><span className="text-emerald-500 font-bold">↑</span> {ascensos} ascienden</span>}
-          {descensos > 0 && <span><span className="text-red-500 font-bold">↓</span> {descensos} descienden</span>}
-        </div>
-      )}
+      <div className="px-3 py-2 border-t border-[var(--border)] bg-[var(--bg-secondary)] text-[10px] text-[var(--text-muted)] flex flex-wrap gap-3">
+        {ascensos > 0 && <span><span className="text-emerald-500 font-bold">↑</span> Ascenso directo: {ascensos} equipo(s)</span>}
+        {tieneLiguilla && <span><span className="text-sky-500"><ListChecks className="h-3 w-3 inline" /></span> {tipoLiguilla === 'cuadrangular' ? 'Cuadrangular' : 'Liguilla'}: puestos {liguillaDesde} al {liguillaHasta}</span>}
+        {descensos > 0 && <span><span className="text-red-500 font-bold">↓</span> Descenso: {descensos} equipo(s)</span>}
+      </div>
     </div>
   );
 }
