@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, orderBy, limit as fLimit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useDeportes } from '@/hooks/use-deportes';
 import { useEquiposMap } from '@/hooks/use-equipos-map';
@@ -13,10 +13,11 @@ import { TopScorers } from '@/components/estadisticas/top-scorers';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Loader } from '@/components/shared/loader';
 import { EmptyState } from '@/components/shared/empty-state';
-import { ArrowLeft, Trophy, TrendingUp, Shield, Medal, Star, ChevronRight, CalendarDays, ArrowUp, ArrowDown, ListChecks, Swords } from 'lucide-react';
+import { ArrowLeft, Trophy, TrendingUp, Shield, Medal, Star, ChevronRight, CalendarDays, ArrowUp, ArrowDown, ListChecks, Swords, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import type { Division } from '@/types/division';
+import type { Partido } from '@/types/partido';
 
 export function DeportePageClient({ deporteId }: { deporteId: string }) {
   const { deportes } = useDeportes();
@@ -25,6 +26,7 @@ export function DeportePageClient({ deporteId }: { deporteId: string }) {
   const { rankings } = useEstadisticas(deporteId, 'goles');
   const [divisiones, setDivisiones] = useState<Division[]>([]);
   const [selectedDivisionId, setSelectedDivisionId] = useState<string>('');
+  const [partidosDivision, setPartidosDivision] = useState<Partido[]>([]);
 
   useEffect(() => {
     const q = query(collection(db, 'divisiones'), where('deporteId', '==', deporteId));
@@ -33,6 +35,19 @@ export function DeportePageClient({ deporteId }: { deporteId: string }) {
     });
     return () => unsub();
   }, [deporteId]);
+
+  // Load partidos for selected division
+  useEffect(() => {
+    if (!selectedDivisionId) { setPartidosDivision([]); return; }
+    const equipoIds = new Set(Object.values(equiposMap).filter(e => e.divisionId === selectedDivisionId).map(e => e.id));
+    if (!equipoIds.size) return;
+    const q = query(collection(db, 'partidos'), orderBy('fecha', 'asc'), fLimit(100));
+    const unsub = onSnapshot(q, (snap) => {
+      const all = snap.docs.map(d => ({ id: d.id, ...d.data() } as Partido));
+      setPartidosDivision(all.filter(p => equipoIds.has(p.equipoLocalId) || equipoIds.has(p.equipoVisitaId)));
+    }, () => {});
+    return () => unsub();
+  }, [selectedDivisionId, equiposMap]);
 
   const selectedDivision = divisiones.find((d) => d.id === selectedDivisionId);
   const deporte = deportes.find((d) => d.id === deporteId);
@@ -44,6 +59,20 @@ export function DeportePageClient({ deporteId }: { deporteId: string }) {
   const equipoPrincipalId = selectedDivisionId
     ? Object.values(equiposMap).find((e) => e.divisionId === selectedDivisionId && e.esPrincipal)?.id
     : undefined;
+
+  const proximaJornada = (() => {
+    const progs = partidosDivision.filter(p => p.estado === 'programado' && p.fecha > Date.now());
+    if (!progs.length) return null;
+    const minFecha = Math.min(...progs.map(p => p.fecha));
+    const jornadaNum = progs.find(p => p.fecha === minFecha)?.jornada;
+    return {
+      jornada: jornadaNum,
+      partidos: progs.filter(p => p.jornada === jornadaNum).sort((a, b) => a.fecha - b.fecha),
+    };
+  })();
+
+  const getLogo = (id: string) => equiposMap[id]?.logoBase64;
+  const getColor = (id: string) => equiposMap[id]?.colorPrimario;
 
   if (!deporte) {
     return <div className="p-4"><Skeleton className="h-8 w-48 mb-4" /><Skeleton className="h-64 w-full rounded-[var(--radius)]" /></div>;
@@ -217,6 +246,40 @@ export function DeportePageClient({ deporteId }: { deporteId: string }) {
                     <h3 className="text-lg font-bold text-[var(--text)]">Goleadores</h3>
                   </div>
                   {rankings.length ? <TopScorers rankings={rankings} statKey="goles" /> : <EmptyState title="Sin goleadores" />}
+                </div>
+
+                {/* Proxima Jornada */}
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Swords className="h-5 w-5 text-[var(--accent)]" />
+                    <h3 className="text-lg font-bold text-[var(--text)]">Proxima Jornada</h3>
+                    {proximaJornada && (
+                      <span className="text-[11px] text-[var(--text-muted)] font-medium">Jornada {proximaJornada.jornada}</span>
+                    )}
+                  </div>
+                  {proximaJornada ? (
+                    <div className="space-y-2">
+                      {proximaJornada.partidos.map((p) => (
+                        <div key={p.id} className="rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--bg-card)] p-2.5 flex items-center gap-2">
+                          <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                            <div className="w-6 h-6 flex items-center justify-center flex-shrink-0">
+                              {getLogo(p.equipoLocalId) ? <img src={getLogo(p.equipoLocalId)} alt="" className="w-5 h-5 object-contain logo-img" /> : <div className="w-5 h-5 rounded-full flex items-center justify-center text-[6px] font-bold text-white flex-shrink-0" style={{ backgroundColor: getColor(p.equipoLocalId) || '#64748B' }}>{p.equipoLocalNombre?.[0]}</div>}
+                            </div>
+                            <span className="text-xs font-medium text-[var(--text)] truncate">{p.equipoLocalNombre}</span>
+                          </div>
+                          <span className="text-[10px] font-bold text-[var(--text-muted)] flex-shrink-0">VS</span>
+                          <div className="flex items-center gap-1.5 flex-1 min-w-0 justify-end">
+                            <span className="text-xs font-medium text-[var(--text)] truncate">{p.equipoVisitaNombre}</span>
+                            <div className="w-6 h-6 flex items-center justify-center flex-shrink-0">
+                              {getLogo(p.equipoVisitaId) ? <img src={getLogo(p.equipoVisitaId)} alt="" className="w-5 h-5 object-contain logo-img" /> : <div className="w-5 h-5 rounded-full flex items-center justify-center text-[6px] font-bold text-white flex-shrink-0" style={{ backgroundColor: getColor(p.equipoVisitaId) || '#64748B' }}>{p.equipoVisitaNombre?.[0]}</div>}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <EmptyState title="Sin partidos" description="No hay proxima jornada programada" />
+                  )}
                 </div>
 
                 {/* Division Info Card */}

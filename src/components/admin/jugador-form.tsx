@@ -84,28 +84,28 @@ export function JugadorForm({ jugador, equipoId: defaultEquipoId, onClose }: { j
       {error && <div className="flex items-center gap-2 p-2.5 rounded-[var(--radius-sm)] bg-red-500/10 border"><AlertCircle className="h-4 w-4 text-red-400 flex-shrink-0" /><p className="text-xs text-red-400">{error}</p></div>}
       {success && <div className="flex items-center gap-2 p-2.5 rounded-[var(--radius-sm)] bg-emerald-500/10 border"><CheckCircle2 className="h-4 w-4 text-emerald-400" /><p className="text-xs text-emerald-400">Jugador guardado</p></div>}
 
-      {/* Foto + Nombre */}
-      <div>
-        <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-1.5"><Users className="h-3.5 w-3.5" /> Datos Personales</h4>
-        <div className="flex gap-3 items-start">
-          <label className="flex-shrink-0 w-16 h-16 rounded-full border-2 border-dashed border-[var(--border)] cursor-pointer overflow-hidden hover:border-[var(--accent)] transition-colors bg-[var(--bg-secondary)] flex items-center justify-center">
-            {fotoBase64 ? <img src={fotoBase64} alt="" className="w-full h-full object-cover" /> : <Upload className="h-5 w-5 text-[var(--text-muted)]" />}
-            <input type="file" accept="image/*" className="hidden" onChange={handleFoto} />
-          </label>
-          <div className="flex-1 grid grid-cols-2 gap-2">
-            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Nombre</Label><Input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Nombre" /></div>
+      {/* 4-column grid layout */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Col 1: Datos Personales */}
+        <div>
+          <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-1.5"><Users className="h-3.5 w-3.5" /> Datos Personales</h4>
+          <div className="space-y-2">
+            <div className="flex gap-2 items-center">
+              <label className="flex-shrink-0 w-12 h-12 rounded-full border-2 border-dashed border-[var(--border)] cursor-pointer overflow-hidden hover:border-[var(--accent)] transition-colors bg-[var(--bg-secondary)] flex items-center justify-center">
+                {fotoBase64 ? <img src={fotoBase64} alt="" className="w-full h-full object-cover" /> : <Upload className="h-4 w-4 text-[var(--text-muted)]" />}
+                <input type="file" accept="image/*" className="hidden" onChange={handleFoto} />
+              </label>
+              <div className="flex-1 space-y-1"><Label className="text-xs text-[var(--text-muted)]">Nombre</Label><Input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Nombre" /></div>
+            </div>
             <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Apellido</Label><Input value={apellido} onChange={(e) => setApellido(e.target.value)} placeholder="Apellido" /></div>
+            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Numero</Label><Input type="number" value={numero} onChange={(e) => setNumero(e.target.value)} min={0} max={99} placeholder="00" /></div>
           </div>
         </div>
-      </div>
 
-      {/* Información Deportiva y Física en 2 columnas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Deportiva */}
+        {/* Col 2: Deportiva */}
         <div>
           <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-1.5"><Hash className="h-3.5 w-3.5" /> Deportiva</h4>
           <div className="space-y-2">
-            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Numero</Label><Input type="number" value={numero} onChange={(e) => setNumero(e.target.value)} min={0} max={99} placeholder="00" /></div>
             <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Posicion</Label>
               <Select value={posicion} onValueChange={setPosicion}>
                 <SelectTrigger><SelectValue placeholder="Seleccionar" /></SelectTrigger>
@@ -136,47 +136,43 @@ export function JugadorForm({ jugador, equipoId: defaultEquipoId, onClose }: { j
           </div>
         </div>
 
-        {/* Fisicos */}
+        {/* Col 3: Fisicos + Contrato */}
         <div>
           <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-1.5"><Ruler className="h-3.5 w-3.5" /> Fisicos</h4>
           <div className="space-y-2">
             <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Fecha nac.</Label><Input type="date" value={fechaNacimiento} onChange={(e) => setFechaNacimiento(e.target.value)} /></div>
             <div className="grid grid-cols-2 gap-2">
-              <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Altura (cm)</Label><Input type="number" value={altura} onChange={(e) => setAltura(e.target.value)} placeholder="175" /></div>
-              <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Peso (kg)</Label><Input type="number" value={peso} onChange={(e) => setPeso(e.target.value)} placeholder="70" /></div>
+              <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Altura</Label><Input type="number" value={altura} onChange={(e) => setAltura(e.target.value)} placeholder="175" /></div>
+              <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Peso</Label><Input type="number" value={peso} onChange={(e) => setPeso(e.target.value)} placeholder="70" /></div>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Contrato y Valor */}
-      <div>
-        <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-1.5"><DollarSign className="h-3.5 w-3.5" /> Contrato y Valor</h4>
-        <div className="grid grid-cols-3 gap-2">
-          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Fichado</Label><Input type="date" value={fichado} onChange={(e) => setFichado(e.target.value)} /></div>
-          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Contrato hasta</Label><Input type="date" value={contratoHasta} onChange={(e) => setContratoHasta(e.target.value)} /></div>
-          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Valor mercado</Label><Input value={valorMercado} onChange={(e) => setValorMercado(e.target.value)} placeholder="$100K" /></div>
-        </div>
-      </div>
-
-      {/* Asignacion */}
-      <div>
-        <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-1.5"><Users className="h-3.5 w-3.5" /> Asignacion</h4>
-        <div className="grid grid-cols-2 gap-2">
-          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Deporte</Label>
-            <Select value={deporteId} onValueChange={(v) => { setDeporteId(v); setEquipoId(''); }}>
-              <SelectTrigger><SelectValue placeholder="Seleccionar" /></SelectTrigger>
-              <SelectContent>{deportes.map((d) => <SelectItem key={d.id} value={d.id}><span className="flex items-center gap-1.5"><SportIcon sport={d.icono} size={14} /><span>{d.nombre}</span></span></SelectItem>)}</SelectContent>
-            </Select>
+          <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3 mt-4 flex items-center gap-1.5"><DollarSign className="h-3.5 w-3.5" /> Contrato</h4>
+          <div className="space-y-2">
+            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Fichado</Label><Input type="date" value={fichado} onChange={(e) => setFichado(e.target.value)} /></div>
+            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Contrato hasta</Label><Input type="date" value={contratoHasta} onChange={(e) => setContratoHasta(e.target.value)} /></div>
+            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Valor mercado</Label><Input value={valorMercado} onChange={(e) => setValorMercado(e.target.value)} placeholder="$100K" /></div>
           </div>
-          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Equipo</Label>
-            <Select value={equipoId} onValueChange={setEquipoId} disabled={!deporteId}>
-              <SelectTrigger><SelectValue placeholder={deporteId ? 'Seleccionar equipo' : 'Primero deporte'} /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">Sin equipo</SelectItem>
-                {[...equipos].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es')).map((e) => <SelectItem key={e.id} value={e.id}>{e.nombre}</SelectItem>)}
-              </SelectContent>
-            </Select>
+        </div>
+
+        {/* Col 4: Asignacion */}
+        <div>
+          <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-1.5"><Users className="h-3.5 w-3.5" /> Asignacion</h4>
+          <div className="space-y-2">
+            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Deporte</Label>
+              <Select value={deporteId} onValueChange={(v) => { setDeporteId(v); setEquipoId(''); }}>
+                <SelectTrigger><SelectValue placeholder="Seleccionar" /></SelectTrigger>
+                <SelectContent>{deportes.map((d) => <SelectItem key={d.id} value={d.id}><span className="flex items-center gap-1.5"><SportIcon sport={d.icono} size={14} /><span>{d.nombre}</span></span></SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Equipo</Label>
+              <Select value={equipoId} onValueChange={setEquipoId} disabled={!deporteId}>
+                <SelectTrigger><SelectValue placeholder={deporteId ? 'Seleccionar equipo' : 'Primero deporte'} /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Sin equipo</SelectItem>
+                  {[...equipos].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es')).map((e) => <SelectItem key={e.id} value={e.id}>{e.nombre}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
       </div>

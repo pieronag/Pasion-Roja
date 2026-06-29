@@ -44,6 +44,8 @@ export default function AdminPartidosPage() {
   const [editScoreVis, setEditScoreVis] = useState(0);
   const [editingStatusId, setEditingStatusId] = useState<string | null>(null);
   const [editStatus, setEditStatus] = useState<string>('');
+  const [editingFechaId, setEditingFechaId] = useState<string | null>(null);
+  const [editFecha, setEditFecha] = useState('');
   const autoSelectedRef = useRef(false);
 
   const principalId = Object.values(equiposMap).find(e => e.esPrincipal)?.id;
@@ -274,8 +276,29 @@ export default function AdminPartidosPage() {
                 const eqVisNombre = equiposMap[p.equipoVisitaId]?.nombre || p.equipoVisitaNombre;
                 return (
                   <tr key={p.id} className="border-b border-[var(--border)] hover:bg-[var(--bg-hover)] transition-colors">
-                    <td className="p-3 text-sm text-[var(--text-muted)] font-medium">{fechaPartido.toLocaleDateString('es-CL', { day: 'numeric', month: 'long' }).toUpperCase()}</td>
-                    <td className="p-3 text-sm font-mono text-[var(--text-muted)]">{hora}</td>
+                    <td className="p-3 text-sm text-[var(--text-muted)] font-medium">
+                      {editingFechaId === p.id ? (
+                        <div className="flex items-center gap-1">
+                          <Input type="datetime-local" value={editFecha} onChange={e => setEditFecha(e.target.value)} className="w-44 h-8 text-xs" />
+                          <button onClick={async () => {
+                            await updateDoc(doc(db, 'partidos', p.id), { fecha: new Date(editFecha).getTime(), actualizadoEn: Date.now() });
+                            setEditingFechaId(null);
+                          }} className="p-0.5 text-emerald-500 hover:text-emerald-600"><Save className="h-3.5 w-3.5" /></button>
+                          <button onClick={() => setEditingFechaId(null)} className="p-0.5 text-red-400 hover:text-red-600"><X className="h-3.5 w-3.5" /></button>
+                        </div>
+                      ) : (
+                        <button onClick={() => { setEditingFechaId(p.id); setEditFecha(new Date(p.fecha).toISOString().slice(0, 16)); }} className="cursor-pointer hover:text-[var(--accent)] transition-colors">
+                          {fechaPartido.toLocaleDateString('es-CL', { day: 'numeric', month: 'long' }).toUpperCase()}
+                        </button>
+                      )}
+                    </td>
+                    <td className="p-3 text-sm font-mono text-[var(--text-muted)]">
+                      {editingFechaId === p.id ? (
+                        <span className="text-xs text-[var(--text-muted)]">{editFecha.slice(11, 16)}</span>
+                      ) : (
+                        <span>{hora}</span>
+                      )}
+                    </td>
                     <td className="p-3"><div className="flex items-center gap-2">
                       {equiposMap[p.equipoLocalId]?.logoBase64 ? (
                         <img src={equiposMap[p.equipoLocalId].logoBase64} alt="" className="w-5 h-5 object-contain flex-shrink-0" />
