@@ -20,7 +20,6 @@ export function JugadorForm({ jugador, equipoId: defaultEquipoId, onClose }: { j
   const { equiposMap } = useEquiposMap();
   const [equipos, setEquipos] = useState<Equipo[]>([]);
 
-  // Auto-detect Malleco's deporte and equipo
   const principalEquipo = Object.values(equiposMap).find(e => e.esPrincipal);
   const defaultDeporteId = jugador?.deporteId || principalEquipo?.deporteId || '';
 
@@ -89,7 +88,7 @@ export function JugadorForm({ jugador, equipoId: defaultEquipoId, onClose }: { j
       <div>
         <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-1.5"><Users className="h-3.5 w-3.5" /> Datos Personales</h4>
         <div className="flex gap-3 items-start">
-          <label className="flex-shrink-0 w-14 h-14 rounded-full border-2 border-dashed border-[var(--border)] cursor-pointer overflow-hidden hover:border-[var(--accent)] transition-colors bg-[var(--bg-secondary)] flex items-center justify-center">
+          <label className="flex-shrink-0 w-16 h-16 rounded-full border-2 border-dashed border-[var(--border)] cursor-pointer overflow-hidden hover:border-[var(--accent)] transition-colors bg-[var(--bg-secondary)] flex items-center justify-center">
             {fotoBase64 ? <img src={fotoBase64} alt="" className="w-full h-full object-cover" /> : <Upload className="h-5 w-5 text-[var(--text-muted)]" />}
             <input type="file" accept="image/*" className="hidden" onChange={handleFoto} />
           </label>
@@ -100,47 +99,52 @@ export function JugadorForm({ jugador, equipoId: defaultEquipoId, onClose }: { j
         </div>
       </div>
 
-      {/* Información Deportiva */}
-      <div>
-        <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-1.5"><Hash className="h-3.5 w-3.5" /> Información Deportiva</h4>
-        <div className="grid grid-cols-3 gap-2">
-          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Número</Label><Input type="number" value={numero} onChange={(e) => setNumero(e.target.value)} min={0} max={99} placeholder="00" /></div>
-          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Posición</Label>
-            <Select value={posicion} onValueChange={setPosicion}>
-              <SelectTrigger><SelectValue placeholder="Seleccionar" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Portero"><span className="flex items-center gap-1.5">🧤 Portero</span></SelectItem>
-                <SelectItem value="Defensa"><span className="flex items-center gap-1.5">🛡️ Defensa</span></SelectItem>
-                <SelectItem value="Mediocampista"><span className="flex items-center gap-1.5">⚡ Mediocampista</span></SelectItem>
-                <SelectItem value="Delantero"><span className="flex items-center gap-1.5">⚽ Delantero</span></SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Nacionalidad</Label>
-            <Select value={nacionalidad} onValueChange={setNacionalidad}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {['Chilena', 'Argentina', 'Brasileña', 'Uruguaya', 'Paraguaya', 'Peruana', 'Colombiana', 'Ecuatoriana', 'Venezolana', 'Boliviana', 'Otra'].map((n) => (
-                  <SelectItem key={n} value={n}>{n}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+      {/* Información Deportiva y Física en 2 columnas */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Deportiva */}
+        <div>
+          <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-1.5"><Hash className="h-3.5 w-3.5" /> Deportiva</h4>
+          <div className="space-y-2">
+            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Numero</Label><Input type="number" value={numero} onChange={(e) => setNumero(e.target.value)} min={0} max={99} placeholder="00" /></div>
+            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Posicion</Label>
+              <Select value={posicion} onValueChange={setPosicion}>
+                <SelectTrigger><SelectValue placeholder="Seleccionar" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Portero">Portero</SelectItem>
+                  <SelectItem value="Defensa">Defensa</SelectItem>
+                  <SelectItem value="Mediocampista">Mediocampista</SelectItem>
+                  <SelectItem value="Delantero">Delantero</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Nacionalidad</Label>
+              <Select value={nacionalidad} onValueChange={setNacionalidad}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {['Chilena', 'Argentina', 'Brasilena', 'Uruguaya', 'Paraguaya', 'Peruana', 'Colombiana', 'Ecuatoriana', 'Venezolana', 'Boliviana', 'Otra'].map((n) => (
+                    <SelectItem key={n} value={n}>{n}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Pie</Label>
+              <Select value={pie} onValueChange={setPie}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent><SelectItem value="Derecho">Derecho</SelectItem><SelectItem value="Izquierdo">Izquierdo</SelectItem><SelectItem value="Ambos">Ambos</SelectItem></SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Datos Físicos */}
-      <div>
-        <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-1.5"><Ruler className="h-3.5 w-3.5" /> Datos Físicos</h4>
-        <div className="grid grid-cols-4 gap-2">
-          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Fecha nac.</Label><Input type="date" value={fechaNacimiento} onChange={(e) => setFechaNacimiento(e.target.value)} /></div>
-          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Altura</Label><Input type="number" value={altura} onChange={(e) => setAltura(e.target.value)} placeholder="175" /></div>
-          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Peso</Label><Input type="number" value={peso} onChange={(e) => setPeso(e.target.value)} placeholder="70" /></div>
-          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Pie</Label>
-            <Select value={pie} onValueChange={setPie}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent><SelectItem value="Derecho">Derecho</SelectItem><SelectItem value="Izquierdo">Izquierdo</SelectItem><SelectItem value="Ambos">Ambos</SelectItem></SelectContent>
-            </Select>
+        {/* Fisicos */}
+        <div>
+          <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-1.5"><Ruler className="h-3.5 w-3.5" /> Fisicos</h4>
+          <div className="space-y-2">
+            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Fecha nac.</Label><Input type="date" value={fechaNacimiento} onChange={(e) => setFechaNacimiento(e.target.value)} /></div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Altura (cm)</Label><Input type="number" value={altura} onChange={(e) => setAltura(e.target.value)} placeholder="175" /></div>
+              <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Peso (kg)</Label><Input type="number" value={peso} onChange={(e) => setPeso(e.target.value)} placeholder="70" /></div>
+            </div>
           </div>
         </div>
       </div>
@@ -155,9 +159,9 @@ export function JugadorForm({ jugador, equipoId: defaultEquipoId, onClose }: { j
         </div>
       </div>
 
-      {/* Asignación (pre-cargada) */}
+      {/* Asignacion */}
       <div>
-        <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-1.5"><Users className="h-3.5 w-3.5" /> Asignación</h4>
+        <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-1.5"><Users className="h-3.5 w-3.5" /> Asignacion</h4>
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Deporte</Label>
             <Select value={deporteId} onValueChange={(v) => { setDeporteId(v); setEquipoId(''); }}>

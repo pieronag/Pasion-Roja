@@ -73,19 +73,23 @@ export function EquipoPageClient({ equipoId }: { equipoId: string }) {
   const logo = (id: string) => localEquipo(id)?.logoBase64;
   const color = (id: string) => localEquipo(id)?.colorPrimario;
 
-  const gruposPosicion: Record<string, { label: string; icon: string; jugadores: any[] }> = {
-    Portero: { label: 'Porteros', icon: '🧤', jugadores: [] },
-    Defensa: { label: 'Defensas', icon: '🛡️', jugadores: [] },
-    Mediocampista: { label: 'Mediocampistas', icon: '⚡', jugadores: [] },
-    Delantero: { label: 'Delanteros', icon: '⚽', jugadores: [] },
+  const gruposPosicion: Record<string, { label: string; jugadores: any[] }> = {
+    Portero: { label: 'Porteros', jugadores: [] },
+    Defensa: { label: 'Defensas', jugadores: [] },
+    Mediocampista: { label: 'Mediocampistas', jugadores: [] },
+    Delantero: { label: 'Delanteros', jugadores: [] },
+    Otros: { label: 'Otros', jugadores: [] },
   };
 
   jugadores.forEach((j: any) => {
-    const key = Object.keys(gruposPosicion).find(k => j.posicion?.toLowerCase().includes(k.toLowerCase()));
-    if (key) gruposPosicion[key].jugadores.push(j);
+    const p = (j.posicion || '').toLowerCase();
+    let key = Object.keys(gruposPosicion).find(k => k.toLowerCase() !== 'otros' && p === k.toLowerCase());
+    if (!key) key = Object.keys(gruposPosicion).find(k => k.toLowerCase() !== 'otros' && p.includes(k.toLowerCase()));
+    if (!key) key = 'Otros';
+    gruposPosicion[key].jugadores.push(j);
   });
 
-  const ordenPosicion = ['Portero', 'Defensa', 'Mediocampista', 'Delantero'];
+  const ordenPosicion = ['Portero', 'Defensa', 'Mediocampista', 'Delantero', 'Otros'];
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
@@ -121,7 +125,6 @@ export function EquipoPageClient({ equipoId }: { equipoId: string }) {
               return (
                 <div key={key}>
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-sm">{grupo.icon}</span>
                     <h3 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wider">{grupo.label}</h3>
                     <span className="text-[11px] text-[var(--text-muted)] ml-auto">({grupo.jugadores.length})</span>
                   </div>
