@@ -121,22 +121,18 @@ export function MarcadorEnVivo() {
                 <Calendar className="h-3.5 w-3.5" />
                 <span>{new Date(proximoPartido.fecha).toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}</span>
               </div>
-              <div className="flex items-center justify-center gap-4 mb-3">
-                <div className="flex flex-col items-center gap-1.5">
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md" style={{ backgroundColor: proxLocal?.colorPrimario || '#1E293B' }}>
-                    {proxLocal?.logoBase64 ? <img src={proxLocal.logoBase64} alt="" className="w-8 h-8 object-contain logo-img" /> : <span className="font-black">{proximoPartido.equipoLocalNombre?.slice(0, 2).toUpperCase()}</span>}
-                  </div>
-                  <span className="text-xs font-bold text-[var(--text)] text-center leading-tight max-w-[100px]">{proximoPartido.equipoLocalNombre}</span>
+              <div className="flex items-center justify-center gap-6 mb-3">
+                <div className="flex flex-col items-center gap-2">
+                  {proxLocal?.logoBase64 ? <img src={proxLocal.logoBase64} alt="" className="w-16 h-16 object-contain logo-img" /> : <div className="w-16 h-16 rounded-full bg-[var(--bg-secondary)] flex items-center justify-center text-sm font-bold text-[var(--text-muted)]">{proximoPartido.equipoLocalNombre?.slice(0, 2).toUpperCase()}</div>}
+                  <span className="text-xs font-bold text-[var(--text)] text-center max-w-[100px]">{proximoPartido.equipoLocalNombre}</span>
                 </div>
                 <div className="text-center">
-                  <p className="text-2xl font-black font-display text-[var(--accent)]">VS</p>
+                  <p className="text-3xl font-black font-display text-[var(--accent)]">VS</p>
                   <p className="text-[10px] text-[var(--text-muted)] mt-1">Jornada {proximoPartido.jornada}</p>
                 </div>
-                <div className="flex flex-col items-center gap-1.5">
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md" style={{ backgroundColor: proxVis?.colorPrimario || '#1E293B' }}>
-                    {proxVis?.logoBase64 ? <img src={proxVis.logoBase64} alt="" className="w-8 h-8 object-contain logo-img" /> : <span className="font-black">{proximoPartido.equipoVisitaNombre?.slice(0, 2).toUpperCase()}</span>}
-                  </div>
-                  <span className="text-xs font-bold text-[var(--text)] text-center leading-tight max-w-[100px]">{proximoPartido.equipoVisitaNombre}</span>
+                <div className="flex flex-col items-center gap-2">
+                  {proxVis?.logoBase64 ? <img src={proxVis.logoBase64} alt="" className="w-16 h-16 object-contain logo-img" /> : <div className="w-16 h-16 rounded-full bg-[var(--bg-secondary)] flex items-center justify-center text-sm font-bold text-[var(--text-muted)]">{proximoPartido.equipoVisitaNombre?.slice(0, 2).toUpperCase()}</div>}
+                  <span className="text-xs font-bold text-[var(--text)] text-center max-w-[100px]">{proximoPartido.equipoVisitaNombre}</span>
                 </div>
               </div>
               {countdown && <p className="text-lg font-black font-display text-[var(--accent)] mb-1">{countdown}</p>}
@@ -162,23 +158,19 @@ export function MarcadorEnVivo() {
           <BadgeEnVivo size="sm" />
           <div className="flex items-center gap-1.5 text-white text-xs font-semibold"><Clock className="h-3.5 w-3.5" />{minActual}&apos;</div>
         </div>
-        <div className="flex items-center justify-between px-4 py-5 gap-3">
-          <div className="flex-1 flex flex-col items-center gap-2">
-            <div className="w-14 h-14 rounded-full flex items-center justify-center text-white text-lg font-bold shadow-md" style={{ backgroundColor: localEquipo?.colorPrimario || '#1E293B' }}>
-              {localEquipo?.logoBase64 ? <img src={localEquipo.logoBase64} alt="" className="w-10 h-10 object-contain logo-img" /> : <span className="font-black">{localNombre.slice(0, 2).toUpperCase()}</span>}
-            </div>
-            <p className="text-sm font-bold text-[var(--text)] text-center leading-tight">{localNombre}</p>
+        <div className="flex items-center justify-between px-4 py-6 gap-3">
+          <div className="flex-1 flex flex-col items-center gap-3">
+            {localEquipo?.logoBase64 ? <img src={localEquipo.logoBase64} alt="" className="w-20 h-20 object-contain logo-img" /> : <div className="w-20 h-20 rounded-full bg-[var(--bg-secondary)] flex items-center justify-center text-lg font-bold text-[var(--text-muted)]">{localNombre.slice(0, 2).toUpperCase()}</div>}
+            <p className="text-sm font-bold text-[var(--text)] text-center">{localNombre}</p>
           </div>
           <div className="flex items-center gap-2 md:gap-3">
             <span className="text-5xl md:text-7xl font-black font-display text-[var(--text)] tabular-nums">{localScore}</span>
             <span className="text-2xl md:text-3xl font-black text-[var(--text-muted)]">:</span>
             <span className="text-5xl md:text-7xl font-black font-display text-[var(--text)] tabular-nums">{visScore}</span>
           </div>
-          <div className="flex-1 flex flex-col items-center gap-2">
-            <div className="w-14 h-14 rounded-full flex items-center justify-center text-white text-lg font-bold shadow-md" style={{ backgroundColor: visEquipo?.colorPrimario || '#1E293B' }}>
-              {visEquipo?.logoBase64 ? <img src={visEquipo.logoBase64} alt="" className="w-10 h-10 object-contain logo-img" /> : <span className="font-black">{visNombre.slice(0, 2).toUpperCase()}</span>}
-            </div>
-            <p className="text-sm font-bold text-[var(--text)] text-center leading-tight">{visNombre}</p>
+          <div className="flex-1 flex flex-col items-center gap-3">
+            {visEquipo?.logoBase64 ? <img src={visEquipo.logoBase64} alt="" className="w-20 h-20 object-contain logo-img" /> : <div className="w-20 h-20 rounded-full bg-[var(--bg-secondary)] flex items-center justify-center text-lg font-bold text-[var(--text-muted)]">{visNombre.slice(0, 2).toUpperCase()}</div>}
+            <p className="text-sm font-bold text-[var(--text)] text-center">{visNombre}</p>
           </div>
         </div>
         {(penalesLocal > 0 || penalesVisita > 0) ? (

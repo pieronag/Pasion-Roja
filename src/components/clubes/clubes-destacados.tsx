@@ -46,19 +46,22 @@ export function ClubesDestacados() {
         <span className="text-[var(--accent)]">Clubes de Angol</span>
       </h2>
 
-      {principal && (
-        <div className="mb-3">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+        {principal && (
           <ClubCard equipo={principal} esPrincipal deporteNombre={getDeporteNombre(principal.deporteId)} />
-        </div>
-      )}
-
-      {equiposAngol.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {equiposAngol.map((equipo) => (
-            <ClubCard key={equipo.id} equipo={equipo} deporteNombre={getDeporteNombre(equipo.deporteId)} />
-          ))}
-        </div>
-      )}
+        )}
+        {equiposAngol.map((equipo) => (
+          <ClubCard key={equipo.id} equipo={equipo} deporteNombre={getDeporteNombre(equipo.deporteId)} />
+        ))}
+        {/* Rellenar con divs vacíos para mantener grid de 3 columnas */}
+        {(() => {
+          const total = (principal ? 1 : 0) + equiposAngol.length;
+          const restante = 3 - (total % 3 || 3);
+          return restante < 3 ? Array.from({ length: restante }).map((_, i) => (
+            <div key={`empty-${i}`} className="hidden lg:block" />
+          )) : null;
+        })()}
+      </div>
     </section>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
+import { collection, query, orderBy, limit as fLimit, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Equipo } from '@/types/equipo';
 import type { Partido } from '@/types/partido';
@@ -19,15 +19,12 @@ export function ClubCard({ equipo, esPrincipal, deporteNombre }: ClubCardProps) 
   const [ultimos5, setUltimos5] = useState<{ resultado: 'G' | 'E' | 'P' }[]>([]);
 
   useEffect(() => {
-    // Query all partidos ordered by fecha, filter locally for this team
-    const q = query(collection(db, 'partidos'), orderBy('fecha', 'desc'), limit(50));
+    const q = query(collection(db, 'partidos'), orderBy('fecha', 'desc'), fLimit(50));
     const unsub = onSnapshot(q, (snap) => {
       const todos = snap.docs.map(d => ({ id: d.id, ...d.data() } as Partido));
-      // Filter: finalized matches where this team participated
       const delEquipo = todos.filter(
         p => p.estado === 'finalizado' && (p.equipoLocalId === equipo.id || p.equipoVisitaId === equipo.id)
       ).slice(0, 5);
-
       const res = delEquipo.map(p => {
         const localGano = p.marcadorLocal > p.marcadorVisita;
         const empate = p.marcadorLocal === p.marcadorVisita;
@@ -37,10 +34,7 @@ export function ClubCard({ equipo, esPrincipal, deporteNombre }: ClubCardProps) 
         return { resultado: 'P' as const };
       });
       setUltimos5(res);
-    }, (err) => {
-      // Silently handle Firestore index errors
-      console.warn('Error fetching partidos for club card:', err);
-    });
+    }, () => {});
     return () => unsub();
   }, [equipo.id]);
 
@@ -50,14 +44,12 @@ export function ClubCard({ equipo, esPrincipal, deporteNombre }: ClubCardProps) 
       className={`block rounded-[var(--radius)] border ${esPrincipal ? 'border-yellow-500/40 bg-yellow-500/[0.06] hover:border-yellow-500' : 'border-[var(--border)] bg-[var(--bg-card)] hover:border-[var(--accent)]'} hover:shadow-md transition-all group`}
     >
       <div className="p-4 flex items-center gap-4">
-        <div
-          className={`${esPrincipal ? 'w-16 h-16' : 'w-12 h-12'} rounded-full flex items-center justify-center text-white text-lg font-bold shadow-md flex-shrink-0`}
-          style={{ backgroundColor: equipo.colorPrimario || '#E11D48' }}
-        >
+        {/* Logo sin fondo circular - más grande y transparente */}
+        <div className={`${esPrincipal ? 'w-16 h-16' : 'w-14 h-14'} flex items-center justify-center flex-shrink-0`}>
           {equipo.logoBase64 ? (
-            <img src={equipo.logoBase64} alt={equipo.nombre} className="w-3/4 h-3/4 object-contain logo-img" />
+            <img src={equipo.logoBase64} alt={equipo.nombre} className="w-full h-full object-contain logo-img" />
           ) : (
-            <span className="font-black">{equipo.nombreCorto?.slice(0, 2).toUpperCase() || equipo.nombre.slice(0, 2).toUpperCase()}</span>
+            <span className="font-black text-lg">{equipo.nombreCorto?.slice(0, 2).toUpperCase() || equipo.nombre.slice(0, 2).toUpperCase()}</span>
           )}
         </div>
         <div className="flex-1 min-w-0">
@@ -73,21 +65,14 @@ export function ClubCard({ equipo, esPrincipal, deporteNombre }: ClubCardProps) 
               <MapPin className="h-3 w-3" /> {equipo.ciudad || equipo.estadio}
             </p>
           )}
-
-          {/* Últimos 5 resultados */}
           {ultimos5.length > 0 && (
             <div className="flex items-center gap-1 mt-2">
               <span className="text-[9px] text-[var(--text-muted)] mr-0.5">Últ.5:</span>
               {ultimos5.map((r, i) => (
-                <span
-                  key={i}
-                  className={cn(
-                    'inline-flex items-center justify-center w-4 h-4 rounded-full text-[7px] font-bold text-white',
-                    r.resultado === 'G' ? 'bg-[var(--success)]' : r.resultado === 'E' ? 'bg-[var(--warning)]' : 'bg-[var(--error)]'
-                  )}
-                >
-                  {r.resultado}
-                </span>
+                <span key={i} className={cn(
+                  'inline-flex items-center justify-center w-4 h-4 rounded-full text-[7px] font-bold text-white',
+                  r.resultado === 'G' ? 'bg-[var(--success)]' : r.resultado === 'E' ? 'bg-[var(--warning)]' : 'bg-[var(--error)]'
+                )}>{r.resultado}</span>
               ))}
             </div>
           )}

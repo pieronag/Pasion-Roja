@@ -7,8 +7,7 @@ import { useMarcador } from '@/hooks/use-marcador';
 import { useEquiposMap } from '@/hooks/use-equipos-map';
 import { BadgeEnVivo } from '@/components/shared/badge-en-vivo';
 import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/lib/utils';
-import { Trophy, Clock, RefreshCw, Calendar, MapPin, Swords, MessageCircle } from 'lucide-react';
+import { Trophy, Clock, RefreshCw, Calendar, MapPin, Swords } from 'lucide-react';
 import { useWakeLock } from '@/hooks/use-wake-lock';
 import type { Partido } from '@/types/partido';
 
@@ -23,7 +22,6 @@ export function PartidoPageClient() {
   const principalId = Object.values(equiposMap).find(e => e.esPrincipal)?.id;
   const principalEquipo = principalId ? equiposMap[principalId] : null;
 
-  // Load live match
   useEffect(() => {
     const q = query(collection(db, 'partidos'), where('estado', '==', 'en_vivo'));
     const unsub = onSnapshot(q, (snap) => {
@@ -33,23 +31,18 @@ export function PartidoPageClient() {
     return () => unsub();
   }, []);
 
-  // Load next Malleco match - solo partidos donde juega de local
   useEffect(() => {
     if (!principalId) return;
-    const q = query(
-      collection(db, 'partidos'),
-      where('equipoLocalId', '==', principalId)
-    );
+    const q = query(collection(db, 'partidos'), where('equipoLocalId', '==', principalId));
     const unsub = onSnapshot(q, (snap) => {
       const partidos = snap.docs.map(d => ({ id: d.id, ...d.data() } as Partido));
       partidos.sort((a, b) => b.fecha - a.fecha);
       const match = partidos.find(p => p.estado === 'programado');
       setProximoPartido(match || null);
-    }, (err) => console.warn('Error loading next match:', err));
+    }, () => {});
     return () => unsub();
   }, [principalId]);
 
-  // Countdown
   useEffect(() => {
     if (!proximoPartido?.fecha) return;
     const fn = () => {
@@ -69,62 +62,46 @@ export function PartidoPageClient() {
   const isMallecoMatch = partidoDb?.equipoLocalId === principalId || partidoDb?.equipoVisitaId === principalId;
   const isLive = !!partidoDb && isMallecoMatch;
 
-  const localEquipo = equiposMap[partidoDb?.equipoLocalId || ''];
-  const visEquipo = equiposMap[partidoDb?.equipoVisitaId || ''];
-  const localNombre = localEquipo?.nombre || partidoDb?.equipoLocalNombre || '';
-  const visNombre = visEquipo?.nombre || partidoDb?.equipoVisitaNombre || '';
+  const localNombre = (equiposMap[partidoDb?.equipoLocalId || '']?.nombre) || partidoDb?.equipoLocalNombre || '';
+  const visNombre = (equiposMap[partidoDb?.equipoVisitaId || '']?.nombre) || partidoDb?.equipoVisitaNombre || '';
+  const localLogo = equiposMap[partidoDb?.equipoLocalId || '']?.logoBase64;
+  const visLogo = equiposMap[partidoDb?.equipoVisitaId || '']?.logoBase64;
 
   const proxLocal = proximoPartido ? equiposMap[proximoPartido.equipoLocalId] : null;
   const proxVis = proximoPartido ? equiposMap[proximoPartido.equipoVisitaId] : null;
 
-  if (loadingLive) {
-    return <div className="p-4"><Skeleton className="h-48 w-full max-w-2xl mx-auto rounded-[var(--radius)]" /></div>;
-  }
+  if (loadingLive) return <div className="p-4"><Skeleton className="h-48 w-full max-w-2xl mx-auto rounded-[var(--radius)]" /></div>;
 
   return (
     <div className="pb-8">
-      {/* Live Match Scoreboard */}
       {isLive ? (
         <section className="pt-4">
           <div className="w-full max-w-2xl mx-auto p-4">
             <div className="rounded-[var(--radius)] border-2 border-[var(--accent)]/30 bg-[var(--bg-card)] shadow-lg overflow-hidden">
               <div className="bg-gradient-to-r from-[var(--accent)] to-[var(--accent-hover)] px-4 py-1.5 flex items-center justify-between">
                 <BadgeEnVivo size="sm" />
-                <div className="flex items-center gap-1.5 text-white text-xs font-semibold">
-                  <Clock className="h-3.5 w-3.5" />
-                  {partidoDb?.minuto || '0'}&apos;
-                </div>
+                <div className="flex items-center gap-1.5 text-white text-xs font-semibold"><Clock className="h-3.5 w-3.5" />{partidoDb?.minuto || '0'}&apos;</div>
               </div>
-
-              <div className="flex items-center justify-between px-4 py-5 gap-3">
-                <div className="flex-1 flex flex-col items-center gap-2">
-                  <div className="w-14 h-14 rounded-full flex items-center justify-center text-white text-lg font-bold shadow-md" style={{ backgroundColor: localEquipo?.colorPrimario || '#1E293B' }}>
-                    {localEquipo?.logoBase64 ? <img src={localEquipo.logoBase64} alt="" className="w-10 h-10 object-contain logo-img" /> : <span className="font-black">{localNombre.slice(0, 2).toUpperCase()}</span>}
-                  </div>
-                  <p className="text-sm font-bold text-[var(--text)] text-center leading-tight">{localNombre}</p>
+              <div className="flex items-center justify-between px-4 py-6 gap-3">
+                <div className="flex-1 flex flex-col items-center gap-3">
+                  {localLogo ? <img src={localLogo} alt="" className="w-20 h-20 object-contain logo-img" /> : <div className="w-20 h-20 rounded-full bg-[var(--bg-secondary)] flex items-center justify-center text-lg font-bold text-[var(--text-muted)]">{localNombre.slice(0, 2).toUpperCase()}</div>}
+                  <p className="text-sm font-bold text-[var(--text)] text-center">{localNombre}</p>
                 </div>
                 <div className="flex items-center gap-2 md:gap-3">
                   <span className="text-5xl md:text-7xl font-black font-display text-[var(--text)] tabular-nums">{partidoDb?.marcadorLocal ?? 0}</span>
                   <span className="text-2xl md:text-3xl font-black text-[var(--text-muted)]">:</span>
                   <span className="text-5xl md:text-7xl font-black font-display text-[var(--text)] tabular-nums">{partidoDb?.marcadorVisita ?? 0}</span>
                 </div>
-                <div className="flex-1 flex flex-col items-center gap-2">
-                  <div className="w-14 h-14 rounded-full flex items-center justify-center text-white text-lg font-bold shadow-md" style={{ backgroundColor: visEquipo?.colorPrimario || '#1E293B' }}>
-                    {visEquipo?.logoBase64 ? <img src={visEquipo.logoBase64} alt="" className="w-10 h-10 object-contain logo-img" /> : <span className="font-black">{visNombre.slice(0, 2).toUpperCase()}</span>}
-                  </div>
-                  <p className="text-sm font-bold text-[var(--text)] text-center leading-tight">{visNombre}</p>
+                <div className="flex-1 flex flex-col items-center gap-3">
+                  {visLogo ? <img src={visLogo} alt="" className="w-20 h-20 object-contain logo-img" /> : <div className="w-20 h-20 rounded-full bg-[var(--bg-secondary)] flex items-center justify-center text-lg font-bold text-[var(--text-muted)]">{visNombre.slice(0, 2).toUpperCase()}</div>}
+                  <p className="text-sm font-bold text-[var(--text)] text-center">{visNombre}</p>
                 </div>
               </div>
-
-              <div className="flex items-center justify-center gap-1 pb-3 text-[10px] text-[var(--text-muted)]">
-                <RefreshCw className="h-3 w-3" />
-                <span>Actualizado en tiempo real</span>
-              </div>
+              <div className="flex items-center justify-center gap-1 pb-3 text-[10px] text-[var(--text-muted)]"><RefreshCw className="h-3 w-3" /><span>Actualizado en tiempo real</span></div>
             </div>
           </div>
         </section>
       ) : (
-        /* Next Match */
         <section className="pt-4">
           <div className="w-full max-w-2xl mx-auto p-4">
             <div className="rounded-[var(--radius)] border-2 border-dashed border-[var(--border)] p-6 text-center bg-[var(--bg-secondary)]">
@@ -134,63 +111,41 @@ export function PartidoPageClient() {
                     <Calendar className="h-3.5 w-3.5" />
                     <span>{new Date(proximoPartido.fecha).toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
-
-                  <div className="flex items-center justify-center gap-4 mb-3">
-                    <div className="flex flex-col items-center gap-1.5">
-                      <div className="w-12 h-12 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md" style={{ backgroundColor: proxLocal?.colorPrimario || '#1E293B' }}>
-                        {proxLocal?.logoBase64 ? <img src={proxLocal.logoBase64} alt="" className="w-8 h-8 object-contain logo-img" /> : <span className="font-black">{proximoPartido.equipoLocalNombre?.slice(0, 2).toUpperCase()}</span>}
-                      </div>
-                      <span className="text-xs font-bold text-[var(--text)] text-center leading-tight max-w-[100px]">{proximoPartido.equipoLocalNombre}</span>
+                  <div className="flex items-center justify-center gap-6 mb-3">
+                    <div className="flex flex-col items-center gap-2">
+                      {proxLocal?.logoBase64 ? <img src={proxLocal.logoBase64} alt="" className="w-16 h-16 object-contain logo-img" /> : <div className="w-16 h-16 rounded-full bg-[var(--bg-secondary)] flex items-center justify-center text-sm font-bold text-[var(--text-muted)]">{proximoPartido.equipoLocalNombre?.slice(0, 2).toUpperCase()}</div>}
+                      <span className="text-xs font-bold text-[var(--text)] text-center max-w-[100px]">{proximoPartido.equipoLocalNombre}</span>
                     </div>
                     <div className="text-center">
-                      <p className="text-2xl font-black font-display text-[var(--accent)]">VS</p>
+                      <p className="text-3xl font-black font-display text-[var(--accent)]">VS</p>
                       <p className="text-[10px] text-[var(--text-muted)] mt-1">Jornada {proximoPartido.jornada}</p>
                     </div>
-                    <div className="flex flex-col items-center gap-1.5">
-                      <div className="w-12 h-12 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md" style={{ backgroundColor: proxVis?.colorPrimario || '#1E293B' }}>
-                        {proxVis?.logoBase64 ? <img src={proxVis.logoBase64} alt="" className="w-8 h-8 object-contain logo-img" /> : <span className="font-black">{proximoPartido.equipoVisitaNombre?.slice(0, 2).toUpperCase()}</span>}
-                      </div>
-                      <span className="text-xs font-bold text-[var(--text)] text-center leading-tight max-w-[100px]">{proximoPartido.equipoVisitaNombre}</span>
+                    <div className="flex flex-col items-center gap-2">
+                      {proxVis?.logoBase64 ? <img src={proxVis.logoBase64} alt="" className="w-16 h-16 object-contain logo-img" /> : <div className="w-16 h-16 rounded-full bg-[var(--bg-secondary)] flex items-center justify-center text-sm font-bold text-[var(--text-muted)]">{proximoPartido.equipoVisitaNombre?.slice(0, 2).toUpperCase()}</div>}
+                      <span className="text-xs font-bold text-[var(--text)] text-center max-w-[100px]">{proximoPartido.equipoVisitaNombre}</span>
                     </div>
                   </div>
-
                   {countdown && <p className="text-lg font-black font-display text-[var(--accent)] mb-1">{countdown}</p>}
-                  {proximoPartido.estadio && (
-                    <p className="text-[10px] text-[var(--text-muted)] flex items-center justify-center gap-1"><MapPin className="h-3 w-3" />{proximoPartido.estadio}</p>
-                  )}
+                  {proximoPartido.estadio && <p className="text-[10px] text-[var(--text-muted)] flex items-center justify-center gap-1"><MapPin className="h-3 w-3" />{proximoPartido.estadio}</p>}
                 </>
               ) : (
-                <>
-                  <Trophy className="h-12 w-12 text-[var(--text-muted)] mx-auto mb-3" />
-                  <p className="text-[var(--text-secondary)] font-medium">No hay partidos programados</p>
-                  <p className="text-[var(--text-muted)] text-sm mt-1">Vuelve pronto para ver los próximos encuentros</p>
-                </>
+                <><Trophy className="h-12 w-12 text-[var(--text-muted)] mx-auto mb-3" /><p className="text-[var(--text-secondary)] font-medium">No hay partidos programados</p><p className="text-[var(--text-muted)] text-sm mt-1">Vuelve pronto para ver los próximos encuentros</p></>
               )}
             </div>
           </div>
         </section>
       )}
 
-      {/* Match info - shows for both live and next match */}
       <section className="max-w-2xl mx-auto px-4 mt-6">
         <div className="rounded-[var(--radius)] border border-[var(--border)] overflow-hidden bg-[var(--bg-card)]">
           <div className="flex items-center gap-2 px-4 pt-4 pb-2 border-b border-[var(--border)]">
             <Swords className="h-4 w-4 text-[var(--accent)]" />
-            <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
-              {isLive ? 'Acción del Partido' : 'Información del Partido'}
-            </h2>
+            <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wider">{isLive ? 'Acción del Partido' : 'Información del Partido'}</h2>
           </div>
           <div className="p-4 text-center text-sm text-[var(--text-secondary)]">
-            {isLive ? (
-              <p>Eventos y comentarios disponibles durante la transmisión en vivo.</p>
-            ) : proximoPartido ? (
-              <div className="space-y-1 text-xs">
-                <p>⚽ Jornada {proximoPartido.jornada}</p>
-                <p>🏟️ {proximoPartido.estadio || 'Por definir'}</p>
-              </div>
-            ) : (
-              <p>No hay información disponible en este momento.</p>
-            )}
+            {isLive ? <p>Eventos y comentarios durante la transmisión.</p> : proximoPartido ? (
+              <div className="space-y-1 text-xs"><p>⚽ Jornada {proximoPartido.jornada}</p><p>🏟️ {proximoPartido.estadio || 'Por definir'}</p></div>
+            ) : <p>No hay información disponible.</p>}
           </div>
         </div>
       </section>
