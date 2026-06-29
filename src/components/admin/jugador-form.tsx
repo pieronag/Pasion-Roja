@@ -105,7 +105,17 @@ export function JugadorForm({ jugador, equipoId: defaultEquipoId, onClose }: { j
         <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-1.5"><Hash className="h-3.5 w-3.5" /> Información Deportiva</h4>
         <div className="grid grid-cols-3 gap-2">
           <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Número</Label><Input type="number" value={numero} onChange={(e) => setNumero(e.target.value)} min={0} max={99} placeholder="00" /></div>
-          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Posición</Label><Input value={posicion} onChange={(e) => setPosicion(e.target.value)} placeholder="Delantero" /></div>
+          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Posición</Label>
+            <Select value={posicion} onValueChange={setPosicion}>
+              <SelectTrigger><SelectValue placeholder="Seleccionar" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Portero"><span className="flex items-center gap-1.5">🧤 Portero</span></SelectItem>
+                <SelectItem value="Defensa"><span className="flex items-center gap-1.5">🛡️ Defensa</span></SelectItem>
+                <SelectItem value="Mediocampista"><span className="flex items-center gap-1.5">⚡ Mediocampista</span></SelectItem>
+                <SelectItem value="Delantero"><span className="flex items-center gap-1.5">⚽ Delantero</span></SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Nacionalidad</Label>
             <Select value={nacionalidad} onValueChange={setNacionalidad}>
               <SelectTrigger><SelectValue /></SelectTrigger>

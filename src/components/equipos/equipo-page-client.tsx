@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { doc, getDoc, collection, query, orderBy, onSnapshot, limit as fLimit } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useEquiposMap } from '@/hooks/use-equipos-map';
 import { JugadorCard } from '@/components/jugadores/jugador-card';
@@ -31,22 +31,36 @@ export function EquipoPageClient({ equipoId }: { equipoId: string }) {
   // Load jugadores directly for this equipo
   useEffect(() => {
     if (!equipoId) return;
-    const q = query(collection(db, 'jugadores'), orderBy('numero', 'asc'));
+    const q = query(collection(db, 'jugadores'), where('equipoId', '==', equipoId), orderBy('numero', 'asc'));
     const unsub = onSnapshot(q, (snap) => {
-      setJugadores(snap.docs.filter(d => d.data().equipoId === equipoId).map(d => ({ id: d.id, ...d.data() })));
+      setJugadores(snap.docs.map(d => ({ id: d.id, ...d.data() })));
     });
     return () => unsub();
   }, [equipoId]);
 
-  // Load matches for this equipo
+  // Load matches for this equipo (local + visita)
   useEffect(() => {
     if (!equipoId) return;
-    const q = query(collection(db, 'partidos'), orderBy('fecha', 'desc'), fLimit(50));
-    const unsub = onSnapshot(q, (snap) => {
-      const all = snap.docs.map(d => ({ id: d.id, ...d.data() } as Partido));
-      setPartidos(all.filter(p => p.equipoLocalId === equipoId || p.equipoVisitaId === equipoId));
+    const localQ = query(collection(db, 'partidos'), where('equipoLocalId', '==', equipoId));
+    const visitaQ = query(collection(db, 'partidos'), where('equipoVisitaId', '==', equipoId));
+
+    const unsubLocal = onSnapshot(localQ, (snap) => {
+      setPartidos((prev) => {
+        const local = snap.docs.map(d => ({ id: d.id, ...d.data() } as Partido));
+        const merged = [...local, ...prev.filter(p => !local.some(l => l.id === p.id))];
+        return merged;
+      });
     });
-    return () => unsub();
+
+    const unsubVisita = onSnapshot(visitaQ, (snap) => {
+      setPartidos((prev) => {
+        const visita = snap.docs.map(d => ({ id: d.id, ...d.data() } as Partido));
+        const merged = [...visita, ...prev.filter(p => !visita.some(v => v.id === p.id))];
+        return merged;
+      });
+    });
+
+    return () => { unsubLocal(); unsubVisita(); };
   }, [equipoId]);
 
   if (loading) return <div className="p-4"><Skeleton className="h-48 w-full rounded-2xl mb-4" /><Skeleton className="h-64 w-full rounded-xl" /></div>;
@@ -58,6 +72,20 @@ export function EquipoPageClient({ equipoId }: { equipoId: string }) {
   const localEquipo = (id: string) => equiposMap[id];
   const logo = (id: string) => localEquipo(id)?.logoBase64;
   const color = (id: string) => localEquipo(id)?.colorPrimario;
+
+  const gruposPosicion: Record<string, { label: string; icon: string; jugadores: any[] }> = {
+    Portero: { label: 'Porteros', icon: '🧤', jugadores: [] },
+    Defensa: { label: 'Defensas', icon: '🛡️', jugadores: [] },
+    Mediocampista: { label: 'Mediocampistas', icon: '⚡', jugadores: [] },
+    Delantero: { label: 'Delanteros', icon: '⚽', jugadores: [] },
+  };
+
+  jugadores.forEach((j: any) => {
+    const key = Object.keys(gruposPosicion).find(k => j.posicion?.toLowerCase().includes(k.toLowerCase()));
+    if (key) gruposPosicion[key].jugadores.push(j);
+  });
+
+  const ordenPosicion = ['Portero', 'Defensa', 'Mediocampista', 'Delantero'];
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
@@ -84,10 +112,25 @@ export function EquipoPageClient({ equipoId }: { equipoId: string }) {
 
       {/* Plantilla */}
       <div className="mb-8">
-        <div className="flex items-center gap-2 mb-3"><Users className="h-5 w-5 text-[var(--accent)]" /><h2 className="text-lg font-bold text-[var(--text)]">Plantilla ({jugadores.length})</h2></div>
+        <div className="flex items-center gap-2 mb-4"><Users className="h-5 w-5 text-[var(--accent)]" /><h2 className="text-lg font-bold text-[var(--text)]">Plantilla ({jugadores.length})</h2></div>
         {jugadores.length ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-            {jugadores.sort((a: any, b: any) => (a.numero || 0) - (b.numero || 0)).map((j: any) => <JugadorCard key={j.id} jugador={j} />)}
+          <div className="space-y-6">
+            {ordenPosicion.map((key) => {
+              const grupo = gruposPosicion[key];
+              if (!grupo.jugadores.length) return null;
+              return (
+                <div key={key}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-sm">{grupo.icon}</span>
+                    <h3 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wider">{grupo.label}</h3>
+                    <span className="text-[11px] text-[var(--text-muted)] ml-auto">({grupo.jugadores.length})</span>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                    {grupo.jugadores.sort((a: any, b: any) => (a.numero || 0) - (b.numero || 0)).map((j: any) => <JugadorCard key={j.id} jugador={j} />)}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         ) : <EmptyState title="Sin jugadores" />}
       </div>
