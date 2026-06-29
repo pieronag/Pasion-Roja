@@ -56,7 +56,7 @@ export default function AdminEquipoJugadoresPage({ params }: { params: Promise<{
         </div>
         <Dialog open={showCreate && !editing} onOpenChange={setShowCreate}>
           <DialogTrigger asChild><Button><Plus className="h-4 w-4 mr-1.5" /> Añadir Jugador</Button></DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-[1200px] mx-4">
             <DialogHeader><DialogTitle>Nuevo Jugador</DialogTitle></DialogHeader>
             <DialogBody><JugadorForm equipoId={id} onClose={() => setShowCreate(false)} /></DialogBody>
           </DialogContent>
@@ -112,7 +112,7 @@ export default function AdminEquipoJugadoresPage({ params }: { params: Promise<{
       )}
 
       <Dialog open={showCreate && !!editing} onOpenChange={(o) => { if (!o) { setEditing(null); setShowCreate(false); }}}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-[1200px] mx-4">
           <DialogHeader><DialogTitle>Editar Jugador</DialogTitle></DialogHeader>
           <DialogBody>{editing && <JugadorForm jugador={editing} onClose={() => { setEditing(null); setShowCreate(false); }} />}</DialogBody>
         </DialogContent>

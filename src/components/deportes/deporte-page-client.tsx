@@ -245,7 +245,7 @@ export function DeportePageClient({ deporteId }: { deporteId: string }) {
                     <TrendingUp className="h-5 w-5 text-[var(--accent)]" />
                     <h3 className="text-lg font-bold text-[var(--text)]">Goleadores</h3>
                   </div>
-                  {rankings.length ? <TopScorers rankings={rankings} statKey="goles" /> : <EmptyState title="Sin goleadores" />}
+                  {rankings.length ? <TopScorers rankings={rankings} statKey="goles" equiposMap={equiposMap} principalEquipoId={equipoPrincipalId} /> : <EmptyState title="Sin goleadores" />}
                 </div>
 
                 {/* Proxima Jornada */}
