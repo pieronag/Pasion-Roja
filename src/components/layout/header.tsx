@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { BadgeEnVivo } from '@/components/shared/badge-en-vivo';
-import { ThemeToggle } from '@/components/shared/theme-toggle';
 import { Zap, Menu, Home, Swords, Trophy, Newspaper, Radio, Tv } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -47,11 +46,9 @@ export function Header() {
               </Link>
             );
           })}
-          <ThemeToggle />
         </nav>
 
         <div className="flex items-center gap-2 md:hidden">
-          <ThemeToggle />
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon">
