@@ -55,7 +55,7 @@ export function MarcadorEnVivo() {
     const unsub = onSnapshot(q, (snap) => {
       const partidos = snap.docs.map(d => ({ id: d.id, ...d.data() } as Partido));
       // Sort by fecha descending locally, find the next programado
-      partidos.sort((a, b) => b.fecha - a.fecha);
+      partidos.sort((a, b) => a.fecha - b.fecha);
       const next = partidos.find(p => p.estado === 'programado');
       setProximoPartido(next || null);
     }, (err) => console.warn('Error loading next match:', err));

@@ -36,7 +36,7 @@ export function PartidoPageClient() {
     const q = query(collection(db, 'partidos'), where('equipoLocalId', '==', principalId));
     const unsub = onSnapshot(q, (snap) => {
       const partidos = snap.docs.map(d => ({ id: d.id, ...d.data() } as Partido));
-      partidos.sort((a, b) => b.fecha - a.fecha);
+      partidos.sort((a, b) => a.fecha - b.fecha);
       const match = partidos.find(p => p.estado === 'programado');
       setProximoPartido(match || null);
     }, () => {});
