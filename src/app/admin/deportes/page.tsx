@@ -62,7 +62,7 @@ export default function AdminDeportesPage() {
           <DialogTrigger asChild>
             <Button><Plus className="h-4 w-4 mr-1.5" /> Nuevo Deporte</Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-[1000px] mx-4">
             <DialogHeader><DialogTitle>Nuevo Deporte</DialogTitle></DialogHeader>
             <DialogBody><DeporteForm onClose={() => setShowCreate(false)} /></DialogBody>
           </DialogContent>
@@ -159,7 +159,7 @@ export default function AdminDeportesPage() {
 
       {/* Edit Dialog */}
       <Dialog open={showCreate && !!editing} onOpenChange={(o) => { if (!o) { setEditing(null); setShowCreate(false); }}}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-[1000px] mx-4">
           <DialogHeader><DialogTitle>Editar Deporte</DialogTitle></DialogHeader>
           <DialogBody>{editing && <DeporteForm deporte={editing} onClose={() => { setEditing(null); setShowCreate(false); }} />}</DialogBody>
         </DialogContent>

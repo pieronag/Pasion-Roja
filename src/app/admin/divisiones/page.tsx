@@ -194,20 +194,20 @@ export default function AdminDivisionesPage() {
       )}
 
       <Dialog open={showForm} onOpenChange={(o) => { if (!o) { setShowForm(false); setEditing(null); }}}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-[1200px] mx-4">
           <DialogHeader><DialogTitle>{editing ? 'Editar' : 'Nueva'} División</DialogTitle></DialogHeader>
           <DialogBody>
             <div className="space-y-3">
               {error && <div className="flex items-center gap-2 p-2.5 rounded-[var(--radius-sm)] bg-red-500/10 border"><AlertCircle className="h-4 w-4 text-red-400 flex-shrink-0" /><p className="text-xs text-red-400">{error}</p></div>}
               {success && <div className="flex items-center gap-2 p-2.5 rounded-[var(--radius-sm)] bg-emerald-500/10 border"><CheckCircle2 className="h-4 w-4 text-emerald-400" /><p className="text-xs text-emerald-400">{success}</p></div>}
 
-              {/* Row 1: Basic info + Jornadas */}
-              <div className="grid grid-cols-2 gap-3">
+              {/* 4 column layout */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Col 1: Basic info */}
                 <div className="space-y-2">
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Nombre</Label><Input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: Primera División" /></div>
-                    <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Temporada</Label><Input value={temporada} onChange={(e) => setTemporada(e.target.value)} /></div>
-                  </div>
+                  <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">Informacion</h4>
+                  <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Nombre</Label><Input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: Primera División" /></div>
+                  <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Temporada</Label><Input value={temporada} onChange={(e) => setTemporada(e.target.value)} /></div>
                   <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Deporte</Label>
                     <Select value={deporteId} onValueChange={setDeporteId}>
                       <SelectTrigger><SelectValue placeholder="Seleccionar" /></SelectTrigger>
@@ -215,27 +215,27 @@ export default function AdminDivisionesPage() {
                     </Select>
                   </div>
                 </div>
+
+                {/* Col 2: Jornadas + Asc/Desc */}
                 <div className="space-y-2">
-                  <h4 className="text-xs font-semibold text-[var(--text)] flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5" /> Jornadas</h4>
+                  <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">Jornadas</h4>
                   <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Total</Label><Input type="number" value={totalJornadas} onChange={(e) => setTotalJornadas(e.target.value)} min={1} max={99} /></div>
-                  <h4 className="text-xs font-semibold text-[var(--text)] pt-2 flex items-center gap-1.5"><TrendingUp className="h-3.5 w-3.5" /> Ascensos / Descensos</h4>
+                  <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider pt-2">Ascensos / Descensos</h4>
                   <div className="grid grid-cols-2 gap-2">
                     <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Ascienden</Label><Input type="number" value={ascensos} onChange={(e) => setAscensos(e.target.value)} min={0} max={10} /></div>
                     <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Descienden</Label><Input type="number" value={descensos} onChange={(e) => setDescensos(e.target.value)} min={0} max={10} /></div>
                   </div>
                 </div>
-              </div>
 
-              {/* Row 2: Playoff + Promoción */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <h4 className="text-xs font-semibold text-[var(--text)] mb-2 flex items-center gap-1.5"><Trophy className="h-3.5 w-3.5" /> Playoff / Liguilla</h4>
-                  <label className="flex items-center gap-2 mb-2 cursor-pointer">
+                {/* Col 3: Playoff */}
+                <div className="space-y-2">
+                  <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">Playoff / Liguilla</h4>
+                  <label className="flex items-center gap-2 cursor-pointer">
                     <input type="checkbox" checked={tieneCuadrangular} onChange={(e) => setTieneCuadrangular(e.target.checked)} className="w-4 h-4 rounded border-[var(--border)] text-[var(--accent)]" />
                     <span className="text-xs text-[var(--text-secondary)]">Tiene fase final</span>
                   </label>
                   {tieneCuadrangular && (
-                    <div className="space-y-2">
+                    <div className="space-y-2 mt-2">
                       <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Formato</Label>
                         <Select value={tipoLiguilla} onValueChange={(v: TipoLiguilla) => setTipoLiguilla(v)}>
                           <SelectTrigger><SelectValue /></SelectTrigger>
@@ -255,31 +255,29 @@ export default function AdminDivisionesPage() {
                     </div>
                   )}
                 </div>
-                <div>
-                  <h4 className="text-xs font-semibold text-[var(--text)] mb-2 flex items-center gap-1.5"><TrendingUp className="h-3.5 w-3.5" /> Promoción (Repechaje)</h4>
-                  <label className="flex items-center gap-2 mb-2 cursor-pointer">
+
+                {/* Col 4: Promocion + Banner */}
+                <div className="space-y-2">
+                  <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">Promocion</h4>
+                  <label className="flex items-center gap-2 cursor-pointer">
                     <input type="checkbox" checked={tipoPromocion === 'promocion'} onChange={(e) => setTipoPromocion(e.target.checked ? 'promocion' : 'none')} className="w-4 h-4 rounded border-[var(--border)] text-[var(--accent)]" />
-                    <span className="text-xs text-[var(--text-secondary)]">Tiene promoción</span>
+                    <span className="text-xs text-[var(--text-secondary)]">Tiene promocion</span>
                   </label>
                   <div className="grid grid-cols-2 gap-2">
                     <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Desde puesto</Label><Input type="number" value={puestosPromocionDesde} onChange={(e) => setPuestosPromocionDesde(e.target.value)} min={1} max={20} disabled={tipoPromocion !== 'promocion'} /></div>
                     <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Hasta puesto</Label><Input type="number" value={puestosPromocionHasta} onChange={(e) => setPuestosPromocionHasta(e.target.value)} min={1} max={20} disabled={tipoPromocion !== 'promocion'} /></div>
                   </div>
+                  <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider pt-2">Banner</h4>
+                  <label className="flex flex-col items-center justify-center p-3 rounded-[var(--radius-sm)] border-2 border-dashed border-[var(--border)] cursor-pointer hover:border-[var(--accent)] transition-colors">
+                    {bannerBase64 ? (
+                      <div className="relative w-full">
+                        <img src={bannerBase64} alt="" className="w-full h-16 object-cover rounded-[var(--radius-xs)]" />
+                        <button type="button" onClick={(e) => { e.stopPropagation(); setBannerBase64(''); }} className="absolute top-1 right-1 rounded-full bg-black/50 p-1"><X className="h-3 w-3 text-white" /></button>
+                      </div>
+                    ) : <><ImageIcon className="h-5 w-5 text-[var(--text-muted)] mb-1" /><p className="text-xs text-[var(--text-secondary)]">Banner para landing</p></>}
+                    <input type="file" accept="image/*" className="hidden" onChange={handleBanner} />
+                  </label>
                 </div>
-              </div>
-
-              {/* Banner */}
-              <div>
-                <h4 className="text-xs font-semibold text-[var(--text)] mb-2 flex items-center gap-1.5"><ImageIcon className="h-3.5 w-3.5" /> Banner de la división</h4>
-                <label className="flex flex-col items-center justify-center p-3 rounded-[var(--radius-sm)] border-2 border-dashed border-[var(--border)] cursor-pointer hover:border-[var(--accent)] transition-colors">
-                  {bannerBase64 ? (
-                    <div className="relative w-full">
-                      <img src={bannerBase64} alt="" className="w-full h-16 object-cover rounded-[var(--radius-xs)]" />
-                      <button type="button" onClick={(e) => { e.stopPropagation(); setBannerBase64(''); }} className="absolute top-1 right-1 rounded-full bg-black/50 p-1"><X className="h-3 w-3 text-white" /></button>
-                    </div>
-                  ) : <><ImageIcon className="h-5 w-5 text-[var(--text-muted)] mb-1" /><p className="text-xs text-[var(--text-secondary)]">Banner para landing</p></>}
-                  <input type="file" accept="image/*" className="hidden" onChange={handleBanner} />
-                </label>
               </div>
 
               <div className="flex justify-end gap-2 pt-2 border-t border-[var(--border)]">

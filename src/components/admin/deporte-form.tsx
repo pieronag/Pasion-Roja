@@ -53,35 +53,39 @@ export function DeporteForm({ deporte, onClose }: { deporte?: Deporte; onClose?:
       {error && <div className="flex items-center gap-2 p-2.5 rounded-[var(--radius-sm)] bg-red-500/10 border border-red-500/20"><AlertCircle className="h-4 w-4 text-red-400 flex-shrink-0" /><p className="text-xs text-red-400">{error}</p></div>}
       {success && <div className="flex items-center gap-2 p-2.5 rounded-[var(--radius-sm)] bg-green-500/10 border border-green-500/20"><CheckCircle2 className="h-4 w-4 text-green-400 flex-shrink-0" /><p className="text-xs text-green-400">Deporte guardado</p></div>}
 
-      <div className="space-y-1.5">
-        <Label className="text-xs text-[var(--text-muted)]">Nombre del deporte</Label>
-        <Input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: Fútbol" />
-        {nombre && <p className="text-[10px] text-[var(--text-muted)]">Se mostrará como: <span className="font-bold uppercase">{nombre}</span></p>}
-      </div>
-
-      <div className="space-y-1.5">
-        <Label className="text-xs text-[var(--text-muted)]">Icono del deporte</Label>
-        <SportIconPicker value={icono} onChange={setIcono} />
-      </div>
-
-      <div className="space-y-1.5">
-        <Label className="text-xs text-[var(--text-muted)]">Banner del deporte (fondo para landing)</Label>
-        <label className="flex flex-col items-center justify-center p-4 rounded-[var(--radius-sm)] border-2 border-dashed border-[var(--border)] cursor-pointer hover:border-[var(--accent)] transition-colors">
-          {bannerBase64 ? (
-            <div className="relative w-full">
-              <img src={bannerBase64} alt="Banner" className="w-full h-20 object-cover rounded-[var(--radius-xs)]" />
-              <button type="button" onClick={(e) => { e.stopPropagation(); setBannerBase64(''); }} className="absolute top-1 right-1 rounded-full bg-black/50 p-1"><X className="h-3 w-3 text-white" /></button>
-            </div>
-          ) : (
-            <><Image className="h-6 w-6 text-[var(--text-muted)] mb-1" /><p className="text-xs text-[var(--text-secondary)]">Toca para subir banner</p><p className="text-[10px] text-[var(--text-muted)] mt-0.5">1200px recomendado</p></>
-          )}
-          <input type="file" accept="image/*" className="hidden" onChange={handleBanner} />
-        </label>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Pts victoria</Label><Input type="number" value={victoria} onChange={(e) => setVictoria(e.target.value)} min={1} /></div>
-        <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Pts empate</Label><Input type="number" value={empate} onChange={(e) => setEmpate(e.target.value)} min={0} /></div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="space-y-3">
+          <div className="space-y-1.5">
+            <Label className="text-xs text-[var(--text-muted)]">Nombre del deporte</Label>
+            <Input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: Fútbol" />
+            {nombre && <p className="text-[10px] text-[var(--text-muted)]">Se mostrará como: <span className="font-bold uppercase">{nombre}</span></p>}
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs text-[var(--text-muted)]">Icono del deporte</Label>
+            <SportIconPicker value={icono} onChange={setIcono} />
+          </div>
+        </div>
+        <div className="space-y-3">
+          <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">Sistema de Puntos</h4>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Pts victoria</Label><Input type="number" value={victoria} onChange={(e) => setVictoria(e.target.value)} min={1} /></div>
+            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Pts empate</Label><Input type="number" value={empate} onChange={(e) => setEmpate(e.target.value)} min={0} /></div>
+          </div>
+        </div>
+        <div className="space-y-3">
+          <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">Banner</h4>
+          <label className="flex flex-col items-center justify-center p-4 rounded-[var(--radius-sm)] border-2 border-dashed border-[var(--border)] cursor-pointer hover:border-[var(--accent)] transition-colors">
+            {bannerBase64 ? (
+              <div className="relative w-full">
+                <img src={bannerBase64} alt="Banner" className="w-full h-20 object-cover rounded-[var(--radius-xs)]" />
+                <button type="button" onClick={(e) => { e.stopPropagation(); setBannerBase64(''); }} className="absolute top-1 right-1 rounded-full bg-black/50 p-1"><X className="h-3 w-3 text-white" /></button>
+              </div>
+            ) : (
+              <><Image className="h-6 w-6 text-[var(--text-muted)] mb-1" /><p className="text-xs text-[var(--text-secondary)]">Toca para subir banner</p><p className="text-[10px] text-[var(--text-muted)] mt-0.5">1200px recomendado</p></>
+            )}
+            <input type="file" accept="image/*" className="hidden" onChange={handleBanner} />
+          </label>
+        </div>
       </div>
 
       <div className="flex justify-end gap-2 pt-1 border-t border-[var(--border)]">

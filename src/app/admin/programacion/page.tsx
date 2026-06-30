@@ -62,10 +62,10 @@ export default function AdminProgramacionPage() {
           <DialogTrigger asChild>
             <Button><Plus className="h-4 w-4 mr-1.5" /> Nuevo Programa</Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-[1000px] mx-4">
             <DialogHeader><DialogTitle>Nuevo Programa</DialogTitle></DialogHeader>
             <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Título</Label><Input value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Ej: La Mañana Deportiva" /></div>
                 <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Host / Conductor</Label><Input value={host} onChange={(e) => setHost(e.target.value)} /></div>
               </div>

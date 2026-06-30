@@ -66,7 +66,7 @@ export default function AdminJugadoresPage() {
         <div><h2 className="text-lg font-bold text-[var(--text)]">Jugadores</h2><p className="text-sm text-[var(--text-secondary)]">{jugadores.length} jugadores registrados</p></div>
         <Dialog open={showCreate && !editing} onOpenChange={setShowCreate}>
           <DialogTrigger asChild><Button><Plus className="h-4 w-4 mr-1.5" /> Nuevo Jugador</Button></DialogTrigger>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-[1200px] mx-4">
             <DialogHeader><DialogTitle>Nuevo Jugador</DialogTitle></DialogHeader>
             <DialogBody><JugadorForm onClose={() => setShowCreate(false)} /></DialogBody>
           </DialogContent>
@@ -146,7 +146,7 @@ export default function AdminJugadoresPage() {
       )}
 
       <Dialog open={showCreate && !!editing} onOpenChange={(o) => { if (!o) { setEditing(null); setShowCreate(false); }}}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-[1200px] mx-4">
           <DialogHeader><DialogTitle>Editar Jugador</DialogTitle></DialogHeader>
           <DialogBody>{editing && <JugadorForm jugador={editing} onClose={() => { setEditing(null); setShowCreate(false); }} />}</DialogBody>
         </DialogContent>

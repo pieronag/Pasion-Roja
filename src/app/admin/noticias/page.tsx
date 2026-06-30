@@ -54,7 +54,7 @@ export default function AdminNoticiasPage() {
           <DialogTrigger asChild>
             <Button><Plus className="h-4 w-4 mr-1.5" /> Nueva Noticia</Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-[1000px] mx-4 max-h-[90vh] overflow-y-auto">
             <DialogHeader><DialogTitle>Nueva Noticia</DialogTitle></DialogHeader>
             <DialogBody>
               <NoticiaForm onClose={() => setShowForm(false)} />

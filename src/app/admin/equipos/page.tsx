@@ -68,7 +68,7 @@ export default function AdminEquiposPage() {
         <div><h2 className="text-lg font-bold text-[var(--text)]">Equipos</h2><p className="text-sm text-[var(--text-secondary)]">{equipos.length} equipos registrados</p></div>
         <Dialog open={showCreate && !editing} onOpenChange={setShowCreate}>
           <DialogTrigger asChild><Button><Plus className="h-4 w-4 mr-1.5" /> Nuevo Equipo</Button></DialogTrigger>
-          <DialogContent className="max-w-xl">
+          <DialogContent className="max-w-[1200px] mx-4">
             <DialogHeader><DialogTitle>Nuevo Equipo</DialogTitle></DialogHeader>
             <DialogBody><EquipoForm onClose={() => setShowCreate(false)} defaultDeporteId={filterDeporte} defaultDivisionId={filterDivision} /></DialogBody>
           </DialogContent>
@@ -140,7 +140,7 @@ export default function AdminEquiposPage() {
       )}
 
       <Dialog open={showCreate && !!editing} onOpenChange={(o) => { if (!o) { setEditing(null); setShowCreate(false); }}}>
-        <DialogContent className="max-w-xl">
+        <DialogContent className="max-w-[1200px] mx-4">
           <DialogHeader><DialogTitle>Editar Equipo</DialogTitle></DialogHeader>
           <DialogBody>{editing && <EquipoForm equipo={editing} onClose={() => { setEditing(null); setShowCreate(false); }} />}</DialogBody>
         </DialogContent>

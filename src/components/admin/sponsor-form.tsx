@@ -45,25 +45,28 @@ export function SponsorForm({ sponsor, onClose }: { sponsor?: Sponsor; onClose?:
       {error && <div className="flex items-center gap-2 p-2.5 rounded-[var(--radius-sm)] bg-red-500/10 border"><AlertCircle className="h-4 w-4 text-red-400 flex-shrink-0" /><p className="text-xs text-red-400">{error}</p></div>}
       {success && <div className="flex items-center gap-2 p-2.5 rounded-[var(--radius-sm)] bg-green-500/10 border"><CheckCircle2 className="h-4 w-4 text-green-400" /><p className="text-xs text-green-400">Sponsor guardado</p></div>}
 
-      <div className="flex gap-3 items-start">
-        <label className="flex-shrink-0 w-24 h-14 rounded-[var(--radius-sm)] border-2 border-dashed border-[var(--border)] cursor-pointer overflow-hidden hover:border-[var(--accent)] transition-colors bg-[var(--bg-secondary)] flex items-center justify-center">
-          {logoBase64 ? <img src={logoBase64} alt="" className="w-full h-full object-contain p-1" /> : <Upload className="h-5 w-5 text-[var(--text-muted)]" />}
-          <input type="file" accept="image/*" className="hidden" onChange={handleLogo} />
-        </label>
-        <div className="flex-1 space-y-2">
-          <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Nombre</Label><Input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Empresa SPA" /></div>
-            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Sitio web</Label><Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://..." /></div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="space-y-2">
+          <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">Logo</h4>
+          <label className="flex flex-col items-center justify-center p-4 rounded-[var(--radius-sm)] border-2 border-dashed border-[var(--border)] cursor-pointer hover:border-[var(--accent)] transition-colors bg-[var(--bg-secondary)]">
+            {logoBase64 ? <img src={logoBase64} alt="" className="max-h-16 object-contain" /> : <><Upload className="h-6 w-6 text-[var(--text-muted)] mb-1" /><p className="text-xs text-[var(--text-secondary)]">Subir logo</p></>}
+            <input type="file" accept="image/*" className="hidden" onChange={handleLogo} />
+          </label>
+        </div>
+        <div className="space-y-2">
+          <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">Informacion</h4>
+          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Nombre</Label><Input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Empresa SPA" /></div>
+          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Sitio web</Label><Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://..." /></div>
+        </div>
+        <div className="space-y-2">
+          <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">Clasificacion</h4>
+          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Tipo</Label>
+            <Select value={tipo} onValueChange={(v: TipoSponsor) => setTipo(v)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent><SelectItem value="principal">Principal</SelectItem><SelectItem value="oficial">Oficial</SelectItem><SelectItem value="auspiciador">Auspiciador</SelectItem><SelectItem value="media">Media</SelectItem></SelectContent>
+            </Select>
           </div>
-          <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Tipo</Label>
-              <Select value={tipo} onValueChange={(v: TipoSponsor) => setTipo(v)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent><SelectItem value="principal">Principal</SelectItem><SelectItem value="oficial">Oficial</SelectItem><SelectItem value="auspiciador">Auspiciador</SelectItem><SelectItem value="media">Media</SelectItem></SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Descripción</Label><Input value={descripcion} onChange={(e) => setDescripcion(e.target.value)} /></div>
-          </div>
+          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Descripcion</Label><Input value={descripcion} onChange={(e) => setDescripcion(e.target.value)} /></div>
         </div>
       </div>
 

@@ -136,88 +136,70 @@ export function EquipoForm({ equipo, onClose, defaultDeporteId, defaultDivisionI
       {error && <div className="flex items-center gap-2 p-2.5 rounded-[var(--radius-sm)] bg-red-500/10 border border-red-500/20"><AlertCircle className="h-4 w-4 text-red-400 flex-shrink-0" /><p className="text-xs text-red-400">{error}</p></div>}
       {success && <div className="flex items-center gap-2 p-2.5 rounded-[var(--radius-sm)] bg-green-500/10 border border-green-500/20"><CheckCircle2 className="h-4 w-4 text-green-400 flex-shrink-0" /><p className="text-xs text-green-400">Equipo guardado exitosamente</p></div>}
 
-      {/* Sección: Identidad */}
-      <div>
-        <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-1.5"><Shield className="h-3.5 w-3.5" /> Identidad del Equipo</h4>
-        <div className="flex gap-3 items-start">
-          <label className="flex-shrink-0 w-16 h-16 rounded-[var(--radius-sm)] border-2 border-dashed border-[var(--border)] cursor-pointer overflow-hidden hover:border-[var(--accent)] transition-colors flex items-center justify-center" style={{ backgroundColor: color1 }}>
-            {logoBase64 ? <img src={logoBase64} alt="" className="w-full h-full object-contain p-1" /> : <Upload className="h-5 w-5 text-white" />}
-            <input type="file" accept="image/*" className="hidden" onChange={handleLogo} />
-          </label>
-          <div className="flex-1 grid grid-cols-2 gap-2">
-            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Nombre del equipo</Label><Input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: Angol FC" /></div>
-            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Abreviatura (3 letras)</Label><Input value={nombreCorto} onChange={(e) => setNombreCorto(e.target.value.toUpperCase().slice(0, 3))} placeholder="ANG" maxLength={3} className="font-mono uppercase" /></div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Col 1: Identidad */}
+        <div>
+          <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-1.5"><Shield className="h-3.5 w-3.5" /> Identidad</h4>
+          <div className="space-y-2">
+            <label className="flex items-center justify-center w-full h-16 rounded-[var(--radius-sm)] border-2 border-dashed border-[var(--border)] cursor-pointer overflow-hidden hover:border-[var(--accent)] transition-colors" style={{ backgroundColor: color1 }}>
+              {logoBase64 ? <img src={logoBase64} alt="" className="w-full h-full object-contain p-1" /> : <Upload className="h-5 w-5 text-white" />}
+              <input type="file" accept="image/*" className="hidden" onChange={handleLogo} />
+            </label>
+            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Nombre</Label><Input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: Angol FC" /></div>
+            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Abreviatura</Label><Input value={nombreCorto} onChange={(e) => setNombreCorto(e.target.value.toUpperCase().slice(0, 3))} placeholder="ANG" maxLength={3} className="font-mono uppercase" /></div>
           </div>
         </div>
-      </div>
 
-      {/* Sección: Clasificación */}
-      <div>
-        <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-1.5"><Shield className="h-3.5 w-3.5" /> Clasificación Deportiva</h4>
-        <div className="grid grid-cols-2 gap-2">
-          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Deporte</Label>
-            <Select value={deporteId} onValueChange={(v) => { setDeporteId(v); setDivisionId(''); }}>
-              <SelectTrigger><SelectValue placeholder="Seleccionar deporte" /></SelectTrigger>
-              <SelectContent>{deportes.filter((d) => d.activo).map((d) => <SelectItem key={d.id} value={d.id}><span className="flex items-center gap-1.5"><SportIcon sport={d.icono} size={14} /><span>{d.nombre}</span></span></SelectItem>)}</SelectContent>
-            </Select>
+        {/* Col 2: Clasificacion Deportiva */}
+        <div>
+          <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-1.5"><Shield className="h-3.5 w-3.5" /> Clasificacion</h4>
+          <div className="space-y-2">
+            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Deporte</Label>
+              <Select value={deporteId} onValueChange={(v) => { setDeporteId(v); setDivisionId(''); }}>
+                <SelectTrigger><SelectValue placeholder="Seleccionar deporte" /></SelectTrigger>
+                <SelectContent>{deportes.filter((d) => d.activo).map((d) => <SelectItem key={d.id} value={d.id}><span className="flex items-center gap-1.5"><SportIcon sport={d.icono} size={14} /><span>{d.nombre}</span></span></SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Division / Liga</Label>
+              <Select value={divisionId} onValueChange={setDivisionId} disabled={!deporteId}>
+                <SelectTrigger><SelectValue placeholder={deporteId ? 'Seleccionar division' : 'Primero elige deporte'} /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Sin division</SelectItem>
+                  {[...filteredDivisiones].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es')).map((d) => <SelectItem key={d.id} value={d.id}>{d.nombre} ({d.temporada})</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <label className="flex items-center gap-2 cursor-pointer pt-1">
+              <input type="checkbox" checked={esPrincipal} onChange={(e) => setEsPrincipal(e.target.checked)} className="w-4 h-4 rounded border-[var(--border)] text-[var(--accent)]" />
+              <span className="text-xs text-[var(--text-secondary)]">Club principal</span>
+            </label>
+            {esPrincipal && <p className="text-[10px] text-amber-500">Destacado en home y posiciones.</p>}
           </div>
-          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">División / Liga</Label>
-            <Select value={divisionId} onValueChange={setDivisionId} disabled={!deporteId}>
-              <SelectTrigger><SelectValue placeholder={deporteId ? 'Seleccionar división' : 'Primero elige deporte'} /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">Sin división</SelectItem>
-                {[...filteredDivisiones].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es')).map((d) => <SelectItem key={d.id} value={d.id}>{d.nombre} ({d.temporada})</SelectItem>)}
-              </SelectContent>
-            </Select>
+        </div>
+
+        {/* Col 3: Ubicacion */}
+        <div>
+          <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" /> Ubicacion</h4>
+          <div className="space-y-2">
+            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Ciudad</Label><Input value={ciudad} onChange={(e) => setCiudad(e.target.value)} placeholder="Angol" /></div>
+            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Estadio</Label><Input value={estadio} onChange={(e) => setEstadio(e.target.value)} placeholder="Estadio Angol" /></div>
+            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Anio fundacion</Label><Input type="number" value={fundacion} onChange={(e) => setFundacion(e.target.value)} placeholder="2020" /></div>
           </div>
         </div>
-      </div>
 
-      {/* Sección: Ubicación */}
-      <div>
-        <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" /> Ubicación</h4>
-        <div className="grid grid-cols-3 gap-2">
-          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Ciudad</Label><Input value={ciudad} onChange={(e) => setCiudad(e.target.value)} placeholder="Angol" /></div>
-          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Estadio / Cancha</Label><Input value={estadio} onChange={(e) => setEstadio(e.target.value)} placeholder="Estadio Angol" /></div>
-          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Año fundación</Label><Input type="number" value={fundacion} onChange={(e) => setFundacion(e.target.value)} placeholder="2020" /></div>
-        </div>
-      </div>
-
-      {/* Sección: Contacto */}
-      <div>
-        <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-1.5"><User className="h-3.5 w-3.5" /> Directiva y Contacto</h4>
-        <div className="grid grid-cols-3 gap-2">
-          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Entrenador / DT</Label><Input value={entrenador} onChange={(e) => setEntrenador(e.target.value)} placeholder="Nombre del DT" /></div>
-          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Presidente</Label><Input value={presidente} onChange={(e) => setPresidente(e.target.value)} /></div>
-          <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Teléfono</Label><Input value={telefono} onChange={(e) => setTelefono(e.target.value)} placeholder="+56 9 ..." /></div>
-        </div>
-      </div>
-
-      {/* Sección: Club Principal */}
-      <div>
-        <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-1.5"><Shield className="h-3.5 w-3.5" /> Club Principal</h4>
-        <label className="flex items-center gap-2 cursor-pointer">
-          <input type="checkbox" checked={esPrincipal} onChange={(e) => setEsPrincipal(e.target.checked)} className="w-4 h-4 rounded border-[var(--border)] text-[var(--accent)]" />
-          <span className="text-xs text-[var(--text-secondary)]">Marcar como club principal de la plataforma</span>
-        </label>
-        {esPrincipal && <p className="text-[10px] text-amber-500 mt-1">Este equipo será destacado en la página principal, posiciones y marcadores.</p>}
-      </div>
-
-      {/* Sección: Identidad Visual */}
-      <div>
-        <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-1.5"><Palette className="h-3.5 w-3.5" /> Identidad Visual</h4>
-        <div className="flex items-center gap-4">
+        {/* Col 4: Contacto + Visual */}
+        <div>
+          <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-1.5"><User className="h-3.5 w-3.5" /> Directiva</h4>
+          <div className="space-y-2">
+            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Entrenador / DT</Label><Input value={entrenador} onChange={(e) => setEntrenador(e.target.value)} placeholder="Nombre del DT" /></div>
+            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Presidente</Label><Input value={presidente} onChange={(e) => setPresidente(e.target.value)} /></div>
+            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Telefono</Label><Input value={telefono} onChange={(e) => setTelefono(e.target.value)} placeholder="+56 9 ..." /></div>
+          </div>
+          <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2 mt-3 flex items-center gap-1.5"><Palette className="h-3.5 w-3.5" /> Colores</h4>
           <div className="flex items-center gap-2">
-            <Label className="text-xs text-[var(--text-muted)]">Color 1</Label>
-            <input type="color" value={color1} onChange={(e) => setColor1(e.target.value)} className="w-9 h-9 rounded-[var(--radius-xs)] cursor-pointer border border-[var(--border)]" />
-          </div>
-          <div className="flex items-center gap-2">
-            <Label className="text-xs text-[var(--text-muted)]">Color 2</Label>
-            <input type="color" value={color2} onChange={(e) => setColor2(e.target.value)} className="w-9 h-9 rounded-[var(--radius-xs)] cursor-pointer border border-[var(--border)]" />
-          </div>
-          <div className="flex items-center gap-2">
-            <Label className="text-xs text-[var(--text-muted)]">Previsualización</Label>
-            <div className="w-9 h-9 rounded-[var(--radius-xs)] border border-[var(--border)]" style={{ background: `linear-gradient(135deg, ${color1}, ${color2})` }} />
+            <div className="flex items-center gap-1.5"><Label className="text-[10px] text-[var(--text-muted)]">1</Label><input type="color" value={color1} onChange={(e) => setColor1(e.target.value)} className="w-8 h-8 rounded-[var(--radius-xs)] cursor-pointer border border-[var(--border)]" /></div>
+            <div className="flex items-center gap-1.5"><Label className="text-[10px] text-[var(--text-muted)]">2</Label><input type="color" value={color2} onChange={(e) => setColor2(e.target.value)} className="w-8 h-8 rounded-[var(--radius-xs)] cursor-pointer border border-[var(--border)]" /></div>
+            <div className="w-8 h-8 rounded-[var(--radius-xs)] border border-[var(--border)]" style={{ background: `linear-gradient(135deg, ${color1}, ${color2})` }} />
           </div>
         </div>
       </div>

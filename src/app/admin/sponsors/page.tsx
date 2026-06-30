@@ -48,7 +48,7 @@ export default function AdminSponsorsPage() {
         <div><h2 className="text-lg font-bold text-[var(--text)]">Sponsors</h2><p className="text-sm text-[var(--text-secondary)]">{sponsors.length} sponsors registrados</p></div>
         <Dialog open={showCreate && !editing} onOpenChange={setShowCreate}>
           <DialogTrigger asChild><Button><Plus className="h-4 w-4 mr-1.5" /> Nuevo Sponsor</Button></DialogTrigger>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-[1000px] mx-4">
             <DialogHeader><DialogTitle>Nuevo Sponsor</DialogTitle></DialogHeader>
             <DialogBody><SponsorForm onClose={() => setShowCreate(false)} /></DialogBody>
           </DialogContent>
@@ -94,7 +94,7 @@ export default function AdminSponsorsPage() {
       )}
 
       <Dialog open={showCreate && !!editing} onOpenChange={(o) => { if (!o) { setEditing(null); setShowCreate(false); }}}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-[1000px] mx-4">
           <DialogHeader><DialogTitle>Editar Sponsor</DialogTitle></DialogHeader>
           <DialogBody>{editing && <SponsorForm sponsor={editing} onClose={() => { setEditing(null); setShowCreate(false); }} />}</DialogBody>
         </DialogContent>
