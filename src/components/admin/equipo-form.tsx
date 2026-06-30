@@ -24,6 +24,9 @@ export function EquipoForm({ equipo, onClose, defaultDeporteId, defaultDivisionI
   const [divisionId, setDivisionId] = useState(equipo?.divisionId || defaultDivisionId || '');
   const [ciudad, setCiudad] = useState(equipo?.ciudad || '');
   const [region, setRegion] = useState(equipo?.region || '');
+  const [capacidad, setCapacidad] = useState(equipo?.capacidad?.toString() || '');
+  const [proveedor, setProveedor] = useState(equipo?.proveedor || '');
+  const [auspiciador, setAuspiciador] = useState(equipo?.auspiciador || '');
   const [estadio, setEstadio] = useState(equipo?.estadio || '');
   const [fundacion, setFundacion] = useState(equipo?.fundacion?.toString() || '');
   const [entrenador, setEntrenador] = useState(equipo?.entrenador || '');
@@ -75,6 +78,9 @@ export function EquipoForm({ equipo, onClose, defaultDeporteId, defaultDivisionI
         divisionId: divisionId || '',
         ciudad: ciudad.trim(),
         region: region.trim(),
+        capacidad: parseInt(capacidad) || 0,
+        proveedor: proveedor.trim(),
+        auspiciador: auspiciador.trim(),
         estadio: estadio.trim(),
         fundacion: parseInt(fundacion) || 0,
         entrenador: entrenador.trim(),
@@ -129,6 +135,9 @@ export function EquipoForm({ equipo, onClose, defaultDeporteId, defaultDivisionI
     if (equipo) {
       setPresidente((equipo as any).presidente || '');
       setRegion(equipo.region || '');
+      setCapacidad(equipo.capacidad?.toString() || '');
+      setProveedor(equipo.proveedor || '');
+      setAuspiciador(equipo.auspiciador || '');
       setTelefono((equipo as any).telefono || '');
       setEmail((equipo as any).email || '');
     }
@@ -187,17 +196,23 @@ export function EquipoForm({ equipo, onClose, defaultDeporteId, defaultDivisionI
             <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Ciudad</Label><Input value={ciudad} onChange={(e) => setCiudad(e.target.value)} placeholder="Angol" /></div>
             <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Region</Label><Input value={region} onChange={(e) => setRegion(e.target.value)} placeholder="La Araucania" /></div>
             <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Estadio</Label><Input value={estadio} onChange={(e) => setEstadio(e.target.value)} placeholder="Estadio Angol" /></div>
+            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Capacidad</Label><Input type="number" value={capacidad} onChange={(e) => setCapacidad(e.target.value)} placeholder="5000" /></div>
             <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Anio fundacion</Label><Input type="number" value={fundacion} onChange={(e) => setFundacion(e.target.value)} placeholder="2020" /></div>
           </div>
         </div>
 
-        {/* Col 4: Contacto + Visual */}
+        {/* Col 4: Contacto + Marca */}
         <div>
           <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3 flex items-center gap-1.5"><User className="h-3.5 w-3.5" /> Directiva</h4>
           <div className="space-y-2">
             <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Entrenador / DT</Label><Input value={entrenador} onChange={(e) => setEntrenador(e.target.value)} placeholder="Nombre del DT" /></div>
             <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Presidente</Label><Input value={presidente} onChange={(e) => setPresidente(e.target.value)} /></div>
             <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Telefono</Label><Input value={telefono} onChange={(e) => setTelefono(e.target.value)} placeholder="+56 9 ..." /></div>
+          </div>
+          <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2 mt-3 flex items-center gap-1.5"><Shield className="h-3.5 w-3.5" /> Marca</h4>
+          <div className="space-y-2">
+            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Proveedor</Label><Input value={proveedor} onChange={(e) => setProveedor(e.target.value)} placeholder="Nike" /></div>
+            <div className="space-y-1"><Label className="text-xs text-[var(--text-muted)]">Auspiciador</Label><Input value={auspiciador} onChange={(e) => setAuspiciador(e.target.value)} placeholder="Coca Cola" /></div>
           </div>
           <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2 mt-3 flex items-center gap-1.5"><Palette className="h-3.5 w-3.5" /> Colores</h4>
           <div className="flex items-center gap-2">

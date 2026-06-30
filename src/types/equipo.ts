@@ -11,6 +11,9 @@ export interface Equipo {
   estadio: string;
   ciudad: string;
   region: string;
+  capacidad: number;
+  proveedor: string;
+  auspiciador: string;
   entrenador: string;
   activo: boolean;
   esPrincipal: boolean;

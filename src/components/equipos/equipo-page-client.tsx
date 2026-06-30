@@ -9,7 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/shared/empty-state';
 import type { Equipo } from '@/types/equipo';
 import type { Partido } from '@/types/partido';
-import { ArrowLeft, Calendar, Users, MapPin, CalendarDays, ChevronRight, Shirt, Swords } from 'lucide-react';
+import { ArrowLeft, Calendar, Users, MapPin, CalendarDays, ChevronRight, Shirt, Swords, Building } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function EquipoPageClient({ equipoId }: { equipoId: string }) {
@@ -117,7 +117,10 @@ export function EquipoPageClient({ equipoId }: { equipoId: string }) {
               <h1 className="text-2xl md:text-4xl font-black font-display text-white drop-shadow-lg">{equipo.nombre}</h1>
               <div className="flex flex-wrap gap-x-4 gap-y-2 mt-2 text-sm text-white/60">
                 <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{equipo.ciudad || '—'}{equipo.region ? `, ${equipo.region}` : ''}</span>
-                {equipo.estadio && <span className="flex items-center gap-1">🏟️ {equipo.estadio}</span>}
+                {equipo.estadio && <span className="flex items-center gap-1"><Building className="h-3.5 w-3.5" /> {equipo.estadio}</span>}
+                {equipo.capacidad > 0 && <span className="flex items-center gap-1"><Users className="h-3.5 w-3.5" />{equipo.capacidad} esp.</span>}
+                {equipo.proveedor && <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-white/5 border border-white/10">{equipo.proveedor}</span>}
+                {equipo.auspiciador && <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-white/5 border border-white/10">{equipo.auspiciador}</span>}
                 {equipo.fundacion ? <span className="flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" />Fundado {equipo.fundacion}</span> : null}
                 <span className="flex items-center gap-1"><Users className="h-3.5 w-3.5" />{jugadores.length} jugadores</span>
               </div>

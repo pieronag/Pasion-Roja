@@ -10,7 +10,7 @@ import {
   Trophy, Shield, Users, Swords, TrendingUp,
   HeartHandshake, MessageCircle, History, LogOut, Zap,
   CalendarDays, PanelLeftClose, PanelLeft, Radio,
-  Layers, Medal, Building,
+  Layers, Medal, RefreshCw,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
@@ -44,7 +44,7 @@ const navSections: { label: string; items: NavItem[] }[] = [
     { href: '/admin/contacto', label: 'Contacto', icon: MessageCircle },
     { href: '/admin/historial', label: 'Historial', icon: History },
     { href: '/admin/importar-jugadores', label: 'Importar', icon: Users },
-    { href: '/admin/actualizar-clubes', label: 'Clubes', icon: Building },
+    { href: '/admin/actualizar-datos', label: 'Actualizar', icon: RefreshCw },
   ]},
 ];
 

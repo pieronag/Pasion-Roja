@@ -59,7 +59,7 @@ export function MarcadorForm() {
     );
     const unsub = onSnapshot(q, (snap) => {
       const partidos = snap.docs.map(d => ({ id: d.id, ...d.data() } as Partido));
-      partidos.sort((a, b) => b.fecha - a.fecha);
+      partidos.sort((a, b) => a.fecha - b.fecha);
       const next = partidos.find(p => p.estado === 'programado');
       setProximoPartido(next || null);
     }, (err) => console.warn('Error loading next match:', err));

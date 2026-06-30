@@ -24,6 +24,7 @@ const pageLabels: Record<string, string> = {
   'historial': 'Historial',
   'importar-jugadores': 'Importar Jugadores',
   'actualizar-clubes': 'Actualizar Clubes',
+  'actualizar-datos': 'Actualizar Datos',
 };
 
 export function Breadcrumbs() {
