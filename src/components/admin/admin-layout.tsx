@@ -43,6 +43,7 @@ const navSections: { label: string; items: NavItem[] }[] = [
     { href: '/admin/sponsors', label: 'Sponsors', icon: HeartHandshake },
     { href: '/admin/contacto', label: 'Contacto', icon: MessageCircle },
     { href: '/admin/historial', label: 'Historial', icon: History },
+    { href: '/admin/importar-jugadores', label: 'Importar', icon: Users },
   ]},
 ];
 
