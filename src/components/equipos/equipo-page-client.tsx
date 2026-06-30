@@ -115,8 +115,9 @@ export function EquipoPageClient({ equipoId }: { equipoId: string }) {
                 {equipo.entrenador && <span className="text-[10px] text-white/50">DT: {equipo.entrenador}</span>}
               </div>
               <h1 className="text-2xl md:text-4xl font-black font-display text-white drop-shadow-lg">{equipo.nombre}</h1>
-              <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-sm text-white/60">
-                <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{equipo.ciudad || equipo.estadio || '—'}{equipo.region ? `, ${equipo.region}` : ''}</span>
+              <div className="flex flex-wrap gap-x-4 gap-y-2 mt-2 text-sm text-white/60">
+                <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{equipo.ciudad || '—'}{equipo.region ? `, ${equipo.region}` : ''}</span>
+                {equipo.estadio && <span className="flex items-center gap-1">🏟️ {equipo.estadio}</span>}
                 {equipo.fundacion ? <span className="flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" />Fundado {equipo.fundacion}</span> : null}
                 <span className="flex items-center gap-1"><Users className="h-3.5 w-3.5" />{jugadores.length} jugadores</span>
               </div>
@@ -191,7 +192,7 @@ export function EquipoPageClient({ equipoId }: { equipoId: string }) {
                   </div>
                   <div className="text-right flex-shrink-0">
                     <p className="text-xs font-semibold text-[var(--accent)]">Jornada {p.jornada}</p>
-                    <p className="text-[10px] text-white/30">{p.estadio || '—'}</p>
+                    <p className="text-[10px] text-white/30">{p.estadio || equiposMap[p.equipoLocalId]?.estadio || '—'}</p>
                   </div>
                 </div>
               ))}
