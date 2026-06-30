@@ -38,6 +38,26 @@ export function useCronometro(partidoId: string, initialData?: Partial<Cronometr
   const [marcadorLocal, setMarcadorLocal] = useState(0);
   const [marcadorVisita, setMarcadorVisita] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const initialDataRef = useRef(initialData);
+  const firstRender = useRef(true);
+
+  // Re-sync when initialData arrives after mount (e.g. Firestore data loads async)
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      initialDataRef.current = initialData;
+      return;
+    }
+    if (!initialData || initialData === initialDataRef.current) return;
+    initialDataRef.current = initialData;
+    if (initialData.estadoTiempo) setEstadoTiempo(initialData.estadoTiempo);
+    if (initialData.minutoDisplay !== undefined) setMinutoDisplay(initialData.minutoDisplay);
+    if (initialData.minutoSegundos !== undefined) setMinutoSegundos(initialData.minutoSegundos);
+    if (initialData.tiempoInicio !== undefined) setTiempoInicio(initialData.tiempoInicio);
+    if (initialData.inicioPartido !== undefined) setInicioPartido(initialData.inicioPartido);
+    if (initialData.penalesLocal !== undefined) setPenalesLocal(initialData.penalesLocal);
+    if (initialData.penalesVisita !== undefined) setPenalesVisita(initialData.penalesVisita);
+  }, [initialData]);
 
   // Escribe en Firestore
   const syncToFirestore = useCallback(async (data: any) => {
