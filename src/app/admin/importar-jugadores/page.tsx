@@ -175,10 +175,14 @@ const POSITION_MAP: Record<string, string> = {
   portero: 'Portero',
 };
 
+function normalize(s: string) {
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9\s]/g, '');
+}
+
 function matchEquipo(rawName: string, equipos: Equipo[]): Equipo | null {
-  const q = rawName.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const q = normalize(rawName);
   for (const eq of equipos) {
-    const eqName = eq.nombre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const eqName = normalize(eq.nombre);
     if (eqName.includes(q) || q.includes(eqName)) return eq;
   }
   return null;
