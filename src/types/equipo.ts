@@ -10,6 +10,7 @@ export interface Equipo {
   fundacion: number;
   estadio: string;
   ciudad: string;
+  region: string;
   entrenador: string;
   activo: boolean;
   esPrincipal: boolean;

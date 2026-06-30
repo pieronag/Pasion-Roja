@@ -122,7 +122,7 @@ export default function AdminEquiposPage() {
                     </td>
                     <td className="p-3 text-sm text-[var(--text-secondary)] hidden md:table-cell"><span className="flex items-center gap-1.5"><SportIcon sport={deporte?.icono || ''} size={14} /><span>{deporte?.nombre || '—'}</span></span></td>
                     <td className="p-3 text-sm text-[var(--text-secondary)] hidden lg:table-cell">{division?.nombre || <span className="text-[var(--text-muted)]">—</span>}</td>
-                    <td className="p-3 text-sm text-[var(--text-secondary)] hidden md:table-cell"><div className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{e.ciudad || e.estadio || '—'}</div></td>
+                    <td className="p-3 text-sm text-[var(--text-secondary)] hidden md:table-cell"><div className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{e.ciudad || e.estadio || '—'}{e.region ? `, ${e.region}` : ''}</div></td>
                     <td className="p-3 text-right">
                       <div className="flex items-center justify-end gap-1">
                         <Link href={`/admin/equipos/${e.id}/jugadores`}><Button variant="ghost" size="sm" className="h-7 text-xs"><Users className="h-3 w-3 mr-1" /> Plantilla</Button></Link>

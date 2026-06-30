@@ -26,7 +26,7 @@ export function EquipoCard({ equipo }: { equipo: Equipo }) {
           {equipo.nombre}
         </h3>
         <p className="text-xs text-[var(--text-secondary)] flex items-center gap-1 mt-0.5">
-          <MapPin className="h-3 w-3" /> {equipo.ciudad || equipo.estadio}
+          <MapPin className="h-3 w-3" /> {equipo.ciudad || equipo.estadio}{equipo.region ? `, ${equipo.region}` : ''}
         </p>
       </div>
     </Link>

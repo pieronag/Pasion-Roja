@@ -62,7 +62,7 @@ export function ClubCard({ equipo, esPrincipal, deporteNombre }: ClubCardProps) 
           <p className="text-xs text-[var(--text-secondary)] mt-0.5">{deporteNombre || '-'}</p>
           {(equipo.ciudad || equipo.estadio) && (
             <p className="text-[10px] text-[var(--text-muted)] mt-0.5 flex items-center gap-1">
-              <MapPin className="h-3 w-3" /> {equipo.ciudad || equipo.estadio}
+              <MapPin className="h-3 w-3" /> {equipo.ciudad || equipo.estadio}{equipo.region ? `, ${equipo.region}` : ''}
             </p>
           )}
           {ultimos5.length > 0 && (

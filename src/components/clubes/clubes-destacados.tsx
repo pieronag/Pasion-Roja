@@ -31,7 +31,9 @@ export function ClubesDestacados() {
     (
       e.nombre.toUpperCase().includes('MALLECO') ||
       e.ciudad?.toUpperCase().includes('ANGOL') ||
-      e.ciudad?.toUpperCase().includes('MALLECO')
+      e.ciudad?.toUpperCase().includes('MALLECO') ||
+      e.region?.toUpperCase().includes('ANGOL') ||
+      e.region?.toUpperCase().includes('MALLECO')
     )
   ).sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
 

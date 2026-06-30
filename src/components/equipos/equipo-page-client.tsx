@@ -116,7 +116,7 @@ export function EquipoPageClient({ equipoId }: { equipoId: string }) {
               </div>
               <h1 className="text-2xl md:text-4xl font-black font-display text-white drop-shadow-lg">{equipo.nombre}</h1>
               <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-sm text-white/60">
-                <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{equipo.ciudad || equipo.estadio || '—'}</span>
+                <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{equipo.ciudad || equipo.estadio || '—'}{equipo.region ? `, ${equipo.region}` : ''}</span>
                 {equipo.fundacion ? <span className="flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" />Fundado {equipo.fundacion}</span> : null}
                 <span className="flex items-center gap-1"><Users className="h-3.5 w-3.5" />{jugadores.length} jugadores</span>
               </div>

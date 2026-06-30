@@ -23,6 +23,7 @@ const pageLabels: Record<string, string> = {
   'contacto': 'Contacto',
   'historial': 'Historial',
   'importar-jugadores': 'Importar Jugadores',
+  'actualizar-clubes': 'Actualizar Clubes',
 };
 
 export function Breadcrumbs() {
