@@ -91,16 +91,14 @@ export function useCronometro(partidoId: string, initialData?: Partial<Cronometr
       const display = total.toString();
       setMinutoDisplay(display);
 
-      // Sync a Firestore cada 3 segundos para no saturar
-      if (segundos % 3 === 0) {
-        syncToFirestore({
-          minuto: display,
-          minutoSegundos: segundos,
-          estadoTiempo,
-          tiempoInicio,
-          inicioPartido,
-        });
-      }
+      // Sync a Firestore en cada tic
+      syncToFirestore({
+        minuto: display,
+        minutoSegundos: segundos,
+        estadoTiempo,
+        tiempoInicio,
+        inicioPartido,
+      });
     }, 1000);
 
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };

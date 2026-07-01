@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { BadgeEnVivo } from '@/components/shared/badge-en-vivo';
 import { CronometroPartido } from '@/components/admin/cronometro-partido';
-import { Swords, RotateCcw, Save, AlertCircle, CheckCircle2, Plus, Clock, MapPin, X, Trash2, Square } from 'lucide-react';
+import { Swords, AlertCircle, CheckCircle2, Plus, Clock, MapPin, X, Trash2, Square } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import type { Partido, EventoPartido } from '@/types/partido';
@@ -25,7 +25,6 @@ export function MarcadorForm() {
   const [marcadorLocal, setMarcadorLocal] = useState(0);
   const [marcadorVis, setMarcadorVis] = useState(0);
   const [mostrarOpcionesEmpate, setMostrarOpcionesEmpate] = useState(false);
-  const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [countdown, setCountdown] = useState('');
@@ -135,31 +134,6 @@ export function MarcadorForm() {
   const proxLocalNombre = proxLocal?.nombre || proximoPartido?.equipoLocalNombre || '';
   const proxVisNombre = proxVis?.nombre || proximoPartido?.equipoVisitaNombre || '';
 
-  const submitScore = async (local: number, vis: number) => {
-    if (!partidoId) return;
-    setSaving(true);
-    setError(''); setSuccess('');
-    try {
-      await setDoc(doc(db, 'partidos_en_vivo', 'actual'), {
-        equipoLocal: localNombre, equipoVis: visNombre,
-        equipoLocalId: partidoEnVivo?.equipoLocalId,
-        equipoVisitaId: partidoEnVivo?.equipoVisitaId,
-        marcadorLocal: local, marcadorVis: vis,
-        minuto: crono.minutoDisplay,
-        estadoTiempo: crono.estadoTiempo,
-        penalesLocal: crono.penalesLocal, penalesVisita: crono.penalesVisita,
-        actualizadoEn: Date.now(),
-      }, { merge: true });
-      await updateDoc(doc(db, 'partidos', partidoId), {
-        marcadorLocal: local, marcadorVisita: vis, minuto: crono.minutoDisplay,
-        estadoTiempo: crono.estadoTiempo, actualizadoEn: Date.now(),
-      });
-      setSuccess('Marcador actualizado');
-      setTimeout(() => setSuccess(''), 2000);
-    } catch (err: any) { setError(err.message); }
-    finally { setSaving(false); }
-  };
-
   useEffect(() => { crono.setMarcadorLocal(marcadorLocal); }, [marcadorLocal]);
   useEffect(() => { crono.setMarcadorVisita(marcadorVis); }, [marcadorVis]);
 
@@ -251,7 +225,6 @@ export function MarcadorForm() {
     }
   };
 
-  const handleSubmit = () => submitScore(marcadorLocal, marcadorVis);
   const activeMatch = partidoEnVivo;
 
   const handleFinalizar = async () => {
@@ -366,6 +339,25 @@ export function MarcadorForm() {
                     </Button>
                   </div>
                 </div>
+                </div>
+
+              {/* === Cronometro inline === */}
+              <div className="px-6 pb-3">
+                <CronometroPartido
+                  estadoTiempo={crono.estadoTiempo}
+                  minutoDisplay={crono.minutoDisplay}
+                  hayEmpate={crono.hayEmpate}
+                  puedeTE={true}
+                  puedePenales={true}
+                  onIniciar1T={crono.iniciarPrimerTiempo}
+                  onDescanso={crono.pausarDescanso}
+                  onIniciar2T={crono.iniciarSegundoTiempo}
+                  onTE1={handleTE1}
+                  onDescansoTE={crono.pausarDescansoTE}
+                  onTE2={crono.iniciarTE2}
+                  onPenales={handlePenales}
+                  onFinalizar={handleFinalizar}
+                />
               </div>
 
               {/* === Penales inline === */}
@@ -403,17 +395,6 @@ export function MarcadorForm() {
                 </div>
               )}
 
-              {/* === Save / Reset === */}
-              <div className={cardHeaderCls}>
-                <div className="flex gap-3">
-                  <Button onClick={handleSubmit} loading={saving} size="full" className={`${btnSporty} bg-gradient-to-r from-[var(--accent)] to-[var(--accent-hover)] h-10`}>
-                    <Save className="h-4 w-4 mr-1.5" /> Guardar Marcador
-                  </Button>
-                  <Button onClick={() => { setMarcadorLocal(0); setMarcadorVis(0); }} size="icon" className={`${btnSporty} h-10 w-10 bg-white/5 border-white/10 hover:bg-white/20 text-white/50 hover:text-white`}>
-                    <RotateCcw className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
             </div>
           </div>
         ) : (
@@ -465,25 +446,11 @@ export function MarcadorForm() {
             </div>
           </div>
         )}
-
-        {activeMatch && (
-          <CronometroPartido
-            estadoTiempo={crono.estadoTiempo}
-            minutoDisplay={crono.minutoDisplay}
-            hayEmpate={crono.hayEmpate}
-            puedeTE={true}
-            puedePenales={true}
-            onIniciar1T={crono.iniciarPrimerTiempo}
-            onDescanso={crono.pausarDescanso}
-            onIniciar2T={crono.iniciarSegundoTiempo}
-            onTE1={handleTE1}
-            onDescansoTE={crono.pausarDescansoTE}
-            onTE2={crono.iniciarTE2}
-            onPenales={handlePenales}
-            onFinalizar={handleFinalizar}
-          />
-        )}
       </div>
+
+      {/* Error / Success */}
+      {error && <div className="flex items-center gap-2 p-2.5 rounded-[var(--radius-sm)] bg-red-500/10 border border-red-500/20 text-xs text-red-400"><AlertCircle className="h-4 w-4 text-red-400 flex-shrink-0" /><p>{error}</p></div>}
+      {success && <div className="flex items-center gap-2 p-2.5 rounded-[var(--radius-sm)] bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-400"><CheckCircle2 className="h-4 w-4 text-emerald-400" /><p>{success}</p></div>}
 
       {/* Right sidebar */}
       <div className="space-y-4">
@@ -527,7 +494,7 @@ export function MarcadorForm() {
                     </div>
                     <EventIcon tipo={e.tipo} />
                     <span className="font-bold text-white">{e.jugador}</span>
-                    <span className="text-white/30 ml-auto font-mono">{e.minuto}</span>
+                    <span className="text-white/30 ml-auto font-mono">{e.minuto}'</span>
                     <button onClick={() => anularEvento(e)} className="p-0.5 rounded opacity-0 group-hover:opacity-100 hover:bg-red-500/20 text-red-400 transition-all flex-shrink-0"><Trash2 className="h-3 w-3" /></button>
                   </div>
                 );
