@@ -26,9 +26,16 @@ export function TopScorers({ rankings, statKey, title, equiposMap, principalEqui
   const icons = [Trophy, Medal, Medal];
   const colors = ['text-yellow-400', 'text-gray-300', 'text-amber-600'];
 
+  const sorted = [...rankings].sort((a, b) => {
+    if (b.valor !== a.valor) return b.valor - a.valor;
+    const aPri = a.equipoId === principalEquipoId ? 1 : 0;
+    const bPri = b.equipoId === principalEquipoId ? 1 : 0;
+    return bPri - aPri;
+  });
+
   return (
     <div className="space-y-1">
-      {rankings.map((r, i) => {
+      {sorted.map((r, i) => {
         const Icon = icons[i] || Medal;
         const equipo = equiposMap?.[r.equipoId];
         const esPrincipal = principalEquipoId === r.equipoId;

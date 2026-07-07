@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { BadgeEnVivo } from '@/components/shared/badge-en-vivo';
 import { CronometroPartido } from '@/components/admin/cronometro-partido';
-import { Swords, AlertCircle, CheckCircle2, Plus, Clock, MapPin, X, Trash2, Square } from 'lucide-react';
+import { Swords, AlertCircle, CheckCircle2, Plus, Clock, MapPin, X, Trash2, Square, SkipForward } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import type { Partido, EventoPartido } from '@/types/partido';
@@ -275,12 +275,9 @@ export function MarcadorForm() {
             <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5" />
             <div className="relative z-10">
               <div className={cardHeaderCls}>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="text-xs font-semibold text-white/70 uppercase tracking-wider">En vivo</span>
-                  </div>
-                  <Badge variant="secondary" className="text-[10px] font-mono bg-white/5 text-white/60 border-white/10">{formatMinuto()}</Badge>
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-xs font-semibold text-white/70 uppercase tracking-wider">En vivo</span>
                 </div>
               </div>
               <div className="p-6">
@@ -291,10 +288,13 @@ export function MarcadorForm() {
                     </div>
                     <p className="text-sm font-bold text-white text-center leading-tight drop-shadow">{localNombre}</p>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Input type="number" min={0} value={marcadorLocal} onChange={(e) => setMarcadorLocal(parseInt(e.target.value) || 0)} className="w-20 text-center text-4xl md:text-5xl font-black font-display h-16 bg-white/5 border-white/10 text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" />
-                    <span className="text-3xl md:text-4xl font-black text-white/20">:</span>
-                    <Input type="number" min={0} value={marcadorVis} onChange={(e) => setMarcadorVis(parseInt(e.target.value) || 0)} className="w-20 text-center text-4xl md:text-5xl font-black font-display h-16 bg-white/5 border-white/10 text-white focus:border-red-500 focus:ring-1 focus:ring-red-500" />
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="text-2xl md:text-3xl font-black font-display text-emerald-400 tracking-wider drop-shadow-lg">{formatMinuto()}</div>
+                    <div className="flex items-center gap-3">
+                      <Input type="number" min={0} value={marcadorLocal} onChange={(e) => setMarcadorLocal(parseInt(e.target.value) || 0)} className="w-20 text-center text-4xl md:text-5xl font-black font-display h-16 bg-white/5 border-white/10 text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" />
+                      <span className="text-3xl md:text-4xl font-black text-white/20">:</span>
+                      <Input type="number" min={0} value={marcadorVis} onChange={(e) => setMarcadorVis(parseInt(e.target.value) || 0)} className="w-20 text-center text-4xl md:text-5xl font-black font-display h-16 bg-white/5 border-white/10 text-white focus:border-red-500 focus:ring-1 focus:ring-red-500" />
+                    </div>
                   </div>
                   <div className="flex flex-col items-center gap-2 flex-1">
                     <div className="w-24 h-24 flex items-center justify-center">
@@ -345,10 +345,6 @@ export function MarcadorForm() {
               <div className="px-6 pb-3">
                 <CronometroPartido
                   estadoTiempo={crono.estadoTiempo}
-                  minutoDisplay={crono.minutoDisplay}
-                  hayEmpate={crono.hayEmpate}
-                  puedeTE={true}
-                  puedePenales={true}
                   onIniciar1T={crono.iniciarPrimerTiempo}
                   onDescanso={crono.pausarDescanso}
                   onIniciar2T={crono.iniciarSegundoTiempo}
@@ -391,6 +387,9 @@ export function MarcadorForm() {
                     <Button onClick={handlePenales} size="sm" className={`${btnSporty} bg-gradient-to-r from-red-600 to-rose-600 h-9`}>
                       <img src="/icons/soccer.svg" alt="" className={`h-3.5 w-3.5 mr-1 ${soccerIconWhite}`} /> Penales
                     </Button>
+                    <Button onClick={async () => { setMostrarOpcionesEmpate(false); await crono.finalizarPartido(); }} size="sm" className={`${btnSporty} bg-gradient-to-r from-slate-600 to-slate-500 h-9`}>
+                      <SkipForward className="h-3.5 w-3.5 mr-1" /> Finalizar
+                    </Button>
                   </div>
                 </div>
               )}
@@ -413,35 +412,54 @@ export function MarcadorForm() {
         {/* Player Picker Modal */}
         {showPlayerPicker && (
           <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowPlayerPicker(null)}>
-            <div className="bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460] rounded-2xl border border-white/10 w-full max-w-md max-h-[75vh] overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
-              <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-white/5">
+            <div className="bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460] rounded-2xl border border-white/10 w-full max-w-[1200px] mx-4 max-h-[85vh] overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between px-5 py-3 border-b border-white/10 bg-white/5">
                 <h3 className="text-sm font-bold text-white flex items-center gap-2">
                   {showPlayerPicker.action === 'gol' && <img src="/icons/soccer.svg" alt="" className={`h-4 w-4 ${soccerIconWhite}`} />}
                   {getActionLabel(showPlayerPicker.action)} - {showPlayerPicker.equipo === 'local' ? localNombre : visNombre}
                 </h3>
                 <button onClick={() => setShowPlayerPicker(null)} className="p-1 rounded hover:bg-white/10 text-white/60"><X className="h-4 w-4" /></button>
               </div>
-              <div className="overflow-y-auto max-h-[60vh] p-2 space-y-1 scrollbar-thin">
-                {(showPlayerPicker.equipo === 'local' ? jugadoresLocal : jugadoresVisita).length === 0 && (
+              <div className="overflow-y-auto max-h-[75vh] p-3 space-y-4 scrollbar-thin">
+                {(showPlayerPicker.equipo === 'local' ? jugadoresLocal : jugadoresVisita).length === 0 ? (
                   <div className="text-center py-8 text-sm text-white/40">Sin jugadores cargados</div>
+                ) : (
+                  (() => {
+                    const jugadores = showPlayerPicker.equipo === 'local' ? jugadoresLocal : jugadoresVisita;
+                    const grupos = ['Portero', 'Defensa', 'Mediocampista', 'Delantero', 'Otros'];
+                    return grupos.map(pos => {
+                      const filtrados = jugadores.filter((j: any) => {
+                        if (pos === 'Otros') return !['Portero', 'Defensa', 'Mediocampista', 'Delantero'].includes(j.posicion);
+                        return j.posicion === pos;
+                      });
+                      if (!filtrados.length) return null;
+                      return (
+                        <div key={pos}>
+                          <h4 className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-2">{pos} ({filtrados.length})</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1.5 mb-4">
+                            {filtrados.map((j: any) => (
+                              <button key={j.id} onClick={() => registrarEvento(j, showPlayerPicker.equipo, showPlayerPicker.action)} className="flex items-center gap-2.5 p-2.5 rounded-[var(--radius-sm)] hover:bg-white/5 transition-colors text-left border border-transparent hover:border-white/10">
+                                <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-xs font-bold text-white/40 overflow-hidden flex-shrink-0 border border-white/10">
+                                  {j.fotoBase64 ? <img src={j.fotoBase64} alt="" className="w-full h-full object-cover" /> : (j.numero || '?')}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium text-white truncate">{j.nombre} {j.apellido}</p>
+                                  <p className="text-[10px] text-white/40">#{j.numero || '--'} · {j.posicion}</p>
+                                </div>
+                                {showPlayerPicker.action === 'gol' && (
+                                  <div className="text-right flex-shrink-0 ml-auto">
+                                    <p className="text-xs text-white/40">Goles</p>
+                                    <p className="text-sm font-bold text-emerald-400">{j.estadisticasTemp?.goles || 0}</p>
+                                  </div>
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()
                 )}
-                {(showPlayerPicker.equipo === 'local' ? jugadoresLocal : jugadoresVisita).map((j) => (
-                  <button key={j.id} onClick={() => registrarEvento(j, showPlayerPicker.equipo, showPlayerPicker.action)} className="w-full flex items-center gap-3 p-2.5 rounded-[var(--radius-sm)] hover:bg-white/5 transition-colors text-left border border-transparent hover:border-white/10">
-                    <div className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-sm font-bold text-white/40 overflow-hidden flex-shrink-0 border border-white/10">
-                      {j.fotoBase64 ? <img src={j.fotoBase64} alt="" className="w-full h-full object-cover" /> : (j.numero || '?')}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-white truncate">{j.nombre} {j.apellido}</p>
-                      <p className="text-[10px] text-white/40">#{j.numero || '--'} · {j.posicion}</p>
-                    </div>
-                    {showPlayerPicker.action === 'gol' && (
-                      <div className="text-right flex-shrink-0">
-                        <p className="text-xs text-white/40">Goles</p>
-                        <p className="text-sm font-bold text-emerald-400">{j.estadisticasTemp?.goles || 0}</p>
-                      </div>
-                    )}
-                  </button>
-                ))}
               </div>
             </div>
           </div>
@@ -477,14 +495,17 @@ export function MarcadorForm() {
           </div>
         </div>
 
-        {/* Events Timeline */}
-        {activeMatch && eventos.length > 0 && (
+        {/* Events Timeline - always visible */}
+        {activeMatch && (
           <div className={cardCls}>
             <div className={cardHeaderCls}>
               <h3 className="text-xs font-semibold text-white/60 uppercase tracking-wider flex items-center gap-1.5"><img src="/icons/soccer.svg" alt="" className={`h-3.5 w-3.5 ${soccerIconWhite}`} /> Eventos</h3>
             </div>
             <div className="relative z-10 p-3 max-h-64 overflow-y-auto space-y-1 scrollbar-thin">
-              {[...eventos].reverse().map((e, i) => {
+              {eventos.length === 0 ? (
+                <p className="text-xs text-white/30 text-center py-4">Sin eventos</p>
+              ) : (
+                [...eventos].reverse().map((e, i) => {
                 const eqLogo = e.equipo === 'local' ? localLogo : visLogo;
                 const eqColor = e.equipo === 'local' ? localEquipo?.colorPrimario : visEquipo?.colorPrimario;
                 return (
@@ -498,7 +519,7 @@ export function MarcadorForm() {
                     <button onClick={() => anularEvento(e)} className="p-0.5 rounded opacity-0 group-hover:opacity-100 hover:bg-red-500/20 text-red-400 transition-all flex-shrink-0"><Trash2 className="h-3 w-3" /></button>
                   </div>
                 );
-              })}
+              }))}
             </div>
           </div>
         )}

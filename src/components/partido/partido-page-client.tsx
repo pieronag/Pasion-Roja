@@ -9,7 +9,7 @@ import { BadgeEnVivo } from '@/components/shared/badge-en-vivo';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Trophy, Clock, RefreshCw, Calendar, MapPin, Swords } from 'lucide-react';
 import { useWakeLock } from '@/hooks/use-wake-lock';
-import type { Partido } from '@/types/partido';
+import type { Partido, EventoPartido } from '@/types/partido';
 
 export function PartidoPageClient() {
   useWakeLock(true);
@@ -175,12 +175,30 @@ export function PartidoPageClient() {
         <div className="rounded-2xl border border-white/10 overflow-hidden bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460]">
           <div className="flex items-center gap-2 px-4 pt-4 pb-2 border-b border-white/10">
             <Swords className="h-4 w-4 text-[var(--accent)]" />
-            <h2 className="text-sm font-semibold text-white/60 uppercase tracking-wider">{isLive ? 'Acción del Partido' : 'Información del Partido'}</h2>
+            <h2 className="text-sm font-semibold text-white/60 uppercase tracking-wider">{isLive ? 'Eventos del Partido' : 'Informacion del Partido'}</h2>
           </div>
           <div className="p-4 text-center text-sm text-white/50">
-            {isLive ? <p>Eventos y comentarios durante la transmisión.</p> : proximoPartido ? (
-              <div className="space-y-1 text-xs"><p>⚽ Jornada {proximoPartido.jornada}</p><p>🏟️ {proximoPartido.estadio || 'Por definir'}</p></div>
-            ) : <p>No hay información disponible.</p>}
+            {isLive && partidoDb?.eventos && partidoDb.eventos.length > 0 ? (
+              <div className="space-y-1 max-h-48 overflow-y-auto scrollbar-thin text-left">
+                {[...partidoDb.eventos].reverse().map((e: EventoPartido, i: number) => {
+                  const eqLogo = e.equipo === 'local' ? localLogo : visLogo;
+                  return (
+                    <div key={e.id || i} className="flex items-center gap-2 p-2 rounded-lg bg-white/5 text-xs">
+                      <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
+                        {eqLogo ? <img src={eqLogo} alt="" className="w-4 h-4 object-contain logo-img" /> : <div className="w-4 h-4 rounded-full bg-white/10" />}
+                      </div>
+                      <img src="/icons/soccer.svg" alt="" className="h-3.5 w-3.5 brightness-0 invert flex-shrink-0" />
+                      <span className="font-bold text-white">{e.jugador}</span>
+                      <span className="text-white/40 ml-auto font-mono">{e.minuto}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : isLive ? (
+              <p>Sin eventos por el momento</p>
+            ) : proximoPartido ? (
+              <div className="space-y-1 text-xs"><p>Jornada {proximoPartido.jornada}</p><p> {proximoPartido.estadio || 'Por definir'}</p></div>
+            ) : <p>No hay informacion disponible.</p>}
           </div>
         </div>
       </section>

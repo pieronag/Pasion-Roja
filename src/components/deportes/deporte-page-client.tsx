@@ -318,17 +318,6 @@ export function DeportePageClient({ deporteId }: { deporteId: string }) {
                     )}
                   </div>
                 </div>
-
-                {/* Malleco Highlight */}
-                {equipoPrincipalId && (
-                  <div className="rounded-[var(--radius)] border border-yellow-500/30 bg-yellow-500/[0.08] p-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
-                      <span className="text-sm font-bold text-yellow-600">Club Principal</span>
-                    </div>
-                    <p className="text-xs text-yellow-700/70">{equiposMap[equipoPrincipalId]?.nombre} es el club principal de la plataforma</p>
-                  </div>
-                )}
               </div>
             </div>
           </>
