@@ -61,9 +61,10 @@ export function usePosiciones(deporteId: string) {
 
   useEffect(() => {
     const unsub1 = onSnapshot(
-      query(collection(db, 'partidos'), where('deporteId', '==', deporteId), where('estado', '==', 'finalizado')),
+      collection(db, 'partidos'),
       (snap) => {
-        setPartidos(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Partido)));
+        const all = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Partido));
+        setPartidos(all.filter((p) => p.deporteId === deporteId && p.estado === 'finalizado'));
         setLoading(false);
       }
     );

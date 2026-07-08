@@ -1,29 +1,33 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import { useState, useEffect, useMemo } from 'react';
+import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Jugador } from '@/types/jugador';
 
 export function useJugadores(equipoId?: string) {
-  const [jugadores, setJugadores] = useState<Jugador[]>([]);
+  const [allJugadores, setAllJugadores] = useState<Jugador[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const ref = collection(db, 'jugadores');
-    const q = equipoId
-      ? query(ref, where('activo', '==', true), orderBy('numero', 'asc'), where('equipoId', '==', equipoId))
-      : query(ref, where('activo', '==', true), orderBy('numero', 'asc'));
-    const unsub = onSnapshot(q, {
+    const unsub = onSnapshot(collection(db, 'jugadores'), {
       next: (snap) => {
-        setJugadores(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Jugador)));
+        setAllJugadores(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Jugador)));
         setLoading(false);
       },
       error: (err) => { console.error(err); setError('Error al cargar jugadores'); setLoading(false); },
     });
     return () => unsub();
-  }, [equipoId]);
+  }, []);
+
+  const jugadores = useMemo(() => {
+    let filtered = allJugadores.filter((j) => j.activo);
+    if (equipoId) {
+      filtered = filtered.filter((j) => j.equipoId === equipoId);
+    }
+    return filtered.sort((a, b) => (a.numero ?? 99) - (b.numero ?? 99));
+  }, [allJugadores, equipoId]);
 
   return { jugadores, loading, error };
 }

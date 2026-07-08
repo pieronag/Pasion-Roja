@@ -25,9 +25,12 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--bg)]/95 backdrop-blur-xl safe-top">
       <div className="flex items-center justify-between px-4 h-14 max-w-7xl mx-auto">
-        <Link href="/" className="flex items-center gap-2 font-display text-xl font-black tracking-tight">
-          <Zap className="h-6 w-6 text-[var(--accent)] fill-[var(--accent)]" />
-          <span className="text-[var(--text)]">PASIÓN <span className="text-[var(--accent)]">ROJA</span></span>
+        <Link href="/" className="flex items-center gap-2 font-display font-black tracking-tight">
+          <Zap className="h-5 w-5 text-[var(--accent)] fill-[var(--accent)]" />
+          <div className="flex flex-col leading-tight">
+            <span className="text-lg text-[var(--text)]">PASIÓN <span className="text-[var(--accent)]">ROJA</span></span>
+            <span className="text-[10px] font-normal text-[var(--text-muted)] leading-none">Pasi&oacute;n, pero de verdad.</span>
+          </div>
         </Link>
 
         <nav className="hidden md:flex items-center gap-1">

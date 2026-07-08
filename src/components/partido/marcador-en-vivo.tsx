@@ -125,7 +125,7 @@ export function MarcadorEnVivo() {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2 text-xs text-white/60">
                   <Calendar className="h-3.5 w-3.5 text-[var(--accent)]" />
-                  <span>{new Date(proximoPartido.fecha).toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}</span>
+                  <span>{new Date(proximoPartido.fecha).toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', hour12: false })}</span>
                 </div>
                 <span className="px-2.5 py-0.5 rounded-full bg-[var(--accent)]/20 text-[var(--accent)] text-[10px] font-bold border border-[var(--accent)]/30">
                   Jornada {proximoPartido.jornada}

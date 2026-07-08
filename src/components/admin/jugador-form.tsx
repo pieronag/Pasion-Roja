@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { collection, addDoc, updateDoc, doc, query, where, onSnapshot } from 'firebase/firestore';
+import { useState, useEffect, useMemo } from 'react';
+import { collection, addDoc, updateDoc, doc, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useDeportes } from '@/hooks/use-deportes';
 import { useEquiposMap } from '@/hooks/use-equipos-map';
@@ -42,12 +42,19 @@ export function JugadorForm({ jugador, equipoId: defaultEquipoId, onClose }: { j
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
+  const [allEquiposJugador, setAllEquiposJugador] = useState<Equipo[]>([]);
+
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, 'equipos'), (snap) => {
+      setAllEquiposJugador(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Equipo)));
+    });
+    return () => unsub();
+  }, []);
+
   useEffect(() => {
     if (!deporteId) { setEquipos([]); return; }
-    const q = query(collection(db, 'equipos'), where('deporteId', '==', deporteId), where('activo', '==', true));
-    const unsub = onSnapshot(q, (snap) => setEquipos(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Equipo))));
-    return () => unsub();
-  }, [deporteId]);
+    setEquipos(allEquiposJugador.filter((e) => e.deporteId === deporteId && e.activo));
+  }, [deporteId, allEquiposJugador]);
 
   const handleFoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

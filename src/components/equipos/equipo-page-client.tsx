@@ -186,7 +186,7 @@ export function EquipoPageClient({ equipoId }: { equipoId: string }) {
                     </div>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs text-white/40">{new Date(p.fecha).toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}</p>
+                    <p className="text-xs text-white/40">{new Date(p.fecha).toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', hour12: false })}</p>
                     <p className="text-sm font-semibold text-white mt-0.5">
                       <span className={p.equipoLocalId === equipo.id ? 'text-[var(--accent)] font-bold' : 'text-white'}>{p.equipoLocalNombre}</span>
                       <span className="text-white/30 mx-1.5">vs</span>

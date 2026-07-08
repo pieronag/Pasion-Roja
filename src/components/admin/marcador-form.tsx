@@ -540,7 +540,7 @@ export function MarcadorForm() {
                 {proxVis?.logoBase64 && <img src={proxVis.logoBase64} alt="" className="w-6 h-6 object-contain logo-img" />}
               </div>
               <p className="text-xs text-white/50 flex items-center justify-center gap-1"><MapPin className="h-3 w-3" /> {proximoPartido.estadio || 'Por definir'} · Jornada {proximoPartido.jornada}</p>
-              <p className="text-xs text-white/30 mt-1 text-center">{new Date(proximoPartido.fecha).toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}</p>
+              <p className="text-xs text-white/30 mt-1 text-center">{new Date(proximoPartido.fecha).toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', hour12: false })}</p>
             </div>
           </div>
         )}

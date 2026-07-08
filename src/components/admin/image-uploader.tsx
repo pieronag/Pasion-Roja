@@ -20,8 +20,8 @@ export function ImageUploader({ onImagesReady, className }: ImageUploaderProps) 
     try {
       const previewUrl = URL.createObjectURL(file);
       setPreview(previewUrl);
-      const mini = await compressImage(file, 200, 0.5);
-      const full = await compressImage(file, 800, 0.6);
+      const mini = await compressImage(file, 800, 0.95);
+      const full = await compressImage(file, 1200, 0.95);
       onImagesReady(mini, full);
     } catch {} finally { setLoading(false); }
   };

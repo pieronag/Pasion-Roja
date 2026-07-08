@@ -21,10 +21,10 @@ export function CardNoticia({ noticia }: { noticia: Noticia }) {
   return (
     <Link href={`/noticias/${noticia.id}`}>
       <article className="group rounded-xl border border-pizarra-claro bg-pizarra-claro/30 hover:bg-pizarra-claro/60 transition-all duration-300 overflow-hidden hover:border-rojo/30 hover:shadow-lg hover:shadow-rojo/5">
-        {noticia.miniBase64 && !imgError ? (
+        {(noticia.imgFullBase64 || noticia.miniBase64) && !imgError ? (
           <div className="aspect-[16/9] overflow-hidden bg-pizarra">
             <img
-              src={noticia.miniBase64}
+              src={noticia.imgFullBase64 || noticia.miniBase64}
               alt={noticia.titulo}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               loading="lazy"
@@ -40,7 +40,7 @@ export function CardNoticia({ noticia }: { noticia: Noticia }) {
         <div className="p-4 space-y-2">
           <div className="flex items-center gap-2">
             <Badge className={cn('text-[10px]', categoriaColores[noticia.categoria])}>
-              {noticia.categoria}
+              {noticia.categoria.toUpperCase()}
             </Badge>
             <span className="text-xs text-gray-600 flex items-center gap-1">
               <Calendar className="h-3 w-3" />
