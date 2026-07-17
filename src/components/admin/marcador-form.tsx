@@ -57,11 +57,13 @@ export function MarcadorForm() {
 
   useEffect(() => {
     if (!principalId) return;
-    const q = query(collection(db, 'partidos'), where('equipoLocalId', '==', principalId));
-    const unsub = onSnapshot(q, (snap) => {
+    const unsub = onSnapshot(collection(db, 'partidos'), (snap) => {
       const partidos = snap.docs.map(d => ({ id: d.id, ...d.data() } as Partido));
-      partidos.sort((a, b) => a.fecha - b.fecha);
-      const next = partidos.find(p => p.estado === 'programado');
+      const mallecoPartidos = partidos.filter(
+        p => p.equipoLocalId === principalId || p.equipoVisitaId === principalId
+      );
+      mallecoPartidos.sort((a, b) => a.fecha - b.fecha);
+      const next = mallecoPartidos.find(p => p.estado === 'programado');
       setProximoPartido(next || null);
     }, () => {});
     return () => unsub();
@@ -98,7 +100,7 @@ export function MarcadorForm() {
       const h = Math.floor((diff % 86400000) / 3600000);
       const m = Math.floor((diff % 3600000) / 60000);
       const s = Math.floor((diff % 60000) / 1000);
-      setCountdown(`${d}d ${h}h ${m}m ${s}s`);
+      setCountdown(`${d > 0 ? `${d}d ` : ''}${h}h ${m}m ${s}s`);
     };
     fn();
     const timer = setInterval(fn, 1000);
@@ -539,7 +541,7 @@ export function MarcadorForm() {
                 <span className="text-sm font-bold text-white">{proxVisNombre}</span>
                 {proxVis?.logoBase64 && <img src={proxVis.logoBase64} alt="" className="w-6 h-6 object-contain logo-img" />}
               </div>
-              <p className="text-xs text-white/50 flex items-center justify-center gap-1"><MapPin className="h-3 w-3" /> {proximoPartido.estadio || 'Por definir'} · Jornada {proximoPartido.jornada}</p>
+              <p className="text-xs text-white/50 flex items-center justify-center gap-1"><MapPin className="h-3 w-3" /> {proximoPartido.estadio || proxLocal?.estadio || 'Por definir'} · Jornada {proximoPartido.jornada}</p>
               <p className="text-xs text-white/30 mt-1 text-center">{new Date(proximoPartido.fecha).toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', hour12: false })}</p>
             </div>
           </div>

@@ -24,11 +24,10 @@ export function Footer() {
         <div>
           <h4 className="text-sm font-semibold text-[var(--text)] mb-3">Secciones</h4>
           <div className="flex flex-col gap-2 text-sm text-[var(--text-secondary)]">
-            <Link href="/deportes" className="hover:text-[var(--accent)]">Deportes</Link>
             <Link href="/noticias" className="hover:text-[var(--accent)]">Noticias</Link>
             <Link href="/radio" className="hover:text-[var(--accent)]">Radio Online</Link>
             <Link href="/tv" className="hover:text-[var(--accent)]">TV Online</Link>
-            <Link href="/sponsors" className="hover:text-[var(--accent)]">Sponsors</Link>
+            <Link href="/contacto" className="hover:text-[var(--accent)]">Contacto</Link>
           </div>
         </div>
         <div>

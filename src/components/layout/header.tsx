@@ -4,14 +4,13 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { BadgeEnVivo } from '@/components/shared/badge-en-vivo';
-import { Zap, Menu, Home, Swords, Trophy, Newspaper, Radio, Tv } from 'lucide-react';
+import { Zap, Menu, Home, Swords, Newspaper, Radio, Tv } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 const navLinks = [
   { href: '/', label: 'Inicio', icon: Home },
   { href: '/partido', label: 'Partido', icon: Swords },
-  { href: '/deportes', label: 'Deportes', icon: Trophy },
   { href: '/noticias', label: 'Noticias', icon: Newspaper },
   { href: '/radio', label: 'Radio', icon: Radio },
   { href: '/tv', label: 'TV', icon: Tv },

@@ -5,7 +5,7 @@ import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestor
 import { db } from '@/lib/firebase';
 import type { Partido } from '@/types/partido';
 
-export function usePartidos(opts?: { deporteId?: string; estado?: string; max?: number }) {
+export function usePartidos(opts?: { estado?: string; max?: number }) {
   const [allPartidos, setAllPartidos] = useState<Partido[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,9 +25,6 @@ export function usePartidos(opts?: { deporteId?: string; estado?: string; max?: 
 
   const partidos = useMemo(() => {
     let filtered = allPartidos;
-    if (opts?.deporteId) {
-      filtered = filtered.filter((p) => p.deporteId === opts.deporteId);
-    }
     if (opts?.estado) {
       filtered = filtered.filter((p) => p.estado === opts.estado);
     }
@@ -36,7 +33,7 @@ export function usePartidos(opts?: { deporteId?: string; estado?: string; max?: 
       filtered = filtered.slice(0, opts.max);
     }
     return filtered;
-  }, [allPartidos, opts?.deporteId, opts?.estado, opts?.max]);
+  }, [allPartidos, opts?.estado, opts?.max]);
 
   return { partidos, loading, error };
 }

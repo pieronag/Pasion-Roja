@@ -6,9 +6,9 @@ import { cn } from '@/lib/utils';
 import { TopBar } from '@/components/admin/top-bar';
 import { Breadcrumbs } from '@/components/admin/breadcrumbs';
 import {
-  LayoutDashboard, Newspaper, Image, Tv,
+  LayoutDashboard, Newspaper, Tv,
   Trophy, Shield, Users, Swords, TrendingUp,
-  HeartHandshake, MessageCircle, History, LogOut, Zap,
+  LogOut, Zap,
   CalendarDays, PanelLeftClose, PanelLeft, Radio,
   Layers, Medal,
 } from 'lucide-react';
@@ -33,17 +33,13 @@ const navSections: { label: string; items: NavItem[] }[] = [
   { label: 'Competición', items: [
     { href: '/admin/partidos', label: 'Partidos', icon: Swords },
     { href: '/admin/posiciones', label: 'Posiciones', icon: Medal },
-    { href: '/admin/estadisticas', label: 'Estadísticas', icon: TrendingUp },
+    { href: '/admin/goleadores', label: 'Goleadores', icon: TrendingUp },
     { href: '/admin/marcador', label: 'Marcador Live', icon: Tv },
   ]},
   { label: 'Media', items: [
     { href: '/admin/transmision', label: 'Transmisión', icon: Radio },
   ]},
-  { label: 'Gestión', items: [
-    { href: '/admin/sponsors', label: 'Sponsors', icon: HeartHandshake },
-    { href: '/admin/contacto', label: 'Contacto', icon: MessageCircle },
-    { href: '/admin/historial', label: 'Historial', icon: History },
-  ]},
+
 ];
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {

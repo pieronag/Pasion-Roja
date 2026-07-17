@@ -1,14 +1,15 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Partido } from '@/types/partido';
-import type { Deporte } from '@/types/deporte';
 import type { EquipoPosicion } from '@/types/estadistica';
 import { useEquiposMap } from './use-equipos-map';
 
-function calcularTabla(partidos: Partido[], sistema: { victoria: number; empate: number; derrota: number }, equiposMap: Record<string, any>): EquipoPosicion[] {
+const SISTEMA_FUTBOL = { victoria: 3, empate: 1, derrota: 0 };
+
+function calcularTabla(partidos: Partido[], equiposMap: Record<string, any>): EquipoPosicion[] {
   const map = new Map<string, EquipoPosicion>();
 
   partidos.forEach((p) => {
@@ -34,16 +35,16 @@ function calcularTabla(partidos: Partido[], sistema: { victoria: number; empate:
     local.gf += p.marcadorLocal; local.gc += p.marcadorVisita;
     visita.gf += p.marcadorVisita; visita.gc += p.marcadorLocal;
     if (p.marcadorLocal > p.marcadorVisita) {
-      local.pg++; local.pts += sistema.victoria;
+      local.pg++; local.pts += SISTEMA_FUTBOL.victoria;
       visita.pp++;
       local.ultimos5.push('G'); visita.ultimos5.push('P');
     } else if (p.marcadorLocal < p.marcadorVisita) {
-      visita.pg++; visita.pts += sistema.victoria;
+      visita.pg++; visita.pts += SISTEMA_FUTBOL.victoria;
       local.pp++;
       local.ultimos5.push('P'); visita.ultimos5.push('G');
     } else {
       local.pe++; visita.pe++;
-      local.pts += sistema.empate; visita.pts += sistema.empate;
+      local.pts += SISTEMA_FUTBOL.empate; visita.pts += SISTEMA_FUTBOL.empate;
       local.ultimos5.push('E'); visita.ultimos5.push('E');
     }
     local.dg = local.gf - local.gc;
@@ -53,59 +54,38 @@ function calcularTabla(partidos: Partido[], sistema: { victoria: number; empate:
   return Array.from(map.values()).sort((a, b) => b.pts - a.pts || b.dg - a.dg || b.gf - a.gf);
 }
 
-export function usePosiciones(deporteId: string) {
+export function usePosiciones() {
   const { equiposMap } = useEquiposMap();
   const [partidos, setPartidos] = useState<Partido[]>([]);
-  const [deporte, setDeporte] = useState<Deporte | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsub1 = onSnapshot(
+    const unsub = onSnapshot(
       collection(db, 'partidos'),
       (snap) => {
         const all = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Partido));
-        setPartidos(all.filter((p) => p.deporteId === deporteId && p.estado === 'finalizado'));
+        setPartidos(all.filter((p) => p.estado === 'finalizado'));
         setLoading(false);
       }
     );
-    const unsub2 = onSnapshot(
-      query(collection(db, 'deportes')),
-      (snap) => {
-        const d = snap.docs.find((d) => d.id === deporteId);
-        if (d) setDeporte({ id: d.id, ...d.data() } as Deporte);
-      }
-    );
-    return () => { unsub1(); unsub2(); };
-  }, [deporteId]);
+    return () => unsub();
+  }, []);
 
   const tabla = useMemo(() => {
     if (!partidos.length) return [];
-    const sistema = deporte?.sistemaPuntos || { victoria: 3, empate: 1, derrota: 0 };
-
-    // Get unique jornadas sorted descending
     const jornadas = [...new Set(partidos.map(p => p.jornada))].sort((a, b) => b - a);
-
-    // Current table: all matches
-    const tablaActual = calcularTabla(partidos, sistema, equiposMap).map((e, i) => ({ ...e, posicion: i + 1 }));
-
-    // Previous table: matches from all jornadas except the latest one
+    const tablaActual = calcularTabla(partidos, equiposMap).map((e, i) => ({ ...e, posicion: i + 1 }));
     let tablaAnterior: EquipoPosicion[] = [];
     if (jornadas.length > 1) {
       const partidosAnteriores = partidos.filter(p => p.jornada < jornadas[0]);
       if (partidosAnteriores.length > 0) {
-        tablaAnterior = calcularTabla(partidosAnteriores, sistema, equiposMap).map((e, i) => ({ ...e, posicion: i + 1 }));
+        tablaAnterior = calcularTabla(partidosAnteriores, equiposMap).map((e, i) => ({ ...e, posicion: i + 1 }));
       }
     }
-
-    // Map previous positions
     const posAnteriorMap = new Map<string, number>();
     tablaAnterior.forEach(e => posAnteriorMap.set(e.equipoId, e.posicion));
-
-    return tablaActual.map(e => ({
-      ...e,
-      posicionAnterior: posAnteriorMap.get(e.equipoId) ?? null,
-    }));
-  }, [partidos, deporte, equiposMap]);
+    return tablaActual.map(e => ({ ...e, posicionAnterior: posAnteriorMap.get(e.equipoId) ?? null }));
+  }, [partidos, equiposMap]);
 
   return { tabla, loading };
 }

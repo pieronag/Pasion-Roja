@@ -9,9 +9,9 @@ import { useScrollDirection } from '@/hooks/use-scroll-direction';
 const tabs = [
   { href: '/', label: 'Inicio', icon: Home },
   { href: '/partido', label: 'Partido', icon: Swords },
-  { href: '/deportes', label: 'Deportes', icon: Tv },
   { href: '/noticias', label: 'Noticias', icon: Newspaper },
   { href: '/radio', label: 'Radio', icon: Radio },
+  { href: '/tv', label: 'TV', icon: Tv },
 ];
 
 export function BottomNav() {

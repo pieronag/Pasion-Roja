@@ -45,18 +45,16 @@ export function MarcadorEnVivo() {
     return () => unsub();
   }, []);
 
-  // Load next Malleco match - query only their matches as local team
+  // Load next Malleco match
   useEffect(() => {
     if (!principalId) return;
-    const q = query(
-      collection(db, 'partidos'),
-      where('equipoLocalId', '==', principalId)
-    );
-    const unsub = onSnapshot(q, (snap) => {
+    const unsub = onSnapshot(collection(db, 'partidos'), (snap) => {
       const partidos = snap.docs.map(d => ({ id: d.id, ...d.data() } as Partido));
-      // Sort by fecha descending locally, find the next programado
-      partidos.sort((a, b) => a.fecha - b.fecha);
-      const next = partidos.find(p => p.estado === 'programado');
+      const mallecoPartidos = partidos.filter(
+        p => p.equipoLocalId === principalId || p.equipoVisitaId === principalId
+      );
+      mallecoPartidos.sort((a, b) => a.fecha - b.fecha);
+      const next = mallecoPartidos.find(p => p.estado === 'programado');
       setProximoPartido(next || null);
     }, (err) => console.warn('Error loading next match:', err));
     return () => unsub();
@@ -72,7 +70,7 @@ export function MarcadorEnVivo() {
       const h = Math.floor((diff % 86400000) / 3600000);
       const m = Math.floor((diff % 3600000) / 60000);
       const s = Math.floor((diff % 60000) / 1000);
-      setCountdown(`${d}d ${h}h ${m}m ${s}s`);
+      setCountdown(`${d > 0 ? `${d}d ` : ''}${h}h ${m}m ${s}s`);
     };
     fn();
     const timer = setInterval(fn, 1000);
